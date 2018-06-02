@@ -1,0 +1,29 @@
+
+
+
+
+
+
+h3	link
+
+	<b>link</b> <filename> = <text>
+
+p
+	Create a new or overwrite an existing symbolic link at file system location <filename>. Filename must be a text value. The path may be full or partial and may start with '~' for the user's home directory.
+p
+	The link is set to point to filesystem location <text>, whatever this may be.
+p
+	This instruction may fail for a number of reasons and exit with an error. e.g.:
+ul
+li	A component of the path (except the last) is no directory or symbolic link to a directory
+li	The item at the desired position exists but is no symbolic link
+li	You have no write permission at the desired location
+
+
+
+shell
+	li> link "home" = fullpath "~"
+	li> <>
+
+
+

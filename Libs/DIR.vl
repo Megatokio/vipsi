@@ -1,0 +1,42 @@
+
+
+
+var DIR.ExcludePatterns = { ".*" }
+
+/*	recursively walk directory tree
+	Pattern may be an absolute or relative path,
+		optionally containing a pattern in the last path component
+	Proc(Pattern) is is called for each matched link, file or dir
+	While FollowSymlink is >= 1, symlinks to directories are followed
+	Items in directories which match patterns in DIR.ExcludePatterns are skipped
+*/
+var DIR.DoRecursive = proc ( Pattern, Proc, FollowSymlink )
+{
+	if isfile Pattern Proc(Pattern) return then			// file or link to file
+	if isdir  Pattern && rightstr(Pattern,1)!="/" Pattern #= "/" then
+	if islink Pattern
+		if FollowSymlink<=0 Proc(Pattern) return then	// don't follow symlink
+		if !isdir Pattern   Proc(Pattern) return then	// symlink broken
+	then
+
+	var Path = Pattern[to rfind(Pattern,"/")]
+	Proc(Path)
+
+	var d = dir Pattern
+	var i = 0
+	do
+		while ++i <= count d
+
+		var Name = d[i].fname
+		var j = 0
+		do
+			while ++j <= count ExcludePatterns
+			until match(Name,ExcludePatterns[j]    )
+			until match(Name,ExcludePatterns[j]#"/")
+		loop
+		if j <= count ExcludePatterns next then
+
+		DoRecursive(Path#Name,Proc,FollowSymlink-1)
+	loop
+}
+

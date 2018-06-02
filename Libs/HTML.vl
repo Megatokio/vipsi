@@ -1,0 +1,330 @@
+
+/*
+	authoritative file:		/pub/Develop/projects/vipsi/libs/HTML.vl
+
+	2008-01-24	added HTML.LOG(*)	for error logging: uses globals.LOG(*) if exists
+	2008-01-30	added <font>…</font> to list of known tags
+	2008-04-13	added variable for "identify" path
+	2013-03-15	added <select> and <option>
+*/
+
+
+
+var HTML.identify_exe = "/opt/local/bin/identify"			// 2008-04-13
+
+
+
+/* ---- add <tag> around text --------------------------------------
+		optionally with attributes
+
+		text = entagged( tag,        text  )
+		text = entagged( tag,  attr, text  )
+		text = entagged( tag, {      text} )
+		text = entagged( tag, {attr, text} )
+*/
+proc entagged ( tag,a,* )
+{
+    if islist(a)
+		if count(a)==1		return ("<" #tag#            ">") # a[1] # ("</" #tag# ">")
+		else				return ("<" #tag# " " #a[1]# ">") # a[2] # ("</" #tag# ">")
+		then
+	else
+		if count(locals)==2	return ("<" #tag#                 ">") # locals[2] # ("</" #tag# ">")
+		else				return ("<" #tag# " " #locals[2]# ">") # locals[3] # ("</" #tag# ">")
+		then
+    then
+}
+
+
+
+/* ----	add <table> around text ---------------------------
+		optionally with attributes
+
+		text = TABLE(       text  )
+		text = TABLE( attr, text  )
+
+		similar for TR, TD, P, PRE, etc.
+*/
+proc HTML.HEAD  ( a,* )	{ return entagged( "head",  locals ) }
+proc HTML.BODY  ( a,* )	{ return entagged( "body",  locals ) }
+proc HTML.TABLE ( a,* )	{ return entagged( "table", locals ) }
+proc HTML.TR    ( a,* )	{ return entagged( "tr",    locals ) }
+proc HTML.TD    ( a,* )	{ return entagged( "td",    locals ) }
+proc HTML.TH    ( a,* )	{ return entagged( "th",    locals ) }
+proc HTML.P     ( a,* )	{ return entagged( "p",     locals ) }
+proc HTML.PRE   ( a,* )	{ return entagged( "pre",   locals ) }
+proc HTML.DIV   ( a,* )	{ return entagged( "div",   locals ) }
+proc HTML.OL    ( a,* )	{ return entagged( "ol",    locals ) }
+proc HTML.UL    ( a,* )	{ return entagged( "ul",    locals ) }
+proc HTML.LI    ( a,* )	{ return entagged( "li",    locals ) }
+proc HTML.LH    ( a,* )	{ return entagged( "lh",    locals ) }
+proc HTML.H1    ( a,* )	{ return entagged( "h1",    locals ) }
+proc HTML.H2    ( a,* )	{ return entagged( "h2",    locals ) }
+proc HTML.H3    ( a,* )	{ return entagged( "h3",    locals ) }
+proc HTML.H4    ( a,* )	{ return entagged( "h4",    locals ) }
+proc HTML.H5    ( a,* )	{ return entagged( "h5",    locals ) }
+proc HTML.H6    ( a,* )	{ return entagged( "h6",    locals ) }
+proc HTML.SPAN  ( a,* )	{ return entagged( "span",  locals ) }
+proc HTML.B	    ( a,* )	{ return entagged( "b",     locals ) }
+proc HTML.I	    ( a,* )	{ return entagged( "i",     locals ) }
+proc HTML.U	    ( a,* )	{ return entagged( "u",     locals ) }
+proc HTML.S	    ( a,* )	{ return entagged( "s",     locals ) }
+proc HTML.LABEL	( a,* )	{ return entagged( "label", locals ) }
+
+proc HTML.HR    ( * )	{ return count(locals) ? "<hr "#locals[1]#">" : "<hr>" }
+
+proc HTML.ANKER ( idf )	{ return «<a name="» #idf# «"></a>» }
+
+
+/* ---- entag link --------------------------------------
+*/
+proc HTML.LINK ( url, label, * )		//  [attr,] url, label
+{
+	if count(locals) == 2
+		return «<a href="» #url# «">» #label# "</a>"
+	else
+		return "<a " #locals[1]# « href="» #locals[2]# «">» #locals[3]# "</a>"
+	then
+}
+
+
+
+
+
+/* ---- urlencode urls -----------------
+		intelligent encoding
+		preserves delimiters for: protocol, user, password, host/path, fragment and query
+		e.g.					  http://kio:mypasswd@10.0.0.1/tools.cgi?action=reset&wait=0"
+*/
+proc HTML.UrlEncode ( path )
+{
+	var i,j,k,l, proto="",user="",query=""
+
+    i = find(path,":")
+	j = lowerstr(path[to i])
+	if j=="http:" || j=="https:" || j=="ftp:" || j=="mailto:" || j=="javascript:" || j=="bitcoin:" || j=="litecoin:"
+		proto = j
+        path  = path[i+1 to]
+    then
+
+    i = find(path#":",":")
+    j = find(path#"@","@")
+    k = find(path#"?","?")
+    l = find(path#"#","#")
+
+	if j && proto=="" && !( i||k||l||find(path,"/") )
+		proto = "mailto:"
+	then
+
+	if j<k&&j<l					// "@" exists?
+    	if i<j					// ":" exists?
+        	user = convert(path[to i-1] to url)     # ":" #
+            	   convert(path[i+1 to j-1] to url) # "@"
+        else
+        	user = convert(path[to j-1] to url)     # "@"
+        then
+        k-=j
+        l-=j
+        path=path[j+1 to]
+    then
+
+    if l<k						// "#" exists?
+    	query = "#" # convert(path[l+1 to] to url)	// fragment
+        path  = path[to l-1]
+	then
+
+	if k<l						// "?" exists?
+    	query = path[k+1 to]
+        path  = path[to k-1]
+        var z = query
+        split z,"&"
+        split z,"="
+        convert z to url
+        i = 0
+        query = ""
+        do
+        	while ++i <= count z
+			if   count z[i]==2 	query #= "&" # z[i,1] # "=" # z[i,2]	// proper
+            elif count z[i]==1	query #= "&" # z[i,1]					// unnamed ?!?
+            else 														// really bogus
+				LOG( "HTML.UrlEncode(): path broken",convert(path to quoted) )
+            then
+        loop
+        query = "?" # query[2 to]
+	then
+
+    convert path to url
+	return proto # user # path # query
+}
+
+
+
+
+/* ----	konvertiere Text nach Html ---------------
+		preserve tags (from HTML.TagsHtml)
+		intelligent HTML.UrlEncode(urls)
+		img: tries to identify image and adds 'width', 'height' and 'alt' properties
+		TODO: preserve <script type="text/javascript> ... </script>"
+*/
+var HTML.TagsStart  = " u i b s a tt a table tr td th map p span div script form ul ol li center font noscript select option label " 	# "area "
+var HTML.TagsEnd    = " /u /i /b /s /a /tt /a /table /tr /td /th /map /p /span /div /script /form /ul /ol /li /center /font /noscript /select /option /label "
+var HTML.TagsSingle = " br hr img input "
+var HTML.TagsUrl	= " http https ftp mailto "		// --> replace <url> with <a href="url">url</a>
+
+var HTML.TagsNoEnd	= HTML.TagsStart # HTML.TagsSingle[2 to]		// start + single
+var HTML.TagsHtml	= HTML.TagsNoEnd # HTML.TagsEnd[2 to]		// start + single + end
+var HTML.TagsAny	= HTML.TagsHtml	 # HTML.TagsUrl[2 to]		// start + single + end + url
+
+
+proc HTML.GetTagnameFromTag(tag)	// --> "pre" oder "/a" etc.
+{
+	if count(tag)>160 || leftstr(tag,1)!="<" || rightstr(tag,1)!=">" return "" then
+	tag = lowerstr(tag)
+	var j = 1 + (tag[2]=="/")
+	do while tag[++j]>="a" loop
+	return tag[2 to j-1]			// id  :=  "a" or "/a" or "pre" etc.
+}
+
+proc HTML.IsHtmlTag(tag)
+{
+	if count(tag)>160 || leftstr(tag,1)!="<" || rightstr(tag,1)!=">" return 0 then
+	tag = lowerstr(tag)
+	var j = 1 + (tag[2]=="/")
+	do while tag[++j]>="a" loop
+	return find( TagsHtml, " "#tag[2 to j-1]#" " ) != 0
+}
+
+proc HTML.IsAnyTag(tag)
+{
+	if count(tag)>160 || leftstr(tag,1)!="<" || rightstr(tag,1)!=">" return 0 then
+	tag = lowerstr(tag)
+	var j = 1 + (tag[2]=="/")
+	do while tag[++j]>="a" loop
+	return find( TagsAny, " "#tag[2 to j-1]#" " ) != 0
+}
+
+
+if HTML.IsAnyTag("") log " MIST! " end 1 then
+
+
+proc HTML.Convert2Html( text )
+{
+	var i,j,result = ""
+
+	do
+		i =  find(text,"&"  )	while i
+		j =  find(text,";",i) 	while j
+		i = rfind(text,"&",j)
+
+		if (j-i>=3 && j-i<=5) && find("&nbsp;&quot;&amp;&lt;&gt;",lowerstr(text[i to j]))
+			result #= convert(text[to i-1] to html) # text[i to j]
+		else
+			result #= convert(text[to j] to html)
+		then
+		text = text[j+1 to]
+	loop
+
+	return result # convert(text to html)
+}
+
+proc HTML.ConvertToHtml ( text )
+{
+	var z = ""		// collector for converted text
+	var i,j
+
+	do
+		i = find(text,"<")   while i
+		j = find(text,">",i) while j
+		i = rfind(text,"<",j)
+
+		z #= Convert2Html( text[to i-1] )
+		text = text[i to]
+		j -= i-1
+
+		var uctag = text[to j]	//  "<all the stuff>"
+		text = text[j+1 to]
+
+		var tag = HTML.GetTagnameFromTag(uctag)
+
+		if !find( HTML.TagsAny, " "#tag#" " )
+			z #= Convert2Html( uctag )
+			next
+		then
+
+		//if exists verbose && verbose put uctag," " then			// zur info!
+		var lctag = lowerstr(uctag)
+
+		if tag=="a" || tag=="img" || tag=="area"
+			i = find( lctag, tag=="a"?"href":"src" )
+			i = min( find(lctag#"\"","\"",i), find(lctag#"'","'" ,i) )
+			j = find(lctag,lctag[i],i+1)
+			if j
+				var url = uctag[i+1 to j-1]
+				uctag = uctag[to i] # HTML.UrlEncode(url) # uctag[j to]
+				if tag=="img"
+					if !find(lctag,"width") && !find(lctag,"height")
+						try
+						{
+							var t = sys( identify_exe, url[1]=="/"?BaseDir#url[2 to]:TargetDir#url )
+							var i = find(t," GIF ") i=i?i:find(t,"JPEG ") i=i?i:find(t," PNG ")
+							if i
+								var w = i+5
+								var x = find(t,"x",w)
+								var h = min( find(t," ",x), find(t#"+","+",x), find(t#"-","-",x) )
+								w = t[w to x-1]
+								h = t[x+1 to h-1]
+								uctag = uctag[to count uctag-1] # " width=" # w # " height=" # h # ">"
+							else
+								LOG("HTML.ConvertToHtml","Unknown image format",t)
+							then
+						}
+						else
+							LOG( "HTML.ConvertToHtml", url, errorstr )
+						then
+					then
+					if !find(lctag,"alt")
+						uctag = uctag[to count uctag-1] # « alt="»
+							  # Convert2Html(url[rfind(url,"/")+1 to]) # «">»
+					then
+				then
+			else
+				LOG( "HTML.ConvertToHtml", "tag <"#tag#"> broken!" )
+			then
+		elif find( HTML.TagsUrl, " "#tag#" " )
+		// tag   = "http"
+		// uctag = "<http://www.worldofspectrum.org/faq/>"
+			uctag = uctag[2 to count uctag-1]
+			var txt = uctag
+			//if txt[count txt]=="/" txt = txt[to count txt-1] then
+			if lowerstr(txt[to 5])=="http:" txt=txt[6 to] then
+			if txt[to 2]=="//" txt=txt[3 to] then
+
+			uctag = LINK( HTML.UrlEncode(uctag), Convert2Html(txt) )
+		then
+		z #= uctag
+	loop
+
+	return z # Convert2Html(text)
+}
+
+
+/*	Error logging
+	2008-01-24
+*/
+proc HTML.LOG ( * )
+{
+	try
+		globals.LOG ( locals )
+	else
+		do
+			while count locals>1
+			log locals[1], ": "
+			del locals[1]
+		loop
+		log locals[1], nl
+	then
+}
+
+
+
+end 0

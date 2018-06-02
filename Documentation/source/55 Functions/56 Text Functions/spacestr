@@ -1,0 +1,19 @@
+
+
+
+h3	spacestr
+
+pre
+	<text> = <b>spacestr</b> ( <number> )
+	<text> = <b>spacestr</b> ( <number>, <pattern> )
+p
+	Return a text filled with <number> spaces.
+p
+	<tt>spacestr</tt> optionally accepts a fill pattern, which must be a text value. If this pattern is longer than 1 character, then the resulting text will be <number> * count(<pattern>) characters long. If the fill pattern is an empty text, then the result is an empty text too.
+p
+	e.g.:
+pre
+	var spc=spacestr(77);
+	var foo=spacestr(123,""); put count(foo);
+	put spacestr(100,"hello!");
+

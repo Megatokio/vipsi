@@ -1,0 +1,68 @@
+
+
+h3	min
+
+pre
+	<number> = <b>min</b> ( <number> [, <number>, …] )
+	<text>   = <b>min</b> ( <text> [, <text>, …] )
+	<number> = <b>min</b> ( <list> /*of numbers*/ )
+	<text>	 = <b>min</b> ( <list> /*of texts*/ )
+
+p
+	Return value of smallest argument.
+p
+	Return the smallest	of the supplied	values. At least one value must be supplied and there is no upper limit on the number of arguments.
+p
+	If variables are passed to <tt>min</tt> then the result may be a variable reference. This might be useful for displaying the name or the like.
+p
+	If a list is passed as single argument, then a reference to the smallest list item is returned. If it was a list value and no list variable, then <tt>min</tt> does a trick to preserve the item name, in case you are interested in it.
+p
+	Compared values must be of the same type. Comparing different data types or supplying a list which contains items of different data type will generate an error.
+p
+	If two values are equal, the first one is returned.
+p
+	e.g.:
+pre
+	a =	min(a,99)
+	put	min( {1,6,3,4} )
+	min(a,b,c) = 0
+	put	name( min(a,b) )
+	if min(my_list) != my_list[1]
+		put	"the list seems	to be not sorted"
+	then
+	put	min("Anton", "Berta", "Cicero")
+
+
+
+h3	max
+
+pre
+	<number> = <b>max</b> ( <number> [, <number>, …] )
+	<text>   = <b>max</b> ( <text> [, <text>, …] )
+	<number> = <b>max</b> ( <list> /*of numbers*/ )
+	<text>	 = <b>max</b> ( <list> /*of texts*/ )
+
+p
+	Return value of biggest argument.
+p
+	Return the biggest	of the supplied	values. At least one value must be supplied and there is no upper limit on the number of arguments.
+p
+	If variables are passed to <tt>max</tt> then the result may be a variable reference. This might be useful for displaying the name or the like.
+p
+	If a list is passed as single argument, then a reference to the smallest list item is returned. If it was a list value and no list variable, then <tt>max</tt> does a trick to preserve the item name, in case you are interested in it.
+p
+	Compared values must be of the same type. Comparing different data types or supplying a list which contains items of different data type will generate an error.
+p
+	If two values are equal, the first one is returned.
+p
+	e.g.:
+pre
+	put	max( {1,6,3,4} )
+	max(a,b,c) = 0
+	put	name( max(a,b) )
+	if max(my_list)!=my_list[count my_list]
+		put	"the list seems	to be not sorted"
+	then
+	put	max("Anton", "Berta", "Cicero")
+
+

@@ -1,0 +1,22 @@
+
+h3	charcode
+
+pre
+	<number> = <b>charcode</b> <text>
+
+p
+	Querry the unicode character code of a character.
+p
+	Returns a numeric value.
+p
+	Converts the first character of <text> to the numeric unicode character code. If the text is an empty text, then the result is 0.
+
++ ../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> charcode "€"  o> = 8364
+	i> charcode "A"  o> = 65
+	i> <>
+

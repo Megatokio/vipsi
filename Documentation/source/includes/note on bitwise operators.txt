@@ -1,0 +1,12 @@
+
+
+p	<b>Note:</b> Bitwise operators work on 64 bit integers. If you need less, you must mask the result.
+
+p	Depending on the floating point format selected when compiling vipsi, the precision may be less than 64 bit. 53 bit is common for 8-byte-floats. 
+
+p	Negative numbers are taken by their -1 complement, which is common for integer numbers.
+
+p	If both arguments of a bitwise operation are positive, then the result is positive too in all cases.
+	If one or both are negative, this depends on the operator, though it's quite simple: If the result is negative in an infinite-wide integer, the result of the operator is negative; e.g. <b><i>+a^-a</i></b> is negative.
+	
+

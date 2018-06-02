@@ -1,0 +1,260 @@
+
+h1	Developer Documentation
+
+h4	The Beauty Within
+
+p.b	Hi!
+p
+   I'm a visual guy with bad eyes and broken memory. sometimes it really helps me if i follow the following design guides, and therefore i ask you that you try to follow them too to exactly that extent which does not disturb you ;-)
+
+ul
+li
+	In case you use non-7-bit-ascii characters: please use - if possible - utf-8 encoding.
+	In case you don't use a utf-8 compliant text editor: please don't "correct" the funny characters...
+li
+	All sources are formatted with 4 characters per tab.
+li
+	Please indent loops, procedure bodies et.al.
+	matching brackets should be either in the same row or column.
+	i know that some people like it "more compact".
+li
+	Use, as appropriate, the predefined data types.
+li
+	Function names should start with an uppercase letter, except if they are very low-level procedures which are only used locally.
+li
+	Variable and constant names should start with a lowercase letter.
+li
+	Macros should be all uppercase.
+li
+	start each function definition with a comment which tells, what this function does, what it expects as input, what it supplies as output, which side effects it may imply, what it does when an error happens. ok, i'm sometimes pretty lazy here too, especially when i'm working on it or modifying it. and afterwards i'm too tired...
+li	keep it easy. don't be kewl. you'll regret it in a year or two.
+
+
+
+h4	Class Var
+p
+	The class Var is part of the <a href="http://sourceforge.net/projects/lib-kio">project lib-kio</a>!
+p
+	this class implements all the variables used in vipsi scripts.
+p
+	Currently it supports numbers (double float), text (class String), proc (procedure bodies: class String) and lists. it has a full set of operators which work on nearly all data types. most notably they also work on lists; e.g. you can multiply all list items by a number value or a matching second list to do vector operations.
+
+
+h4	Class String
+p
+	The class Var is part of the <a href="http://sourceforge.net/projects/lib-kio">project lib-kio</a>!
+p
+	This class is used by class Var for all text variables, proc variables (procedure bodies) and variable names. it is also used in various libraries for passing text, since this is the natural format for text representation in vipsi, because text read from variables has this format and requires to have this format whenever stored back in variables.
+
+
+
+
+h3	Predefined Data Types
+
+p
+	File <i>kio/standard_types.h</i> defines a lot of basic data types to shorten the source. there is no real need to use them, but it would be nice. this is not a complete list, just the most commonly used:
+pre
+	uchar		unsigned char		unsigned character
+	ushort		unsigned short		unsigned short integer
+	ulong		unsigned long		unsigned long integer
+	uint		unsigned int		unsigned integer
+
+	str			char *				indicates a 0-terminated c-string
+	cstr		char const *		0-terminated c-string constant
+	ptr			char *				pointer to just a char
+	cptr		char const *		pointer to a constant char
+	uptr		uchar *				pointer to just an unsigned char or
+										length-prefixed pascal-style string
+	cuptr		uchar const *		pointer to unsigned constant characters
+
+	OSErr		short or int		(operating system) error code
+p
+	You probably recognize how a prefixed <i>u</i> stands for <i>unsigned</i> and <i>c</i> stands for <i>constant</i>.
+p
+	Project specific and project-independent general-use classes are as follows:
+
+pre
+	String		class String		text or binary data
+	cString		const class String	constant text or binary data
+
+	Var			class String		text or binary data
+	cVar		const class String	constant text or binary data
+p
+	The utf-8 character set handling module <i>utf-8.h</i> defines a lot of own data types:
+
+pre
+	UCS4Char			unsigned long		single character, UCS-4 encoded
+	UCS2Char			unsigned short		single character, UCS-2 encoded
+	UCS1Char			unsigned char		single character, UCS-1 (ISO Latin-1) encoded
+	UTF8Char			char const *		single character, UTF-8 encoded
+	UTF8CharPtr			char *				pointer to UTF-8 character
+	UTF8Str				char *				c-string, UTF-8 encoded
+	cUTF8CharPtr		char const *		pointer to UTF-8 character in const string
+												this is <b>not</b> same as const UTF8CharPtr!
+p
+	Any class or data type missing? <a href="mailto:kio&#64;little-bat.de">send mail</a> and i'll add it.
+
+
+
+
+h3	uchar* VScript::Value ( uchar* ip, Var*&, int prio )
+
+
+h4	How does <tt>VScript::Value()</tt> work?
+
+
+h5	Instruction pointer
+p
+	Like all the associated functions it takes the current instruction pointer as it's first argument and returns the updated pointer. and second: like all the associated functions it refuses work if the global errno is set. this allows you frequently to delay error testing, because you can combine a whole bunch of calls before you really must test if something went wrong.
+
+
+h5	Var*&
+p
+	The result of the expression which is currently executed is returned in a supplied variable. first you must allocate a variable as temporary data cell where the result can be stored in, and then you must pass a pointer to this temp cell by reference.
+p
+	Why so complicated? vipsi does not know about reference variables. but frequently you need a reference to a variable or it saves you a lot of time if you don't have to copy the result into the supplied temp cell. on the other hand, frequently you can't return a reference to a result but you can only return it by value. have a look at the following example:
+pre
+	fooVar = 45;
+p
+	On the left side of the operator <tt>=</tt> stands a variable. when Value() is called to parse the expression it is required that it returns a reference to that variable. the current contents of <i>fooVar</i> is of no interest.
+p
+	On the right side of the operator <tt>=</tt> stands a number literal (constant). when Value() is called to parse the right side of the expression it cannot return a reference to a variable with this value because there is simply no such variable. you could circumvent this in a lots of other ways, but i've done it this way:
+
+p
+	If the result cannot be returnd by reference, the value is stored in the supplied temp cell (as accessible by the passed pointer) and the pointer is left to point to this temp cell.
+p
+	If the result can be returned by reference, the supplied temp cell is ignored and the passed-by-reference pointer is set to point to the result.
+
+p
+	Whether the returned result is a <i>value</i> or a <i>reference</i> can be tested by the caller, if he compares the variable pointer with it's initial value, the address of the temp cell. so he can see whether he got a reference when he needed one or not and he can see, whether he must duplicate the passed result from the referenced variable or can move the data from the temp cell to the target. or he can already supply the target as temp cell. <b>sorry</b>, he can't. this will lead to some dangerous conflicts.
+
+
+h5	prio
+p   Value() calls itself recursively.
+p   An expression is made out of multiple subexpressions connected by operators:
+
+pre
+	<term>  =  <term> <op> <term>
+
+p   where you recursively can replace a term again by <tt><term> <op> <term></tt>.
+p   when you evaluate an expression with multiple operators, you have to obey operator precedence. the precedence of the currently pending operator is passed in prio. imagine the following expression:
+
+pre
+	55 + 66 * 77;
+
+ul
+li	Value() is called with an instruction pointer pointing to the number <tt>55</tt>.
+li	Value() reads the number literal <tt>55</tt> which is the simplest form of a term.
+	now it expects an operator.
+li	Value() reads the token for <tt>+</tt> which it recognizes as an operator.
+	now it has to decide whether the 'pending' operator is of higher or same priority.
+	if it is, Value() must put pack the operator and return.
+	but you have probably called Value() with a prio low enough: <tt>pAny</tt> and Value() will resume, making the operator <tt>+</tt> it's currently pending operator. the enumeration of operator priorities is  in the file <i>vscript.cp</i>.
+li	Value() now needs to evaluate the right side of the operator. for this purpose it calls itself recursively with the precedence of the current operator <tt>+</tt>.
+	<ul>
+	<li>Value() is called with an instruction pointer pointing to the number <tt>66</tt> and a prio corresponding to operator <tt>+</tt>.
+	<li>Value() reads the number literal <tt>66</tt> which is the simplest form of a term.
+		now it expects an operator.
+	<li>Value() reads the token for <tt>*</tt> which it recognizes as an operator.
+		now it has to decide whether the 'pending' operator is of higher or same priority.
+		if it is, Value() must put pack the operator and return.
+		but the passed prio is lower, and so it resumes, making operator <tt>*</tt> it's currently pending operator.
+
+	<li>Value() now needs to evaluate the right side of the operator. for this purpose it calls itself recursively with the precedence of the current operator <tt>*</tt>.
+		<ul>
+		<li>Value() is called with an instruction pointer pointing to the number <tt>77</tt> and a prio corresponding to operator <tt>*</tt>.
+		<li>Value() reads the number literal <tt>77</tt> which is the simplest form of a term.
+			now it expects an operator.
+		<li>Value() reads the token for <tt>;</tt> which is not an operator.
+			Value() decides, that this is either an error or that the expression ends here. because it does not know much about the context where it was called from, it simply puts back the unrecognized token and returns the already evaluated term <tt>77</tt>, leaving it to the caller to decide whether he can handle the unrecognized token <tt>;</tt>.
+		</ul>
+	<li>Value() gets a result, all seems to be fine and calculates the current term, which is <tt>66*77</tt>.
+		huuh, i have evaluated something and it's value is <tt>5082</tt>!
+		now it expects an operator.
+	<li>Value() reads the token for <tt>;</tt> which is not an operator.
+		Value() decides, that this is either an error or that the expression ends here. because it does not know much about the context where it was called from, it simply puts back the unrecognized token and returns the already evaluated term <tt>5082</tt>, leaving it to the caller to decide whether he can handle the unrecognized token <tt>;</tt>.
+	</ul>
+li	Value() gets the required right-side result, all seems to be fine and calculates the current term, which is <tt>55+5082</tt>.
+	huuh, i have evaluated something and it's value is <tt>5132</tt>!
+	now it expects an operator.
+li	Value() reads the token for <tt>;</tt> which is not an operator.
+	Value() decides, that this is either an error or that the expression ends here. because it does not know much about the context where it was called from, it simply puts back the unrecognized token and returns the already evaluated term <tt>5132</tt>, leaving it to the caller to decide whether he can handle the unrecognized token <tt>;</tt>.
+
+
+p    the initial caller gets back the value <tt>5132</tt> and resumes parsing. he will run into the <tt>;</tt> and probably decide that it's ok.
+
+
+
+
+h3	Map of Project Files
+
+h4	Project Directory "vipsi/"
+
+pre
+	execute.h                   the main execution loop:  VScript::Execute(…)
+	main.cp                     main()
+	mod_vipsi.c                 Apache module
+	mod_vipsi.cp                Apache module
+	Stream.cp                   class Stream to implement vipsi's i/o commands
+	Stream.h
+	SystemIO.cp                 platform specific file handling et.al.
+	SystemIO.h
+	token.cp                    the source text tokenizer: Tokenize()
+	token.h                     token (word) definitions
+	value.h                     the expression evaluator: VScript::Value(…)
+	custom_errors.h             additional error codes
+									(included by <i>libraries/kio/errors.h</i>)
+	version.h                   version file
+	VScript.cp                  this class implements the script interpreter
+	VScript.h
+
+	examples/                   some example scripts
+		test_suite.vs           syntax test suite
+		*.prefs					preferences files for installation
+		*.vl					library files for installation in /usr/local/lib/vipsi/
+		vip.xml					syntax highlighting for kate and kwrite
+
+	****INFO****/
+		done.txt                completed tasks
+		todo.txt                pending tasks
+
+	unix/                       files for installation on unix-style systems
+		configure.in            input data for autoconf
+		Makefile.in             input data for configure
+		config.h.in             input data for configure
+		configure               script to make a Makefile for your system
+		install.sh              required script
+		config.sub              required script
+		aclocal.m4              required script
+		config.guess            required script
+		shtool                  required script
+
+h4	Library Directory "vipsi/libraries/"
+
+p	This is a shared directory for vipsi and other projects.
+
+pre
+	compress/               data compression
+	cstrings/               c-string library with ad-hoc string pool
+	ustring/                class String for text and binary data strings
+	sort/                   sort function template
+	utf-8/                  utf-8 handling and text conversion library
+	var/                    class Var for variables for interpreters et.al.
+	kio/                    my all-times-needed header files
+		abort.cp            aborting
+		abort.h
+		errors.cp           set and get errors
+		errors.h            error codes and texts
+		kio.h               the include-it-all header
+		log.cp              message logging
+		log.h
+		nice_defines.h      frequently used simple functions
+		standard_types.h    standard data types
+	unix/
+		file_utilities.cp   unix file utilities
+		file_utilities.h
+		os_utilities.cp     unix system call utilities
+		os_utilities.h
+
+
+

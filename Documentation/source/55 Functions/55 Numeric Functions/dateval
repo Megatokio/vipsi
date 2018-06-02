@@ -1,0 +1,26 @@
+
+h3	dateval
+
+pre
+	<number> = <b>dateval</b> <text>
+	<number> = <b>dateval</b> ( <text> )
+
+p
+	Convert	readable date <text> to numeric time value.
+
+p
+	Returns a numeric value in Greenwich Mean Time UTC+0:00. The returned time is in seconds and may be fractional. The time base may vary on different systems. On unix systems it is historically the time since Jan.01 1970.
+p
+	Note: Currently (Version 0.8.7) the returned time value is in local time. This will be fixed. Function <tt>datestr</tt> also still works with the local time, so this is at least consistent.
+
++ ../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+
+shell
+	i> dateval "2002-04-01 12:00"  o> = 1017658800
+	i> dateval "2002.04"  o> = 1017529200
+	i> <>
+
+

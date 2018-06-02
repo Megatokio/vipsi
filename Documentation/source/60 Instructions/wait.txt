@@ -1,0 +1,15 @@
+
+
+h3  wait
+
+pre
+	<b>wait</b> <number>
+
+p
+	Release cpu and wait for the given amount of time. The time passed is in seconds, the actual granularity of wait time is system dependent.
+
+shell
+	i> wait 0.5
+	i> <>
+
+

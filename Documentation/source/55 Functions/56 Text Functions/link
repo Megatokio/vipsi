@@ -1,0 +1,25 @@
+
+
+h3  link
+
+pre
+	<text> = <b>link</b> <path>
+	<text> = <b>link</b> ( <path> )
+
+p
+	Read contents of symbolic link.
+p
+	Read the contents of the symbolic link (not the file it may point to) at file system position <path>. Returns a <text> value. <path> must be a text value and may be a relative or absolute path, contain symbolic links, or start with "~" for the user's home directory. All symbolic links are followed, except the last one.
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+p
+	There is also an instruction <tt>link</tt> which sets a link.
+p
+	e.g.
+pre
+	var myLink = "zzz"
+	put "link ", myLink,
+		"contains ", link myLink,
+		"which resolves to ", fullpath myLink
+
+

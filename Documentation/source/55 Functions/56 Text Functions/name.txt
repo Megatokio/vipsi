@@ -1,0 +1,21 @@
+
+
+h3  name
+
+pre
+	<text> = <b>name</b> <variable>
+	<text> = <b>name</b> ( <variable> )
+p
+	Return the name of a <variable>.
+p
+	You will in most cases want to querry the names of list items.
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+
+p   e.g.:
+pre
+	put "a[0] is named: ", name a[0], nl
+
+
+
+

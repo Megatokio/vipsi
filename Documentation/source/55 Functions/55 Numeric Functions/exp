@@ -1,0 +1,106 @@
+
+
+h3 exp
+
+pre
+ <number> = <b>exp</b> ( <base>, <number> )
+
+p
+	Calculate <base> raised to the power of <number>.
+p
+	Returns a numeric value.
+p
+	Base and number must be numeric values, both may be fractional. The exponent <number> may be positive, 0 or negative. The base must be positive and not 0, else the result will be <tt>nan</tt>.
+p
+ 	e.g.
+shell
+	i> exp(16,2)  o> = 256
+	i> <>
+
+
+
+h3 exp2
+
+pre
+	<number> = <b>exp2</b> <number>
+	<number> = <b>exp2</b> ( <number> )
+
+p
+	Calculate the result of <b>2</b> raised to the power of <number>.
+p
+	Returns a numeric value.
+p
+	The number may be fractional and negative.
+
++	../../includes/functions with 1 arg.txt
+
+p
+	e.g.
+shell
+	i> exp2(3)  o> = 8
+	i> exp2 8  o> = 256
+	i> <>
+
+
+
+
+h3 expe
+
+pre
+	<number> = <b>expe</b> <number>
+	<number> = <b>expe</b> ( <number> )
+
+p
+	Calculate the result of <b>e</b> raised to the power of <number>.
+p
+	Returns a numeric value.
+p
+	The number may be fractional and negative.
+p
+	<tt>e<tt> is the <i>Euler's constant</i> = 2.718281828459.
+pre
+	e = lim(n->∞) for exp((1+1/n),n) = 2.718281828459.
+p
+	This is a good precision test for your fpu. B-)
+
++	../../includes/functions with 1 arg.txt
+
+p
+	e.g.
+shell
+	i> expe 1  o> = 2.718281828459
+	i> expe(2)  o> = 7.3890560989307
+	i> <>
+
+
+
+
+h3 exp10
+
+pre
+	<number> = <b>exp10</b> <number>
+	<number> = <b>exp10</b> ( <number> )
+
+p
+	Calculate the result of <b>10</b> raised to the power of <number>.
+p
+	Returns a numeric value.
+p
+	The number may be fractional and negative.
+
++	../../includes/functions with 1 arg.txt
+
+p
+	e.g.
+shell
+	i> exp10(3)  o> = 1000
+	i> <>
+
+
+
+
+
+
+
+
+

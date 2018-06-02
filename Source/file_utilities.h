@@ -1,0 +1,266 @@
+/*	Copyright  (c)	Günter Woigk 2001 - 2015
+  					mailto:kio@little-bat.de
+
+	This file is free software
+
+ 	This program is distributed in the hope that it will be useful,
+ 	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
+
+	• Redistributions of source code must retain the above copyright notice,
+	  this list of conditions and the following disclaimer.
+	• Redistributions in binary form must reproduce the above copyright notice,
+	  this list of conditions and the following disclaimer in the documentation
+	  and/or other materials provided with the distribution.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+	THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+	PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+	CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+	OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#ifndef file_utilities_h
+#define	file_utilities_h
+
+#include "kio/kio.h"
+
+
+#if !defined(_POSIX_SOURCE) && !defined(_SOLARIS)
+	#define M_TIME(TS) ((TS).st_mtimespec.tv_sec)
+	#define A_TIME(TS) ((TS).st_atimespec.tv_sec)
+	#define C_TIME(TS) ((TS).st_ctimespec.tv_sec)
+#else
+	#define M_TIME(TS) ((TS).st_mtime)
+	#define A_TIME(TS) ((TS).st_atime)
+	#define C_TIME(TS) ((TS).st_ctime)
+#endif
+
+typedef struct std::nothrow_t nothrow_t;		// <new>:	std::nothrow_t
+
+typedef enum
+{
+	s_none,
+	s_file,
+	s_dir,
+	s_tty,
+	s_pipe,
+	s_sock,
+	s_block,
+	s_link,
+	s_null,
+	s_unkn,
+	s_any		// used for selecting files by type
+}
+s_type;
+
+
+extern	s_type	ClassifyFile	( mode_t mode );
+extern	s_type	ClassifyFile	( int    fd   );
+extern	s_type	ClassifyFile	( FILE*  file );
+extern	s_type	ClassifyFile	( cstr path, bool follow_symlink=1 );
+inline	bool	IsFile			( cstr path, bool follow_symlink=1 )	{ return ClassifyFile(path,follow_symlink)==s_file; }
+inline	bool	IsDir			( cstr path, bool follow_symlink=1 )	{ return ClassifyFile(path,follow_symlink)==s_dir; }
+inline	bool	IsLink			( cstr path )							{ return ClassifyFile(path,no)==s_link; }
+inline	bool	IsFile			( FILE* file )							{ return ClassifyFile(file)==s_file; }
+inline	bool	IsDir			( FILE* file )							{ return ClassifyFile(file)==s_dir; }
+inline	bool	IsTTY			( FILE* file )							{ return ClassifyFile(file)==s_tty; }
+
+
+extern	void	SetBlocking		( int fd, bool onoff );
+extern	void	SetAsync		( int fd, bool onoff );
+extern	void	SetBlocking		( FILE*,  bool onoff );
+extern	void	SetAsync		( FILE*,  bool onoff );
+
+
+extern	time_t	FileMTime		( cstr path, bool follow_symlink=1 );	// modification time
+extern	time_t	FileATime		( cstr path, bool follow_symlink=1 );	// last access time
+extern	time_t	FileCTime		( cstr path, bool follow_symlink=1 );	// last status change time
+
+
+
+extern	off_t	FileLength		( cstr  path, bool follow_symlink=1 );	// returns -1 and sets errno on error
+extern	off_t	FileLength		( int   fd   );							// returns -1 and sets errno on error
+extern	off_t	FileLength		( FILE* file );							// returns -1 and sets errno on error
+
+
+extern	cstr	FileNameFromPath		( cstr path );
+extern	cstr	ExtensionFromPath		( cstr path );
+inline	str		ExtensionFromPath		( str path )			{ return (str)ExtensionFromPath( (cstr)path ); }
+extern	cstr	BasenameFromPath		( cstr path );
+extern	cstr	DirectoryPathFromPath	( cstr path );
+
+extern	cstr	FullPath		( cstr path, bool follow_symlink   );	// returns cstr in strPool
+extern	cstr	TempFileName	( cstr file, bool follow_symlink=1 );
+extern	int		NewTempFile		();										// create & open temp file in /tmp/
+extern	off_t	DupFile			( int dest_fd, int src_fd, off_t max_size=-1 );
+extern	off_t	filecopy		( int dest_fd, off_t dest, int src_fd, off_t src, off_t bytes );
+extern	off_t	filecopy		( int dest_fd, int src_fd, off_t bytes );	// at current positions
+
+extern	int		TerminalSize	( int tty, int& rows, int& cols );
+extern	int		TerminalRows	( int tty );
+extern	int		TerminalCols	( int tty );
+extern	int		TerminalWidth	( int tty );		// pixel
+extern	int		TerminalHeight	( int tty );		// pixel
+extern	int		SetTerminalSize	( int tty, int rows, int cols );		// does not work !?
+
+
+
+// ################################################################
+//		unified file i/o  --  nothrow_t functions
+//
+//		the nothrow_t functions always clear or set errno
+//		and return the amount of bytes actually written or read.
+// ################################################################
+
+// auto-closing fd:
+class FD
+{	int fd;
+	FD()		: fd(-1) {}
+	FD(int fd)	: fd(fd) {}
+	~FD()		{ if(fd!=-1) close(fd); }
+};
+
+// struct nothrow_t { };				"errors.h"
+// extern const nothrow_t nothrow;		"errors.h"
+#define TPL template<class T>
+#define SOT sizeof(T)
+
+EXT int		open_file	( nothrow_t, cstr path, int flags, int mode=0664 ) throw();
+//EXT int		open_file_r	( nothrow_t, cstr path )						throw();	// must exist.
+//EXT int		open_file_rw( nothrow_t, cstr path )						throw();	// must exist.
+//EXT int		open_file_w	( nothrow_t, cstr path, int mode=0664 )			throw();	// truncates file !!
+//EXT int		open_file_a	( nothrow_t, cstr path, int mode=0664 )			throw();	// append mode.
+//EXT int		open_file_n	( nothrow_t, cstr path, int mode=0664 )			throw();	// must not exist.
+//
+//EXT ulong	read_bytes	( nothrow_t, int fd, ptr p, ulong bytes )		throw();
+//TPL	ulong	read_bytes	( nothrow_t, int fd, T*  p, ulong bytes )		throw()	{ return read_bytes( nothrow,fd,(ptr)p,bytes ); }
+//TPL ulong	read_data	( nothrow_t, int fd, T*  p, ulong items )		throw()	{ return read_bytes( nothrow,fd,(ptr)p,items*SOT )/SOT;}
+//
+//EXT off_t	write_bytes	( nothrow_t, int fd, cptr p, ulong bytes )		throw();
+//TPL off_t	write_bytes	( nothrow_t, int fd, T const* p, ulong bytes )	throw() { return write_bytes(nothrow,fd,(cptr)p,bytes);}
+//TPL ulong	write_data	( nothrow_t, int fd, T const* p, ulong items )	throw() { return write_bytes(nothrow,fd,(cptr)p,items*SOT)/SOT;}
+//INL ulong	write_str	( nothrow_t, int fd, cstr p )					throw()	{ return p&&*p ? write_bytes(nothrow,fd,p,strlen(p)) : 0; }
+//
+//EXT	off_t		clip_file		( nothrow_t, int fd )					throw();
+//EXT	int/*err*/	close_file		( nothrow_t, int fd )					throw();
+//EXT	int/*err*/	clip_and_close	( nothrow_t, int fd )					throw();
+
+
+// ################################################################
+//		unified file i/o  --  throw(..) functions
+//
+//		the throw(..) functions only return if no error occured.
+//		else they throw a file_error exception.
+//
+//		ok:		function returns, all data was read or written, errno = ok.
+//		error:	throws exception, bytes read or written unknown, errno set.
+//				note: premature end of file is handled as an error.
+// ################################################################
+
+EXT int		open_file			( cstr path, int flags, int mode=0664 )	throw(file_error);
+EXT int		open_file_r			( cstr path )							throw(file_error);	// must exist.
+EXT int		open_file_rw		( cstr path )							throw(file_error);	// must exist.
+EXT int		open_file_w			( cstr path, int mode=0664 )			throw(file_error);	// truncates file!
+EXT int		open_file_a			( cstr path, int mode=0664 )			throw(file_error);	// append mode.
+EXT int		open_file_n			( cstr path, int mode=0664 )			throw(file_error);	// new: must not exist.
+
+EXT ulong	read_bytes			( int fd, ptr p, ulong bytes )			throw(file_error);
+TPL ulong	read_bytes			( int fd, T*  p, ulong bytes )			throw(file_error)	{ read_bytes(fd,(ptr)p,bytes); return bytes; }
+TPL ulong	read_data			( int fd, T*  p, ulong items )			throw(file_error)	{ read_bytes(fd,(ptr)p,items*SOT); return items; }
+TPL ulong	read_data			( int fd, T*  p )						throw(file_error)	{ read_bytes(fd,(ptr)p,SOT); return 1; }
+
+EXT ulong	write_bytes			( int fd, cptr p, ulong bytes )			throw(file_error);
+TPL ulong	write_bytes			( int fd, T const* p, ulong bytes )		throw(file_error)	{ write_bytes(fd,(cptr)p,bytes); return bytes; }
+TPL ulong	write_data			( int fd, T const* p, ulong items )		throw(file_error)	{ write_bytes(fd,(cptr)p,items*SOT); return items; }
+TPL ulong	write_data			( int fd, T const* p )					throw(file_error)	{ write_bytes(fd,(cptr)p,SOT); return 1; }
+INL ulong	write_str			( int fd, cstr p )						throw(file_error)	{ return p&&*p ? write_bytes(fd,p,strlen(p)) : 0; }
+
+EXT	off_t	clip_file			( int fd )								throw(file_error);
+EXT	void	close_file			( int fd )								throw(file_error);
+EXT	void	clip_and_close		( int fd )								throw(file_error);
+
+EXT off_t	seek_fpos			( int fd, off_t fpos, int f=SEEK_SET )	throw(file_error);
+INL off_t	seek_endoffile		( int fd )								throw(file_error)	{ return seek_fpos(fd,0,SEEK_END); }
+INL off_t	skip_bytes			( int fd, off_t signed_offset )			throw(file_error)	{ return seek_fpos(fd,signed_offset,SEEK_CUR); }
+INL off_t	rewind_file			( int fd )								throw(file_error)	{ return seek_fpos(fd,0,SEEK_SET); }
+
+INL off_t	file_position		( int fd )								throw(file_error)	{ return seek_fpos(fd,0,SEEK_CUR); }
+EXT off_t	file_size			( int fd )								throw(file_error);
+INL off_t	file_remaining		( int fd )								throw(file_error)	{ return file_size(fd) - file_position(fd); }
+INL	bool	is_at_eof			( int fd )								throw(file_error)	{ return file_position(fd) >= file_size(fd); }
+INL	bool	is_near_eof			( int fd, off_t proximity )				throw(file_error)	{ return file_remaining(fd) <= proximity; }
+
+#if defined(_BIG_ENDIAN)
+INL	ulong	read_short_data_x	( int fd, int16*p,		 ulong items )	throw(file_error)	{ return read_data(fd,p,items); }
+EXT	ulong	read_short_data_z	( int fd, int16*p,		 ulong items )	throw(file_error);
+INL	ulong	write_short_data_x	( int fd, int16 const*p, ulong items )	throw(file_error)	{ return write_data(fd,p,items); }
+EXT	ulong	write_short_data_z	( int fd, int16 const*p, ulong items )	throw(file_error);
+#elif defined(_LITTLE_ENDIAN)
+EXT	ulong	read_short_data_x	( int fd, int16*p,		 ulong items )	throw(file_error);
+INL	ulong	read_short_data_z	( int fd, int16*p,		 ulong items )	throw(file_error)	{ return read_data(fd,p,items); }
+EXT	ulong	write_short_data_x	( int fd, int16 const*p, ulong items )	throw(file_error);
+INL	ulong	write_short_data_z	( int fd, int16 const*p, ulong items )	throw(file_error)	{ return write_data(fd,p,items); }
+#endif
+
+
+EXT int16	read_short		( int fd )				throw(file_error);
+EXT int16	read_short_x	( int fd )				throw(file_error);		// x: internet byte order, 68k, ppc
+EXT int16	read_short_z	( int fd )				throw(file_error);		// z: i386, z80
+INL uint16	read_ushort		( int fd )				throw(file_error)		{ return read_short(fd);   }
+INL uint16	read_ushort_x	( int fd )				throw(file_error)		{ return read_short_x(fd); }
+INL uint16	read_ushort_z	( int fd )				throw(file_error)		{ return read_short_z(fd); }
+
+EXT void	write_short		( int fd, int16 )		throw(file_error);
+EXT void	write_short_x	( int fd, int16 )		throw(file_error);
+EXT void	write_short_z	( int fd, int16 )		throw(file_error);
+INL void	write_ushort	( int fd, uint16 n )	throw(file_error)		{ write_short(fd,n);   }
+INL void	write_ushort_x	( int fd, uint16 n )	throw(file_error)		{ write_short_x(fd,n); }
+INL void	write_ushort_z	( int fd, uint16 n )	throw(file_error)		{ write_short_z(fd,n); }
+
+EXT int32	read_long		( int fd )				throw(file_error);
+EXT int32	read_long_x		( int fd )				throw(file_error);
+EXT int32	read_long_z		( int fd )				throw(file_error);
+INL uint32	read_ulong		( int fd )				throw(file_error)		{ return read_long(fd);   }
+INL uint32	read_ulong_x	( int fd )				throw(file_error)		{ return read_long_x(fd); }
+INL uint32	read_ulong_z	( int fd )				throw(file_error)		{ return read_long_z(fd); }
+
+EXT void	write_long		( int fd, int32 )		throw(file_error);
+EXT void	write_long_x	( int fd, int32 )		throw(file_error);
+EXT void	write_long_z	( int fd, int32 )		throw(file_error);
+INL void	write_ulong		( int fd, uint32 n )	throw(file_error)		{ write_long(fd,n);   }
+INL void	write_ulong_x	( int fd, uint32 n )	throw(file_error)		{ write_long_x(fd,n); }
+INL void	write_ulong_z	( int fd, uint32 n )	throw(file_error)		{ write_long_z(fd,n); }
+
+EXT int8	read_char		( int fd )				throw(file_error);
+INL uint8	read_uchar		( int fd )				throw(file_error)		{ return read_char(fd); }
+EXT void	write_char		( int fd, int8 )		throw(file_error);
+INL void	write_uchar		( int fd, uint8 c )		throw(file_error)		{ write_char(fd,c); }
+
+EXT int32	read_3byte_x	( int fd )				throw(file_error);
+EXT int32	read_3byte_z	( int fd )				throw(file_error);
+EXT uint32	read_u3byte_x	( int fd )				throw(file_error);
+EXT uint32	read_u3byte_z	( int fd )				throw(file_error);
+
+//EXT	void	write_nstr		( int fd, cstr s )		throw(file_error,limit_error);	// prefixes data with uint8 len
+EXT str		read_nstr		( int fd )				throw(file_error);		// read into tempstr
+EXT str		read_new_nstr	( int fd )				throw(file_error);		// read into newstr
+
+
+#undef TPL
+#undef SOT
+
+
+
+#endif
+
+

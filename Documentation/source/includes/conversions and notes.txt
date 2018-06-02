@@ -1,0 +1,108 @@
+
+
+
+// included by instruction and function 'convert'
+
+
+
+h5	Text conversions:
+ul
+li	<b>escaped</b>,
+	<b>printable</b>
+	[un]escape characters which typicall break syntax for text literals
+
+li	<b>quoted</b>
+	[un]escape and add|remove '"'s at both ends
+
+li	<b>html</b>
+	convert '>' etc. to|from &amp;gt;
+	encode: does not encode non_ascii characters to entities.
+	&nbsp;	please declare the character set of your html file as UTF-8.
+	decode: decodes named entities and character code entities
+
+li	<b>url_all</b>
+	convert to|from UTF-8 and [un]escape special characters for URLs
+
+li	<b>url</b>
+	as 'url_all' but do not encode the directory separator '/'
+	most time you will need 'url', not 'url_all'.
+
+li	<b>tabs[2..9]</b>
+	en|detab text to tab with 2 … 9 characters.
+
+li	<b>uppercase</b>
+	Convert to uppercase.
+
+li	<b>lowercase</b>
+	Convert to lowercase
+
+
+h5	Character set conversions:
+ul
+li	<b>mac_roman</b>
+	Convert to|from mac roman character set.
+
+li	<b>iso_latin_1</b>,
+	<b>windows</b>
+	Convert to|from iso-latin-1 character set.
+
+
+li	<b>utf_8</b>
+	Convert to|from UTF-8 unicode.
+	This splits each character into up to 6 byte-sized characters (typically only 1).
+	UTF-8 is the default encoding applied by <tt>put</tt> and <tt>get</tt>.
+
+li	<b>ucs_1</b>
+	Convert to|from UCS-1 unicode.
+	Same as iso_latin_1.
+
+li	<b>ucs_2</b>
+	Convert to|from UCS-2 unicode
+	This splits each character into 2 byte-sized characters.
+
+li	<b>ucs_4</b>
+	Convert to|from UCS-4 unicode.
+	This splits each character into 4 byte-sized characters.
+
+li	<b>ascii_us</b>
+	Convert to|from 7-bit ASCII.
+
+li	<b>ascii_ger</b>
+	Convert to 7-bit ASCII, German variant (Ä…ß instead of […\)
+
+li	<b>dos, cp_437</b>
+	Convert to|from DOS Latin US character set (codepage 437)
+
+li	<b>atari_st</b>
+	Convert to|from Atari ST character set.
+
+
+
+
+h5	Important note on conversion to|from other character sets:
+p.b
+	Take care that you do no double conversion!
+p
+	Converting <tt>to</tt> a certain character set converts the text to binary data with all characters being bytes in range [0 .. 255], suitable for writing to file or stream in binary mode.
+p
+	Converting <tt>from</tt> a certain character set expects the text to be binary data with all characters being bytes in range [0 .. 255], as read in binary mode from a file or stream.
+p
+	Converting a text to a certain character set an then writing it with <tt>put</tt> to a file or stream, is certainly an error, because <tt>put</tt> most likely also performs a character set conversion, by default to UTF-8. After having converted a character set by hand you must write the data in binary mode, without any further conversion, e.g. with instruction <tt>write</tt> or using instruction <tt>file</tt>.
+p
+	The same is true for reading with <tt>get</tt> and converting the read text from a certain character set, because <tt>get</tt> has most likely already performed a character set conversion, by default from UTF-8. If you want to convert the data by hand you must read it in binary mode, e.g. with instruction <tt>read</tt> or function <tt>file</tt>.
+
+p
+	e.g. UCS-4:
+p
+	Converting text <tt>to</tt> UCS-4 expands each character to 4 characters, each representable in 1 byte, suitable for writing in binary mode to a file e.g. with <tt>write</tt>.
+p
+	Converting text <tt>from</tt> UCS-4 combines every 4 characters into one character, assuming that the source text only contains bytes e.g. read in binary mode with <tt>read</tt>.
+p
+	<tt>var a = file "filename"</tt> and <tt>file "filename" = a</tt> also read/write binary data and are suitable targets for a by-hand conversion.
+p
+	<tt>get</tt> or <tt>put</tt> already perform a conversion from|to UTF-8 (may be changed with <tt>ioctl</tt> - not yet implemented in version 0.8.7). Applying a conversion after reading with <tt>get</tt> / before writing with <tt>put</tt> without having disabled any conversion is certainly an error.
+
+
+
+
+

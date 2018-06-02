@@ -1,0 +1,26 @@
+
+
+h3  file
+
+pre
+	<text> = <b>file</b> <filename>
+	<text> = <b>file</b> ( <filename> )
+
+p
+	Read file.
+p
+	Read file <filename> in binary mode. Returns a <text> value. All character codes are in range 0 ... 255. You should convert character encoding afterwards manually with the function or instruction <tt>convert</tt>, most likely from utf8.
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+p
+	There is also an instruction <tt>file</tt> which writes to a file.
+p
+	e.g.
+pre
+	var myText = file "~/.myPrefs/rcData"
+	convert myText from utf8
+	...
+	convert myText to utf8
+	file "~/.myPrefs/rcData" = myText
+
+

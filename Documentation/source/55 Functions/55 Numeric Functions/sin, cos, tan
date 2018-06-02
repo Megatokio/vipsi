@@ -1,0 +1,80 @@
+
+
+h3	sin
+
+pre
+	<number> = <b>sin</b> <number>
+	<number> = <b>sin</b> ( <number> )
+
+p
+	Calculate the sinus of a number.
+p
+	Full circle	= 2*pi.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> sin(pi/3)  o> = 0.86602540378444
+	i> <>
+
+
+
+
+h3	cos
+
+pre
+	<number> = <b>cos</b> <number>
+	<number> = <b>cos</b> ( <number> )
+
+p
+	Calculate the sinus of a number.
+p
+	Full circle	= 2*pi.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> cos(pi/3)  o> = 0.5
+	i> <>
+
+
+
+
+
+
+
+h3	tan
+
+pre
+	<number> = <b>tan</b> <number>
+	<number> = <b>tan</b> ( <number> )
+
+p
+	Calculate the sinus of a number.
+p
+	Full circle	= 2*pi.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> tan(pi/3)  o> = 1.7320508075689
+	i> <>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

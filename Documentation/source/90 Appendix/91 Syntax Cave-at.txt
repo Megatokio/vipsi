@@ -1,0 +1,138 @@
+
+
+h2	Syntax Cave-ats
+
+
+h5	Function call without parenthesis
+p
+	With all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators. If the argument is a expression, then you must use parenthesis.
+
+pre
+	sin 2*pi   ==   sin(2) * pi   !=   sin(2*pi)
+
+
+
+h5	<tt>{ .. }</tt> in the shell
+
++	../includes/note on braces.txt
+
+
+
+h5	<tt>log</tt> in the shell
+
++	../includes/note on log.txt
+
+
+
+h5	Statements starting with '%', '-' or '+'
+p
+	If a statement after a statement with arguments starts with '-', '+' or '%' then this character is not recognized as a number sign start of a binary number literal but interpreted as operator minus, plus or remainder linking it to the last argument of the previous instruction.
+p
+	This will almost certainly happen only in broken code.
+p
+	In a sane program, each statement starts with an identifier name:
+ul
+li	the name of a built-in instruction, like <tt>put</tt>
+li	the name if a user-defined procedure, like <tt>Foo</tt>
+li	the name of a variable in an assignment statement, like <tt>Anton</tt>
+p
+	If a statement starts with '%', '+' or '-', then this expression will return a result value. In a script this result value will be discarded. I can hardly think of any useful code, with a statement beginning with a numeric value. And all examples i can imagine are lunatic or malicious.
+pre.src
+	#!/usr/local/bin/vipsi
+	// very broken:
+		+123 var a=0
+		-123 var b=0
+		+123 var c=0
+		%011
+		put nl, "-> ", a, tab, b, tab, c, nl
+	// very insane:
+		proc mySideEffect(a){ put a; return a }
+		put 222
+		+mySideEffect(77)
+p
+	Even in the shell if you want to print the result of an expression, and the expression starts with a number literal which starts with '%', '+' or '-', this is no problem, because you'll rarely append such a calculation after another instruction with arguments. This would look pretty insane:
+shell
+	i> put 100  -123  o> -23
+	i> put 100  +123  o> 223
+	i> put 100  %011  o> 1
+	i> <>
+p
+	If you successfully construct a case where it matters, use <tt>put</tt> or enclose it in parenthesis:
+shell
+	i> if 1 -123 then /* prints nothing */
+	i> if 1 put -123 then  o> -123
+	i> if 1 (-123)   then  o> -123
+	i> if 1; -123    then  o> -123
+	i> <>
+
+
+
+h5	<tt>return</tt> and <tt>end</tt> with no return value
+p
+	These two instructions are special in the way, that they are the only instructions which can optionally take no or one argument. All other instructions can take either no or at least one argument. This is important for the parser, because it must know whether the expression after an instruction must be interpretet as an argument to that instruction or as a new instruction, even if it yields a result. The latter case is very common, because the assignment operators all return the assigned value (acually a reference to the variable) as result! Therefore:
+pre
+	put a=22
+p
+	will assign <tt>22</tt> to <tt>a</tt> and print the result, which is <tt>22</tt>. While
+pre
+	put "x" a=22
+p
+	will print "x" but not the result of the assignment <tt>a=22</tt>, because that is a new instruction. If you wanted to print both, "x" and "22", then you needed to append <tt>a=22</tt> with a comma "," to the argument list of <tt>put</tt>.
+p
+	Additionally, if the next instruction is self-defined procedure, the parser <b>does not know</b> whether it will return a result and <b>assume</b> that it will. This makes no difference for a procedure written at the place of an instruction, because either it does not return a result or the returned result will be discarded. (note: on the vipsi shell printed for your convenience.)
+p
+	Therefore the parser has a little problem with <tt>return</tt> or <tt>end</tt>, which may or may not be followed by an argument. How to decide? The stunning fact is, it's quite easy: Because both instructions break from the program flow, the next instruction won't be executed. Therefore in a proper program the next instruction can only be a switching or terminating flow control word: <tt>else</tt>, <tt>elif</tt>, <tt>then</tt> or <tt>loop</tt>. Every other word makes no sense. So the <tt>return</tt> and <tt>end</tt> handler just test, whether the next word is one of those words (actually they test for 'built-in instruction returning no value') and returns with no result or evaluates the following expression.
+p
+	There is no problem. Except in one situation, which stunningly often happens to me:
+p
+	When a program fails somehow and i debug it, i often put in a <tt>return</tt> somewhere. And that position, self-evidently is <b>not</b> before one of the terminating flow control word. Frequently enough before a call to a self-defined procedure and then the procedure call <b>after</b> the <tt>return</tt> unexpectedly gets called before <tt>return</tt> returns, just because the parser assumes that it delivers an argument. Puzzled me sometimes.
+p
+	From a real-world case:
+pre.src
+	proc Doit()
+	{
+		QuelltextEinlesen()
+		TagsAbtrennen()
+		return					// <-- inserted for testing
+		TagsBehandeln()
+		AnkerErzeugen()
+		QuerverweiseEinfügen()
+		BuchNachHtmlKonvertieren()
+		BuchdateienSchreiben()
+	}
+p
+	In the case above the procedure <tt>TagsBehandeln()</tt> was called despite the return in front of it. This is, as you can see, because i never terminate my instructions with semicolons ";" as i should do. Just adding a semicolon ";" after the <tt>return</tt> did remedy the problem.
+
+
+
+
+h5	var argc = count globals - 1
+
+p
+	Ever wondered why there is <tt>1</tt> subtracted when storing the count of global variables into a variable, which frequently happens to be named <tt>argc</tt>?
+p
+	It's no bug, work-around or even an ambiguity, it's just that <tt>count globals</tt> is executed <b>after</b> <tt>var argc</tt>, and therefore the variable <tt>argc</tt> already exists when <tt>count</tt> counts the number of global variables. So the count will include variable <tt>argc</tt> and we subtract <tt>1</tt> for that fact.
+p
+	Just to note it somewhere.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

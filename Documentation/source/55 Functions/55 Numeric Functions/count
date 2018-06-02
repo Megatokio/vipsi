@@ -1,0 +1,32 @@
+
+
+h3	count
+
+pre
+	<number> = <b>count</b> <text>
+	<number> = <b>count</b> <list>
+
+	<number> = <b>count</b> ( <text> )
+	<number> = <b>count</b> ( <list> )
+
+p
+	Querry the number of elements in a text or in a list.
+p
+	Returns a numeric value.
+p
+	You can also count the number of entries in a directory or the length of a file. But this effectively works, because the function <tt>dir</tt> returens a list and function <tt>file</tt> returns a text value. (Version 0.8.7) This will be improved.
+
++ ../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> count globals  o>  0
+	i> count{1,2,3,4,5}  o> 5
+	i> count "12345"  o> 5
+	i> count env  o> 40
+	i> count dir "."  o> 26
+	i> <>
+
+
+

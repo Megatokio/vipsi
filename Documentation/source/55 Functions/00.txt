@@ -1,0 +1,5 @@
+
+h1	Functions
+p
+	Functions are built-in words which return a value. Therefore they may be used as arguments or part of an expression.
+

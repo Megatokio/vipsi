@@ -1,0 +1,43 @@
+
+
+h3  convert
+
+pre
+	<b>convert</b> <text_var> from|to <encoding>
+
+
+p
+	Convert text from or to named encoding.
+p
+	The text variable is overwritten with the result of the conversion.
+	The <encoding> must be a name, not a text value. This means: just write the nickname here.
+
+p
+	e.g.:
+pre
+	convert mytext to printable;
+    convert mytext to mac_roman;
+    convert mytext from html;
+    put "http://", convert(mytext to url)
+
+p
+	If you need calculated encodings, you may use operator <tt>@</tt> to convert a text to a name:
+pre
+	var myEncoding = "tab" # myTabWidth
+	convert myText to @(myEncoding);
+
+
+
+
++	../includes/conversions and notes.txt
+
+
+
+
+
+
+
+
+
+
+

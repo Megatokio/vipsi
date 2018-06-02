@@ -1,0 +1,112 @@
+
+
+
+
+
+
+
+h3  Multiply "*"
+	mult, wildcard
+
+pre
+	<number> = <number> <b>*</b> <number>
+
+p
+	Multiply two numeric values.
+p
+	Multiply two numeric values or text values, which are converted to numbers, results in a number. If one operand is a list, the result is a list, where the operation was applied to all items. If both are lists, they should match in size and the operation is applied to all matching items. Unmatched items are copied 'as is'.
+p
+	e.g.:
+shell
+	i> 4*5  o> = 20
+	i> put {4,5}*3  o> = { 12, 15 }
+	i> put {4,5}*{2,3}  o> = { 8, 15 }
+	i> <>
+
+h6	Other usage
+p
+	'<tt>*</tt>' is also used as a wildcard in patterns for <tt>match</tt> and <tt>dir</tt>.
+p
+    e.g.
+pre
+	var cafélogo = dir("./*.gif")
+
+p
+	'<tt>*</tt>' is also used as a flag for <tt>del</tt> to delete all variables in the local scope.
+p
+    e.g.:
+pre
+	del *
+p
+	'<tt>*</tt>' is also used as a flag in the parameter list of procedures to accept any number of arguments.
+p
+    e.g.:
+pre
+	proc zähle(a,*)
+	{
+		put "a=", a, " "
+		put "argc=", count locals, nl
+	}
+
+
+
+
+
+
+h3  Divide "/"
+	divison, quotient
+
+pre
+	<number> = <number> <b>/</b> <number>
+
+p
+	Divide one numeric value by another.
+p
+	Divide two numerical values or text values, which are converted to numbers, results in a number. If one operand is a list, the result is a list, where the operation was applied to all items. If both are lists, they should match in size and the operation is applied to all matching items.
+p
+   e.g.:
+shell
+	i> 20/5  o> = 4
+	i> put {40,50}/5  o> = { 8, 10 }
+	i> put {40,50}/{8,5}  o> = { 5, 10 }
+	i> <>
+
+
+
+
+
+
+h3  Remainder "%"
+
+pre
+	<number> = <number> <b>%</b> <number>
+
+
+p
+	Remainder of the division of two numerical values.
+p
+	Divide two numerical values or text values, which are converted to numbers, and return the remainder of the division. Results in a number. If one operand is a list, the result is a list, where the operation was applied to all items. If both are lists, they must match in size and the operation is applied to all matching items.
+p
+	e.g.:
+shell
+	i> 21.5%2.5  o> = 1.5
+	i> put {33,21}%5  o> = { 3, 1 }
+	i> put {36,27}%{5,10}  o> = { 1, 7 }
+	i> <>
+
+
+h6	Other usage
+p
+	'<tt>%</tt>' is also used for binary number literals.
+p
+	e.g.:
+shell
+	i -%0101.1  o> = -5.5
+
+
+
+
+
+
+
+

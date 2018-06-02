@@ -1,0 +1,14 @@
+
+
+
+
+
+h2	Functions with varying return types
+
+
+
+
+
+
+
+

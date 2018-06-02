@@ -1,0 +1,11 @@
+p
+	<tt>log</tt> is used as an instruction which prints it's arguments to stderr and as a function to calculate the logarithm of any number to any base. The meaning depends on the place where <tt>log</tt> is encountered. If it occurs at the place of an instruction then it is the instruction <tt>log</tt> which prints it arguments to stderr. If it occurs at the place of an expression then it is the function <tt>log</tt>.
+p
+	The only place where this may lead to confusion is the vipsi shell: At the start of the command line the parser expects an instruction. For your convenience it is also possible to just type an expression and the shell will print the result. Thus if you just type in
+pre
+	log(2,8)
+p
+	to see what the logarithm of 8 to base 2 is, then the word <tt>log</tt> stands at the position of an instruction and should be handled as the instruction <tt>log</tt>.
+p
+	As of version 0.8.8 the shell has some automagic intelligence to detect this. If a command line starts with <tt>log</tt> then the shell inspects the next token. If it is an opening parenthesis <tt>(</tt> then the shell defaults to an expression and <tt>log</tt> will be handled as the logarithm function. This is done by silently putting a <tt>put</tt> instruction in front of <tt>log</tt> and the printed result is not always identical to what would be printed if it was evaluated as an expression without glue.
+

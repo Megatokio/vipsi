@@ -1,0 +1,29 @@
+
+
+
+
+
+
+
+
+
+
+h3  include
+
+pre
+	<b>include</b> <filename>
+
+p
+	Load and execute named script file just as if it's contents were part of the current source. The <filename> must be a text value.
+p
+	Note: the file is included at the time when this instruction is executed, that means: maybe never, maybe repeatedly, if it occurs in a loop. It is not included at pre-compile time or in some kind of pre-processor as in C.
+p
+	The included script ends when it executes an <tt>end</tt> instruction, <tt>return</tt> on ground level (not inside a procedure) or program execution reaches the end of the script file. It also ends when it encounters an uncatched error, which generates an error in the calling script which subsequently will terminate the calling script if it does not catch the error.
+p
+	There is also a function <tt>include</tt> which does pretty the same thing but also returns the result value, which the included script must return with the <tt>end <value></tt> or </tt>return <value></tt> instruction. If the included script did not return a value, then result 0.0 is assumed.
+
+
+
+
+
+

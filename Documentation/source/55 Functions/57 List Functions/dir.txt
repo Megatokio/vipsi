@@ -1,0 +1,51 @@
+
+
+h3	dir
+
+pre
+	<list> = <b>dir</b>( <text> )
+	<list> = <b>dir</b> <text>
+
+p
+	Returns the contents of directory with path <text>. The path may be a full or partial path or start with ~ for the user's home directory env.HOME and may contain a match pattern with wildcards for files to list in the last path component.
+p
+	There are also a shell immediate command <tt>dir</tt>, which prints a beautified directory listing and an instruction <tt>dir</tt>, which creates a directory.
+p
+	The return value is a list with one item per directory entry. These items itself again are lists with named items. The layout of each item is as follows:
+pre
+	myDirList[1] =
+	{
+		fname = "foo.bar",
+		flags = "-rwx",
+		length= "123",
+		mtime = 1086893549,
+		atime = 1086893549,
+		ctime = 1086893549
+	}
+
+h6	fname
+p
+	this is the file's name, as stored in the file system. If the item is a directory or a symbolic link which refers to a directory, then a slash "/" is appended to the filename.
+
+h6	flags
+p
+	This is a 4-letter text which shows read, write and execute permissions. If one permission is granted, the corresponding letter is written at it's place, else a dash "-".
+	The first character indicates a symbolic link with letter "l".
+
+h6	length
+p
+	Length is in bytes for files or number of entries for directories. Symbolic links are dereferenced prior and if they are broken then length is 0.
+
+h6	mtime, atime and ctime
+p
+	These are the last modification time, the last access time and the last meta data update time, like renaming the file. Not all file system support all time stamps. The time is given in Unix standard time in seconds since 1970 and may be converted to a readable text with function datestr().
+
+
+
+
+
+
+
+
+
+

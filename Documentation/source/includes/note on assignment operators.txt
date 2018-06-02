@@ -1,0 +1,4 @@
+
+
+p	<b>Note:</b> Assignment operators do not return a result value. There are syntactical ambiguities with the "=" sign e.g. in list literals. This also allows named items in other places, e.g. passing named arguments to procedures for a obj-C-like syntax. (planned for the future)
+

@@ -1,0 +1,42 @@
+
+
+h3	exit, quit, end
+	exit, quit, end
+p
+	Quits the vipsi shell. For security, these are also only recognized as shell immediate commands if they are not followed by any other text on the command line. Else they are passed to the script interpreter which will probably complain with weird error messages.
+
+pre.out
+	vipsi> <span class=in>exit</span>
+	vipsi> <span class=in>quit</span>
+	vipsi> <span class=in>end</span>
+p
+	You can also type <control-d> to quit vipsi and, currently as of version 0.8.7, <control-c> is also possible, because the exception is not yet trapped, but this is deprecated, because then the terminal settings are not cleaned up.
+p
+	Note, that <tt>exit</tt> normally is a <i>instruction</i> which is used to exit fom a <tt>do .. loop</tt>.
+p
+	And <tt>end</tt> normally is a <i>instruction</i> which optionally takes one argument and returns from the current script instance. Normally this is the running script, but you can't "return from the vipsi shell" with the <i>instruction</i> <tt>end</tt> because the vipsi shell is not a running script (then you could not use shell immediate commands!) but creates and executes an instance for each command line you enter. So
+
+pre.out
+	vipsi> <span class=in>if 1 end then put 22</span>
+
+p
+	will just print nothing. But not quit. Because this only terminates the script instance which was created by the vipsi shell, which we just now happen to know about, just as it does every time when it reaches the end of the command line.
+p
+	In a script:
+pre.src
+	if 1 end then put 22
+p
+	will also quit the current script instance. If executed in the originally invoked script, this will end the script. If invoked in a script included by one of the instructions or functions supplied for this purpose, like <tt>include</tt> or <tt>call</tt>, this will only terminate the included script. Also, if executed in <tt>eval</tt> this only terminates a sub instance.
+p
+	But what do i talk about this here. Should go into the description of the --> instruction <tt>end</tt>.
+
+
+
+
+
+
+
+
+
+
+

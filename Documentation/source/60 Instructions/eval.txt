@@ -1,0 +1,22 @@
+
+
+
+h3  eval
+
+pre
+	<b>eval</b> <text>
+
+p
+	Execute <text> as a vip script.
+p
+	The text is parsed just like a script, so almost every expression is possible here, including execution of own procedures.
+p
+	The evaluated expression ends when it executes an <tt>end</tt> instruction, <tt>return</tt> on ground level (not inside a procedure) or execution reaches the end of the text. It also ends when it encounters an uncatched error, which generates an error in the calling script which subsequently will terminate the calling script if it does not catch the error.
+p
+	There is also a function <i>eval</i> which returns the result of the last expression in the text and which is more commonly used.
+
+shell
+	i> eval «put "hello!"»  o> hello!
+
+
+

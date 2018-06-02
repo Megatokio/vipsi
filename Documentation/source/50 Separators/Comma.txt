@@ -1,0 +1,60 @@
+
+
+
+h3	Comma ","
+
+p
+	Commas separate arguments for instructions and procedures, items in list literals and indexes in multi-dimensional lists.
+
+
+p
+	Separate arguments of instructions:
+pre
+	put "a=", a, nl;
+
+
+p
+	Separate arguments of functions:
+pre
+	a = max( b,c );
+
+
+p
+	Separate items in list literals:
+pre
+	var mylist={"abc","def","ghi"};
+
+
+p
+	Separate indexes in multi-dimensional lists:
+pre
+	n = mylist[ i,j ];
+	n = mylist[i][j];	// just the same
+
+
+p
+	Separate index in list and index in text of the so addressed item:
+pre
+	var mylist={"abc","def"};
+	a = mylist[1,2];
+	a = mylist[1][2];	// just the same
+	put a				// prints: b
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

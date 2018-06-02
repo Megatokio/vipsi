@@ -1,0 +1,55 @@
+
+
+h3 acos
+
+pre
+ 	<number> = <b>acos</b> <number>
+ 	<number> = <b>acos</b> ( <number> )
+
+p
+	Calculate angle from cosinus value.
+p
+	Returns a numeric value. The result is in range [0 .. +pi].
+
++ ../../includes/functions with 1 arg.txt
+
+
+
+
+h3 asin
+
+pre
+ 	<number> = <b>asin</b> <number>
+ 	<number> = <b>asin</b> ( <number> )
+
+p
+	Calculate angle from cosinus value.
+p
+	Returns a numeric value. The result is in range [-pi/2 .. +pi/2].
+
+
+
+h3 atan
+
+pre
+ 	<number> = <b>atan</b> <number>
+ 	<number> = <b>atan</b> ( <number> )
+
+p
+	Calculate angle from tangens value.
+p
+	Returns a numeric value. The result is in range [-pi/2 .. +pi/2].
+
+
+
+
+
+
+
+
+
+
+
+
+
+

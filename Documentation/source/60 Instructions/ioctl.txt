@@ -1,0 +1,38 @@
+
+
+
+
+
+h3  ioctl
+
+pre
+	<b>ioctl</b> <name> = <value>
+	<b>ioctl</b> #<number>, <name> = <value>
+
+p   Set stream settings
+p.b	••• still under development •••
+
+p	There is also a function <tt>ioctl</tt> which reads settings from a stream.
+
+
+h5	Set only:
+pre
+	ioctl flush|flushin|flushout
+
+h5	Set/read:
+pre
+        ioctl timeout = 0 (off)  or  number (seconds)
+        ioctl text    = "utf-8"  or  "mac-roman"
+        ioctl pos     = number         (file: read-write-pointer)
+                        {row,col}      (tty:  cursor location)
+
+h5	Read only:
+pre
+        ioctl var = type               ("tty", "file", etc.)
+        ioctl var = inavail            (bytes readable w/o blocking)
+        ioctl var = outfree            (bytes writable w/o blocking)
+        ioctl var = error              (0=ok, 1=eof, 2=timeout, ...)
+        ioctl var = size               (file: number, tty: {rows,cols})
+        ioctl var = name               (filename)
+        ioctl var = isopen/isopenin/isopenout
+

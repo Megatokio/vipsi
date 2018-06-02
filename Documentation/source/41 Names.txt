@@ -1,0 +1,96 @@
+
+
+
+
+
+
+
+
+// ==========================================================================
+h1	Identifiers, names
+	identifier, name, idf
+p
+	You need names for your variables and procedures. Also each item in a list may be named. In fact, all variables that you define are put in a list which is named <i>globals</i>.
+p
+	There are nearly no restrictions on variable names. Any sequence of data may be used as a variable's name. but there are restrictions on names which are recognized by vipsi easily.
+p
+	The following rules must be obeyed for new names:
+ul
+li  Names must start with a letter or with '_'. This may be a latin letter, greece, or ... yes you got it.
+li  Subsequent characters must be a letter, '_' or a number digit. Number digits of other script systems are allowed.
+li  Names must be 255 characters max.
+li  Names must not be a word pre-defined by the vips script language.
+
+
+h5	Examples of legal names:
+pre
+	 anton, cäsar, µ, Ωsub, sin21, _, _liste_, Café, Smørebrød, Жизмн.
+
+
+h5	Examples of illegal names:
+pre
+	catch 23      contains space
+	sin           pre-defined word
+	6pack         starts with a number
+	big-letters   no '-' allowed
+
+
+
+h4	No restrictions on names
+p
+	In fact, the above restrictions are only imposed on the script parser. Variable names may be really any name.
+	e.g. frequently you have variables with an empty name, e.g. command line arguments which are stored as unnamed variables in the <i>globals</i> list variable or most commonly unnamed items in lists. You can create and access them with the help of the <tt>@</tt> prefix operator:
+
+pre	// define variable with name "55":
+    var @"55" = 66; put @"55"
+
+	// fetch variable by a computed name:
+    var vname="";
+    put nl,"which var? "; get vname;
+    if(exists @vname) put " = ",@vname,nl else put "does not exist",nl then
+
+	// rename variables to computed names:
+    var text = file("test file.txt")
+    split text    		// split text at line breaks --> list of texts
+    var i=0
+    do  while ++i <= count text
+        rename text[i] = text[i]
+    loop
+
+p
+	In general you won't need it and it is a feature for experts and not beginners. See the example script "count_words.vs" for an application of this feature.
+
+
+
+h4	Scope of names
+p
+	You can select a named item in any list with the "." operator. Whenever a list is searched for a given name, then the search starts at the list end. If the list contains more than one item with the same name, then searching for that name returns the last item.
+p
+	At 'ground level', that is outside any procedure, all names are searched in the list of global variables. You can create nested ranges of statements with private variable scope using braces: <tt>{ ... }</tt>. Then the search starts in the innermost <i>privates</i> scope, extending to surrounding private scopes up to the global scope, until an item of the requested name ist found.
+ol
+li	Innermost <tt>{ .. }</tt> private scope ...
+	... globals of the program
+p
+	Inside a procedure the search includes the list of local variables and the list which contains the procedure itself. Then the search starts in the innermost <i>privates</i> scope, extending to surrounding private scopes up to the local scope, then scanning the list which contains the procedure itself and finaly searching through the globals list, until an item of the requested name ist found.
+ol
+li	Innermost <tt>{ .. }</tt> private scope ...
+	... locals of the procedure
+li	List which contains the procedure
+li	Globals of the program
+p
+	What is 'searching the list which contains the procedure' good for?
+p
+	The procedure might be locally defined inside another procedure. Then the procedure is a local variable. Using the parent list search it can easily access all local variables of the enclosing procedure too.
+p
+	Or you put procedures into complicated lists to manage some aspects, offering a light-weight approach to object oriented programming.
+
+
+
+
+
+
+
+
+
+
+

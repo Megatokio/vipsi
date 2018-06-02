@@ -1,0 +1,17 @@
+
+
+
+
+
+
+h2	Syntax Highlighting
+p
+	The vipsi distribution comes with a syntax highlighting definition file for <i>kate</i> and other text editors based on <i>katepart</i>. It is installed in <i>/usr/share/apps/katepart/syntax/</i>. The highlighting is near perfect.
+
+
+h4		Definition files
+
+h5		XML file for <i>kate</i> and <i>katepart</i>.
+p.c		<a href="libs/vip.xml">Download link</a>.
+include	libs/vip.xml
+

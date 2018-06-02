@@ -1,0 +1,71 @@
+
+
+h3  open
+
+pre
+	<b>open</b> <filename>
+	<b>open</b> #<number>, <filename>
+
+p
+	Open file or stream for reading and writing.
+p
+	Default stream is <i>stdout</i> which should be changed by supplying another stream number with <i>#<number></i>. <filename> must be a text value. The filename can be a full or partial path or can start with '~' for the user's home directory. Though you should not do so, you can open a stream for <i>stdin</i>, <i>stdout</i> and <i>stderr</i> even in interactive shell mode. The shell's line editor uses a private copy of <i>stdin</i> so that you are not suddenly left alone in the dark.
+
+
+
+
+h3  openin
+
+pre
+	<b>openin</b> <filename>
+	<b>openin</b> #<number>, <filename>
+
+p
+	Open file or stream for reading.
+p
+	The default stream is <i>stdin</i> which should be changed by supplying another stream number with <i>#<number></i>. <filename> must be a text value. The filename can be a full or partial path or can start with '~' for the user's home directory. Though you should not do so, you can open a stream for <i>stdin</i>, <i>stdout</i> and <i>stderr</i> even in interactive shell mode. The shell's line editor uses a private copy of <i>stdin</i> so that you are not suddenly left alone in the dark.
+
+
+
+
+h3  openout
+
+pre
+	<b>openout</b> <filename>
+	<b>openout</b> #<number>, <filename>
+
+p
+	Open file or stream for writing.
+p
+	The default stream is <i>stdout</i> which should be changed by supplying another stream number with <i>#<number></i>. <filename> must be a text value. The filename can be a full or partial path or can start with '~' for the user's home directory. Though you should not do so, you can open a stream for <i>stdin</i>, <i>stdout</i> and <i>stderr</i> even in interactive shell mode. The shell's line editor uses a private copy of <i>stdin</i> so that you are not suddenly left alone in the dark.
+
+
+
+
+
+h3  close
+
+pre
+	<b>close</b>
+	<b>close</b> #<number>
+
+p
+	Close opened file or stream.
+p
+	The default stream is <i>stdout</i> which should be changed by supplying another stream number with <i>#</i>. Streams 0 to 2, that is <i>stdin</i>, <i>stdout</i> and <i>stderr</i>, can be closed but will reset to their initial stream afterwards.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+
+ul
+li
+	If invoked from the <b>bash</b> or similar, the script gets called via the unix process forking mechanism. Then you can return only tiny little integers in range [0 to 255]. This return value is expected to be some kind of error code, not the "result" of the program. <tt>0</tt> typically means 'success' any other value indicates an error.
+	If a script does not return a result, that is, if it executes <tt>end</tt> with no argument or runs beyond the file end, then the return value is set to 0, which is likely to indicate 'no error'.
+
+	Don't rely on the exact value of the return code! The bash itself returns 126 if a command was found but not executable, 127 if a command was not found, 128+N if the command crashed with exception N and possibly any other error code for other conditions.
+
+	In addition vipsi returns <tt>125</tt> in the following cases: if the script crashes with an error then this error code is returned or <tt>125</tt> if the error code was too high. If the script returns a non-numeric value or a numeric value out of range, then the result is substituted with <tt>125</tt> too.
+
+li
+	If invoked from another vip script or the vipsi command line using <tt>sys</tt> then the script gets called in the same way as from the bash shell. All said there is true here too, except for the additional result codes used by the bash. The return value from the invoked script is not returned to the caller, the caller gets the script output to stdout instead. If an error in the script occurs or if the script returns a non-zero value, then an error is triggered in the caller script which must be handled with <tt>try</tt>. <tt>errorstr</tt> then contains some useful error message.
+
+li
+	If invoked from another vip script or the vipsi command line using <tt>call</tt> or <tt>include</tt>, then the script can return a result of any type or optionally no result at all. If the caller requires a result then it will assume <tt>0</tt> if <tt>end</tt> returns no result.
+li
+	If the script is a text value which is executed with <tt>eval</tt>, then the script can return a result of any type or optionally no result at all. If the caller requires a result and <tt>end</tt> returns no result, then an error is generated.
+
+
+// bash:
+//	126 file found but not executable
+//	127 file (command) not found
+//	128+N command terminated by signal N
+//	all other codes are possible too, though..
+
+

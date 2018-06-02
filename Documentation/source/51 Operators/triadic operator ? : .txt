@@ -1,0 +1,95 @@
+
+
+h3  Select "? :"
+	triadic select operator, triadic operator
+	triadic, select operator, triadic selector
+	selection operator, triadic selection operator
+
+pre
+	<value> = <condition> <b>?</b> <value> <b>:</b> <value>
+
+p
+	Select one of two values based on a condition.
+p
+	The condition must be a numeric value and is considered 'true' if it is non-zero.
+p
+	If the condition is true, then the first value is selected, else the second value is selected as the result of the operation. This is similar to <tt>if .. else .. then</tt> except that it happens inside an expression.
+p
+	If the two values have different data types then the result has the type of the selected value.
+
+p
+	<b>Pruning:</b> Depending on the condition either the first or second value is evaluated and the other is skipped and not executed at all. Pruning is especially useful if one operand is only valid under certain conditions and must not be executed otherwise.
+p
+   Examples:
+pre
+	put a>b ? a : b
+	put 1 ? a : 347rz34834n
+	put exists(a) ? a : 0
+	put count(myList)>0 ? myList[1] : ""
+	a = istext(a) ? "123" : 123
+
+
+h6	Nesting
+pre
+	<value> = <condition> <b>?</b> <condition> <b>?</b> <value> <b>:</b> <value>
+						  <b>:</b> <condition> <b>?</b> <value> <b>:</b> <value>
+p
+	The select operator may be nested without parenthesis. This is similar to nesting <tt>if .. else .. then</tt>.
+	Note: It is not possible to replace a <condition> by a select operator expression without parenthesis.
+p
+	Example:
+
+pre.src
+	var errno_notrepresentable  = 125;
+	var result_notrepresentable = 125;
+
+	return
+		ErrNo()
+		?	ErrNo() < errno_notrepresentable
+			? ErrNo()
+			: errno_notrepresentable
+		:	isnumber(result) && result<result_notrepresentable
+			? result
+			: result_notrepresentable;
+
+
+h6	Concatenation
+pre
+	<value> = <condition> ? <value>
+			: <condition> ? <value>
+			: <condition> ? <value>
+			: <value>
+p
+	You can stack any number of alternative cases. This is effectively done by continuously replacing the second <value> of a select operator expression by another select operator expression. The effect is similar to <tt>if .. elif .. elif .. else .. then</tt>.
+p
+	Example:
+
+shell
+	i> var a=2
+	i> var Z.Z
+	i> Z.Z = a==1 ? "Foo" : a==2 ? "Schnerk" : a==4 ? "Schubi" : "Thor"
+	i> put Z.Z  o> Schnerk
+	i> <>
+p
+	In the above example "Foo", "Schubi" and "Thor" are skipped and not executed due to pruning.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

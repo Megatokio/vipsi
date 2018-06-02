@@ -1,0 +1,54 @@
+
+
+
+
+
+
+
+
+
+
+
+h3	globals
+pre
+	<list_ref> = <b>globals</b>
+p
+	Return a reference to the globals variables list.
+p
+	This is useful if you want to add new global variables from within a procedure or if you explicitly want to refer to a certain global variable. Or you may save all global data to file in one go.
+p
+	If executed on 'ground level', that is, outside any procedure, then <tt>locals</tt> returns a reference to the <tt>globals</tt> list variable.
+p
+	e.g.:
+pre
+	put globals
+
+	proc Test_A ()
+	{
+		if !exists globals.a
+			new var globals.a
+		then
+	}
+
+	file "safefile" = globals
+	globals ##= file safefile
+p
+	Note: while you can save all globals easily, you must use a little trick to load them back, because you cannot replace the list variable <tt>globals</tt> with new contents: Just concatenate the old list to the current one. This is more a 'merge' than a 'load' though.
+
+p
+	There is also a shell immediate command <tt>globals</tt>, which prints a beautified list of all global variables.
+p
+	Because of this you cannot simply type <tt>globals</tt> in the vipsi shell if you want to see the list of globals variable, you would execute the shell command instead, though this is probably what you actually want most times. In order to execute the function <tt>globals</tt> you must 'hide' the word somehow from the shell, which is simply done by not starting in column 1. Or you use <tt>put</tt> as you would in any script:
+shell
+	i> put globals
+	i>  globals
+	i> ;globals
+
+
+p
+	<tt>globals</tt> is actually also the real name of the global variables list. You can rename it, but you can always access it with <tt>globals</tt>.
+
+
+
+
+

@@ -1,0 +1,26 @@
+
+h3  call
+
+pre
+	<value> = <b>call</b> ( <filename> )
+	<value> = <b>call</b> ( <filename>, <value> [,…] )
+
+
+p
+	Call another vip script like a procedure with parameters and return a result.
+p
+	Calling another vip script is very similar to executing a shell script except that the script can be passed and return values of any type. The called script shares the preferences of the current context but cannot access it's variables and procedures.
+p
+	The called script ends when it executes an <tt>end</tt> instruction, <tt>return</tt> on ground level (not inside a procedure) or program execution reaches the end of the script file. It also ends when it encounters an uncatched error, which generates an error in the calling script which subsequently will terminate the calling script if it does not catch the error.
+p
+	The called script is expected to return a value with <tt>end</tt> or <tt>return</tt>. If it does not return a value, then a result value of 0.0 is assumed.
+p
+	There is also an instruction <tt>call</tt> which does pretty the same thing but does not expect a return value.
+
+p
+	e.g.:
+pre
+	var rslt = call ( "utils/add2db.vs", user_id, number, value )
+
+
+

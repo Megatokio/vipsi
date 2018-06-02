@@ -1,0 +1,25 @@
+
+
+
+h3	fract
+
+pre
+	<number> = <b>fract</b> <number>
+	<number> = <b>fract</b> ( <number> )
+
+p
+	Return the fractional part of a numeric value.
+p
+	The fractional part of a number has the same number sign as the number itself. The integer part is chopped off and the returned number is in range <tt>-1 .. +1</tt>, both limits excluded.
+
++ ../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> fract pi  o> = 0.14159265358979
+	i> fract 0.7  0> = 0.7
+	i> fract -33.44  o> = -0.44
+	i> fract 50  o> = 0
+	i> fract 1e40  o> = 0
+	i> <>

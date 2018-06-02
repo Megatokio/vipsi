@@ -1,0 +1,26 @@
+
+h1	Instructions
+
+p
+	Instructions are words which do not return a result value. Since they don't do so, they can't be used as arguments to other instructions, functions or procedures. Any program is a sequence of statements which typically start with an instruction (except most notably assignments), executed one after the other, each doing some kind of magic. Hopefully.
+p
+	Arguments to instructions are appended immediately. Multiple arguments, if possible, are separated with commas. Many instructions, e.g. the most commonly used <tt>put</tt> accept any amount of arguments, all separated by commas. They just work repeatedly on one after the other.
+p
+	In most cases there is no need to mark the end of an argument list with a special character, though you may be accustomed to use a semicolon "<tt>;</tt>" for this purpose. The use of the semicolon ";" is optional in most cases.
+p
+	Examples:
+pre
+	<b>if</b> a>2 <b>put</b> "a>2",nl <b>else</b> <b>return</b>(a+=1) <b>then</b>
+p
+	In the above example, bold words are instructions, the remainder are arguments to them. For better clarity here again with one instruction per line:
+pre
+	<b>if</b> a>2
+		<b>put</b> "a>2", nl
+	<b>else</b>
+		<b>return</b>(a+=1)
+	<b>then</b>
+
+
+
+
+

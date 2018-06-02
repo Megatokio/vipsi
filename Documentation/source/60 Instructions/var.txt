@@ -1,0 +1,29 @@
+
+
+
+h3  var
+
+pre
+	<b>var</b> <name>
+	<b>var</b> <name> = <value>
+
+p
+	Create variable if it does not already exist and optionally assign an initial value.
+
+p
+	e.g.:
+pre
+	var a = 0
+	var aList.z[4] = "this is aList.z[4]"
+
+
+
+p
+	<tt>var</tt> is also often used as some kind of flag word to certain instructions, most notably those which can also take a file reference. But in most such cases it is optional.
+p
+	e.g.:
+
+pre
+	new var a = 77
+
+

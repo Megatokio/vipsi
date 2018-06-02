@@ -1,0 +1,21 @@
+
+h3	match
+
+pre
+	<number> = <b>match</b> ( <text>, <pattern> )
+	<number> = <b>match</b> ( <text>, <pattern>, <number> )
+
+p
+	Test whether the text matches the pattern, which must be a text value too.
+p
+	Returns	a boolean value: 0 (no) or 1 (yes).
+p
+	The	optional flag consists of 4	bits:
+pre
+	1 =	enable backslash escaping
+	2 =	directory separators must match	directly
+	4 =	initial	dot	in each	file or	directory must match directly
+	8 =	compare	case-insensitive
+
+
+

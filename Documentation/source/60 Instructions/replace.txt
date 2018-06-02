@@ -1,0 +1,20 @@
+
+
+h3  replace
+
+pre
+	<b>replace</b> <text_ref>, <oldtext>, <newtext>
+
+p
+	Replace in <text_ref> any occurance of <oldtext> with <newtext>. The target text variable is overwritten with the result of the conversion.
+p
+	The source text is scanned from left to right and replaced text is not scanned again. If the search text <oldtext> is an empty string, then nothing is done.
+p
+	Version 0.8.7: <i>replace</i> does not yet work on lists. this will be added in the near future.
+p
+	There is also a function <tt>replace</tt> which returns the modified text.
+p
+	e.g.:
+pre
+	replace html_file, old_homepage, new_homepage
+

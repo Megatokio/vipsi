@@ -1,0 +1,88 @@
+
+
+h3  Item selector "[]"
+	select range of items, select range, select
+
+pre
+	<var_ref> = <list> <b>[</b> <number> <b>]</b>
+	<var_ref> = <list> <b>[</b> <number> , <number> [, …] <b>]</b>
+	<list> = <list> <b>[</b> <number> <b>to ]</b>
+	<list> = <list> <b>[ to</b> <number> <b>]</b>
+	<list> = <list> <b>[</b> <number> <b>to</b> <number> <b>]</b>
+
+	<text> = <text> <b>[</b> <number> <b>]</b>
+	<text> = <text> <b>[</b> <number> <b>to ]</b>
+	<text> = <text> <b>[ to</b> <number> <b>]</b>
+	<text> = <text> <b>[</b> <number> <b>to</b> <number> <b>]</b>
+p
+	Select item or range of items from list.
+	Select Character or range of characters from text.
+p
+	Returns a variable reference, list value or text value.
+p
+	The <tt>[…]</tt> operator selects an item or a range of items from a list or text.
+p
+	Indexes start at <b>1</b>.
+p
+	Ranges are start to end inclusive. If the start index is omitted, then the range starts at the start of the list or text. If the end index is omitted, then the range extends to the end of the list or text. If the start or end index of a range is outside the list or text size, then it is forced inside.
+p
+	If the index of a single item is less or equal 0, then this yields an error. If the index in a list is beyond the list end, then the list is extended to create that item. If the index in a text is beyond the text end, then this yields an error.
+
+
+h5	Lists
+p
+	If if only one item in a list varibale is selected, then a reference to that item is returned. Then you can overwrite the contents of this list item. e.g.:
+shell
+	i> var mylist = {1,2,3}
+	i> mylist[3] = "4711"
+	i> put mylist  o> { 1, 2, "4711" }
+	i> <>
+
+p
+	Overwriting ranges of items is not yet implemented.	(version 0.8.7)
+p
+	If the selected item again is a list, an item in this sub list can be selected by either of these versions:
+pre
+	put mylist[i,j]
+	put mylist[i][j]
+p
+	You can also select a range in a sub list like this:
+pre
+	put mylist[i,a to e]
+	put mylist[i][a to e]
+
+p
+	You can access items beyond the end of a list. Then this and all intermediate items are instantly created, all unnamed and set to <tt>0.0</tt>.
+shell
+	i> var mylist={}
+	i> mylist[10]
+	i> put mylist  o> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+	i> <>
+
+p
+	The name of a selected item is preserved, even if <tt>[…]</tt> operates on a list value (and not a list variable).
+shell
+	i> put name env[1]  o> KDE_MULTIHEAD
+	i> <>
+
+
+h5	Text
+p
+	If the left-side operand is a text value, then you can access individual characters and ranges of charracters with the same syntax. This syntax is preferred over <tt>leftstr</tt> and the like.
+p
+	Overwriting single characters or ranges of characters is not yet implemented.	(version 0.8.7)
+p
+	You can select a character or range of characters of a text in a list just like an item in a sub list by either of these versions:
+pre
+	put mytextlist[i,j]
+	put mytextlist[i][j]
+	put mytextlist[i,a to e]
+	put mytextlist[i][a to e]
+
+
+
+
+
+
+
+

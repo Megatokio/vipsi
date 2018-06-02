@@ -1,0 +1,33 @@
+
+
+h3	random
+
+pre
+	<number> = <b>random</b> <number>
+	<number> = <b>random</b> ( <number> )
+
+p
+	Create  a random number	in range [0	.. [n.
+p
+	The random number is a fractional number in the desired range. If you need integers then you can apply function <tt>int</tt> afterwards.
+p
+	The random number generator is seeded on program start.
+
++	../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> random 5  o> = 1.5446008834988
+	i> random 5  o> = 3.4346934012137
+	i> random 5  o> = 3.8431410165504
+	i> random 5  o> = 4.5170289813541
+	i> proc W6() { return 1+int(random 6) }
+	i> W6()  o> 3
+	i> W6()  o> 4
+	i> W6()  o> 1
+	i> <>
+
+
+
+

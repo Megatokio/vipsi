@@ -1,0 +1,13 @@
+
+
+
+
+
+
+
+h1	Flow control
+	branch, condition
+
+p
+	This group of instructions modifies the linear flow of program execution into branches and loops. There is also the error catcher with 'try' and script termination with 'end'.
+

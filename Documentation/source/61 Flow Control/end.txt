@@ -1,0 +1,24 @@
+
+
+
+
+h3	end
+
+pre	<b>end</b>
+	<b>end</b> 0
+	<b>end</b> 1
+	<b>end</b> <value>
+
+p
+	End of script optionally returning a value.
+p
+	While <tt>return</tt>, when executed in a procedure, will only return from the procedure, <tt>end</tt> allways exits from the whole script.
+p
+	<tt>end</tt> may optionall return a return value. Whether it is expected to do so and which values are acceptable depends on the invocation of the script.
+
++	../includes/end and return values.txt
+
+
+
+
+

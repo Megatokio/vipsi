@@ -1,0 +1,258 @@
+
+h1	Installation
+
+
+
+h2	Unix-style Installation
+
+
+
+h3	Install vipsi from a binary .tar.bz2 distribution
+p
+	Extract the compressed tar file at a convenient place, e.g. in your home directory, and copy vipsi into /usr/bin.
+pre
+	bash$  bunzip vipsi-*.bz2
+	bash$  tar xf vipsi-*.tar
+	bash$  cd vipsi/unix
+
+	bash$  su
+	root$  ./install.vs
+	root$  exit
+p
+	or:
+pre
+	bash$  sudo ./install.vs
+p
+	or:
+pre
+	bash$  ./install.vs --user
+
+p
+	If you are not permitted to install applications in /usr/bin/, you can install vipsi into ~/bin/ and support files in ~/.vipsi/ by running the install script with command line option --user. Then you should also verify that ~/bin/ is in the command search path of your shell and all your scripts must start with
+pre
+	#/home/your/home/bin/vipsi
+p
+	instead of
+pre
+	#!/usr/local/bin/vipsi
+p
+	so that you can start them directly.
+
+
+
+
+h3	Install vipsi from a source .tar.bz2 distribution
+p
+	Extract the compressed tar file at a convenient place, e.g. in your home directory, cd into vipsi/unix and run ./configure, make and make install.
+
+h4	Extract & compile source:
+pre
+	bash$  bunzip vipsi-*.bz2
+	bash$  tar xf vipsi-*.tar
+	bash$  cd vipsi/unix
+	bash$  ./configure
+	bash$  make
+
+h4	Install vipsi:
+p	This works just like as for the binary distribution:
+pre
+	bash$  su
+	root$  ./install.vs				# or make install
+	root$  exit
+p
+	or:
+pre
+	bash$  sudo ./install.vs		# or make install
+p
+	or:
+pre
+	bash$  ./install.vs --user		# to install in ~/bin/
+
+
+
+
+h3	Install vipsi from cvs
+
+h4	Checkout source:
+p
+	You must checkout "vipsi" from the vipsi project and "libraries" from the
+	lib-kio project. "libraries/" must be stored inside "vipsi/". You may also
+	put "libraries/" where you like if you create a link in "vipsi/".
+pre
+	vipsi/                  <-- from project vipsi
+	vipsi/libraries/        <-- from project lib-kio
+
+h5	If you have a developer login at sourceforge:
+p.c	(required if you want to commit changes)
+pre
+	bash$  cd YOUR_DEV_ROOT
+	bash$  export CVS_RSH=ssh
+	bash$  cvs -d:ext:YOU@cvs.sourceforge.net:/cvsroot/vipsi checkout vipsi
+	bash$  cd vipsi
+	bash$  cvs -d:ext:YOU@cvs.sourceforge.net:/cvsroot/lib-kio checkout libraries
+
+
+h5	If you don't have a developer login at sourceforge
+p.c	(then this is a read-only copy)
+pre
+	bash$  cd YOUR_DEV_ROOT
+	bash$  cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/vipsi checkout vipsi
+	bash$  cd vipsi
+	bash$  cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/lib-kio checkout libraries
+
+
+h4	Compile source:
+pre
+	bash$  cd YOUR_DEV_ROOT/vipsi/unix
+	bash$  chmod u+x configure		# if executable bit got lost
+	bash$  ./configure
+	bash$  make
+
+
+h5	Install vipsi:
+pre
+	bash$  su
+	root$  ./install.vs				# or make install
+	root$  exit
+p
+	or:
+pre
+	bash$  sudo ./install.vs		# or make install
+p
+	or:
+pre
+	bash$  ./install.vs --user		# to install in ~/bin/
+
+
+
+h3	Make a binary distribution
+p
+	If you downloaded and compiled vipsi for a platform, for which there is no binary distribution available, you can very easily create a binary distribution and i'll be happy if you send it in:
+pre
+	bash$ make binary-dist
+p
+	The created tarball can be found in <tt>vipsi/distributions/</tt>.
+
+
+
+h3	Make a source distribution
+p
+	Though there will be rarely need for this, but maybe if you changed a bit which i don't like ;-) you can make your own source distribution just by running:
+pre
+	bash$ make source-dist
+p
+	The created tarball can be found in <tt>vipsi/distributions/</tt>.
+p
+	If anything fails, just gimme a mail.
+
+
+
+
+// ========================================================================
+h2	MacOS X
+
+p	On MacOS X vipsi can be installed as on any other unix-style OS. Here are additional platform-specific hints. These instructions were written for MacOS X 10.1.
+
+h3	Installing the application
+
+p	To start vipsi you will need a terminal window. The terminal application can be found in <i>Applications/Utilities</i> and is named <i>Terminal</i>.
+
+p	You can extract the distribution archive just by double-clicking it. This should create a folder with all it's contents. Then in the terminal <i>cd</i> into this folder. This can be done most easily with drag&drop:
+
+pre	bash$> <b>cd</b> <drag folder here>
+
+p	Then resume as for any unix-style installation:
+pre
+	bash$> <b>cd unix</b>
+p
+	If you picked the source distribution, configure and compile the source:
+pre
+	bash$> <b>./configure</b>
+	bash$> <b>make</b>
+p
+	Install vipsi:
+pre
+	bash$> <b>sudo ./install.vs</b>		# or: <b>make install</b>
+
+p	When you have installed vipsi properly you can start it by simply typing vipsi in a terminal window. It may be neccessary to quit and restart the Terminal application at this point.
+
+
+h4	Make vipsi double-clickable
+
+p	If you double click on vipsi in the finder, then the finder does not know how to start it. This is because vipsi is not an MacOS X application but rather a command line tool. If you don't like to first lauch the Terminal app and then from within the Terminal app start vipsi, just to have it handy for a quick calculation, you can make vipsi double clickable from the finder like that:
+
+ol
+li	control-click on the vipsi icon to get the context menu
+li	select "show informations" to open a file info panel
+li  from the popup menu select "application to open"
+li  from the popup below select "other application"
+li  in the file select box uncheck "show only recommended applications"
+li  select the Terminal app from the Applications folder
+
+p   Not that easy...
+
+
+h4	Make scripts double-clickable
+
+p   if you have written scripts for vipsi, there are numerous methods to execute them:
+
+ol
+li  Start vipsi and use the <i>include</i> instruction to include (load and execute) the script file.
+li  Start vipsi with a command line paramater for that file: <tt>vipsi <i>script_filename</i></tt>.
+li  Start the script by simply typing it's name: <tt><i>script_filename</i></tt>.
+	This requires that the script has been tagged 'executable' using <tt>chmod a+x <i>script_filename</i></tt> and that the first line in the script is <tt>#!/usr/local/bin/vipsi</tt>.
+li  Start the script by double clicking on it. For this you must make the file executable as above and do the same for the script file as explained for vipsi above.
+
+
+
+
+h3	Drive cgi scripts with vipsi
+
+p.i	This documentation was written for MacOS X 10.1. If anything has changed since then, please tell me.
+
+p   The cgi mechanism is not provided by your browser. It is provided by web servers like the Apapche web server preinstalled with your MacOS X. This means: cgi scripts won't work if the url in your web browser starts with <tt>file://</tt>. Files, even those local on your own hard disk, must be accessed via http from your web server, that is, the url must start with <tt>http://</tt>.
+
+h4	Start your Apache web server
+
+ul
+li  Control panels > sharing > start web sharing
+li	Test it: enter the url <http://127.0.0.1> into your web browser. This should show the standard web site of your local computer, probably the Apache documentation. enter <http://127.0.0.1/~your_unix_name> should show the file <i>index.html</i> in the folder <i>Sites</i> in your home directory.
+
+p   Read the Apache documentation. This should give you enough time to spend the whole summer B-]. Best is, you leave the whole thing as it is for the first time.
+
+p   Your computer's start directory for http documents should be <tt>/Library/WebServer/Documents</tt>. The default directory for cgi scripts should be <tt>/Library/WebServer/CGI-Executables</tt>. The Apache http server is probably configured to translate <tt>/cgi-bin/</tt> in any url to this directory and that it only executes cgi scripts which are in this directory. In additition, this directory is not writable for you. You can either reconfigure Apache, so that it executes cgi scripts in your home directory or you can copy your scripts into <tt>/Library/WebServer/CGI-Executables</tt> using <i>sudo</i>.
+
+p   After you have copied the first cgi script into <tt>/Library/WebServer/CGI-Executables</tt> you can test it. Just enter it's url into the web browser: <http://127.0.0.1/cgi-bin/scriptname>. This should call your script which in return should create a page. You also may append arguments for a <i>cgi get or put request</i> in the form <http://127.0.0.1/cgi-bin/scriptname?name1=avalue&name2=othervalue> there are probably already some test cgi scripts in that directory which you can try too.
+
+p   Put a page which calls a cgi script in your home directory and try it.
+
+
+
+h3	Compiling the source
+
+p	Checkout the source as described for unix-style operating systems: 'Checkout source'. Configure and compile the source with <i>./configure</i> and <i>make</i> as for all unix-style systems. You are done.
+
+p	You may want to create a project or edit some files . Please note:
+p.c	<b>All source files are encoded using utf-8</b>.
+p	Please take care to leave it that way. In Project Builder you can select utf-8 encoding (if it didn't default to it) from some menu. Take care to choose "reinterpret" not "reencode" or the like. Thanks for that.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

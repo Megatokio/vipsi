@@ -1,0 +1,41 @@
+
+h3  Concatenate Texts "#"
+	concatenate, hash
+	stream select, stream selector
+
+pre
+	<text> = <text> <b>#</b> <text>
+
+p
+	Concatenate two text values. Result is a text.
+p
+	If any operand is a numeric value, then it is conveted to text as with <tt>string</tt>.
+p
+	If one operand is a list, then the result is a list, where the operation was applied to all items. If both are lists, then the operation is applied to all matching items.
+p
+	e.g.:
+shell
+	i> put {1,2,3} # "anton"  o> { "1anton", "2anton", "3anton" }
+	i> put "anton" # {1,2,3}  o> { "anton1", "anton2", "anton3" }
+	i> put "ant" # "0123.40"  o> "ant0123.40"
+	i> put "anton" # 0123.40  o> "anton123.4"
+	i> put 123.456 # 0123.40  o> "123.456123.4"
+	i> put {1,2,3} # "XYZ" ;  o> { "1XYZ", "2XYZ", "3XYZ" }
+	i> put "XYZ" # {1,2,3} ;  o> { "XYZ1", "XYZ2", "XYZ3" }
+	i> put {1,2,3} # {4,5} ;  o> { "14", "25", "3" }
+	i> <>
+
+h6	Other usage:
+p
+	Select stream for i/o instruction:
+p
+    open, openin, openout, close, put, get, read, write and getchar.
+p
+	e.g.:
+pre
+	open #4, "hello.txt";
+	put#4,"hello world",nl;
+	close#4;
+
+
+

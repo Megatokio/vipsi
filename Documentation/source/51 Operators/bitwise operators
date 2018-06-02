@@ -1,0 +1,102 @@
+
+
+
+h3  Bitwise Not "~"
+	bit toggle, not, complement, 2's complement
+
+pre	<number> = <b>~</b><number>
+p	Bit toggle, bitwise negation.
+p	The monadic operator <tt>~</tt> returns the 2's complement of the supplied numeric value.
+	This is the same as subtracting it from -1.
+p   e.g.:
+shell
+	i> put ~20  o> -21
+	i> put ~1.5  o> -2.5
+
+
+
+
+
+h3  Bitwise And "&"
+	and
+
+pre	<number> = <number> <b>&</b> <number>
+p	Bitwise 'and'.
+p	Calculate the bitwise 'and' of two numeric values.
+p	If any of both arguments is a text, then it is evaluated as number. If one operand is a list, the result is a list, where the operation was applied to all items. Recursively. If both are lists, they should match in size and the operation is applied to all matching items.
+p	The result of bitwise and is positive, if one of the operands is positive. If both operands are negative, the result is negative. 
+p   e.g.:
+shell
+	i> hexstr($FE & $0F)  o> = 0E
+	i> hexstr( $FF00 & ~$A0A0 )  o> 5F00
+	i> ~$FF00 & ~$A0A0  o> -65441
+	i> hexstr( ~$FF00 & ~$A0A0, 4 )  o> 005F
+	i> hexstr( ~$FF00 & ~$A0A0, 8 )  o> FFFF005F
+	i> <>
+
++	../includes/note on bitwise operators.txt
+
+
+
+
+
+h3  Bitwise Or "|"
+	or
+
+pre	<number> = <number> <b>|</b> <number>
+p	Bitwise 'or'.
+p	Calculate the bitwise 'and' of two numeric values.
+p	If any of both arguments is a text, then it is evaluated as number. If one operand is a list, the result is a list, where the operation was applied to all items. Recursively. If both are lists, they should match in size and the operation is applied to all matching items.
+p	The result of bitwise or is positive, if both operands are positive, else it is negative. 
+p   e.g.:
+shell
+	i> hexstr($0E | $58)  o> = 5E
+	i> hexstr($FF00 | $5E)  o> FF5E
+	i> ~$FF | $5E  o> -162
+	i> hexstr(~$FF | $5E, 4)  o> FF5E
+	i> hexstr(~$FF | $5E, 4)  o> FFFFFF5E
+	i> <>
+
++	../includes/note on bitwise operators.txt
+
+
+
+
+h3  Bitwise Exclusive Or "^"
+	exclusive or, xor, exor
+
+pre	<number> = <number> <b>^</b> <number>
+p	Bitwise 'exclusive or'.
+p	Calculate the bitwise 'exclusive or' of two numeric values.
+p	If any of both arguments is a text, then it is evaluated as number. If one operand is a list, the result is a list, where the operation was applied to all items. Recursively. If both are lists, they should match in size and the operation is applied to all matching items.
+p	The result of bitwise exclusive or is positive, if both operands are positive or both operands are negative, else it is negative. 
+p   e.g.:
+shell
+	i> hexstr($0E ^ $5E)  o> 50
+	i> hexstr(~$0E ^ ~$5E)  o> 50
+	i> ~$0E ^ ~$5E  o> 80
+	i> ~$0E ^ $5E  o> -81
+	i> hexstr(~$0E ^ $5E, 4)  o> FFAF
+	i> hexstr(~$0E ^ $5E, 8)  o> FFFFFFAF
+	i> <>
+
++	../includes/note on bitwise operators.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,61 @@
+
+
+h3  Pre- and Postincrement "++"
+	pre increment, post increment
+	preincrement, postincrement
+
+pre
+	<number> = ++<num_var>
+	<number> = <num_var>++
+
+p
+	Pre- or post-increment a numeric variable.
+p
+	Preincrement increments the variable by 1 and then returns the incremented value as result.
+p
+	Postincrement increments the variable by 1 but returns the not-yet incremented value as result.
+p
+	If the target variable is a text, then it is converted to a number first.
+p
+	If the target variable is a list, then the operation is performed on all items. Recursively.
+p
+   e.g.:
+pre
+	var i=0; do while i<10; put i++; loop
+
+
+
+
+
+h3  Pre- and Postdecrement "--"
+	pre decrement, post decrement
+	predecrement, postdecrement
+
+pre
+	<number> = --<num_var>
+	<number> = <num_var>--
+
+p
+	Pre- or post-decrement a numeric variable.
+p
+	Predecrement decrements the variable by 1 and then returns the decremented value as result.
+p
+	Postdecrement decrements the variable by 1 but returns the not-yet decremented value as result.
+p
+	If the target variable is a text, then it is converted to a number first.
+p
+	If the target variable is a list, then the operation is performed on all items. Recursively.
+p
+   e.g.:
+pre
+	var i=10; do while i>0; put --i; loop
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,43 @@
+
+h3  del
+
+pre
+	<b>del</b> <name>
+	<b>del * </b>
+
+	<b>del var</b> <name>
+	<b>del proc</b> <name>
+
+	<b>del file</b> <filename>
+	<b>del link</b> <filename>
+	<b>del dir</b> <filename>
+
+p
+	Delete and forget variable, file, link or directory.
+p
+	Use the special argument <tt>*</tt> to delete all variables and procedures inside the current context, e.g. within the current procedure, local (private) context or really all global variables.
+p
+	<tt>del</tt> can also be used to delete individual items in lists.
+
+p   e.g.:
+pre
+	del a, b[1], c.wert, file "trashfile"
+
+	del *
+
+p
+	<tt>del</tt> fails with an error if the addressed item does not exist or is of wrong type. You can catch this error with <tt>try</tt> though. Or verify the existence with <tt>exists</tt> beforehand.
+
+p
+	The <filename> must be a text value and may be a full or partial path or may start with '~' for the user's home directory.
+p
+	<tt>del file</tt> requires the target to be a file or it will fail with an error. A symbolic link is followed.
+p
+	<tt>del dir</tt> requires the target to be a directory and empty or it will fail with an error. A symbolic link is followed.
+p
+	<tt>del link</tt> requires the target to be a symbolic link or it will fail with an error. A symbolic link is not followed. Obviously.
+
+
+
+
+

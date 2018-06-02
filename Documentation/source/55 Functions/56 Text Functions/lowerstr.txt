@@ -1,0 +1,24 @@
+
+
+
+
+h3	lowerstr
+	lowercase
+
+pre
+	<text> = <b>lowerstr</b> ( <text> )
+	<text> = <b>lowerstr</b> <text>
+
+p
+	Convert <text> to all lowercase characters.
+p
+	Currently works with all unicode characters in range [0 ... $FFFF]. There are a few ones beyond, which are not yet converted.
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+
+p   e.g.
+pre
+    lowerstr "Hello World!"    = "hello world!"
+    lowerstr("Hello"#"World!") = "helloworld!"
+
+

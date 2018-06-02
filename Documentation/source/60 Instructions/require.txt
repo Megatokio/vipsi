@@ -1,0 +1,33 @@
+
+
+
+
+
+
+
+
+
+
+h3  require
+
+pre
+	<b>require</b> <text>
+
+p.i
+	As of version 0.8.8.: under development.
+p
+	Load and execute a library script just as if it's contents were part of the current source.
+p
+	The <text> argument identifies the library by it's base name and, optionally, version. The library file is searched in vipsi's library path, which is <i>~/.vipsi/</i> and <i>/usr/local/lib/vipsi/</i> by default. Libraries must have file extension ".vl".
+p
+	Note: the file is included at the time when this instruction is executed, that means: maybe never, maybe repeatedly, if it occurs in a loop. It is not included at pre-compile time or in some kind of pre-processor as in C. The <tt>require</tt> statement should occur early in a script.
+
+p
+	e.g.:
+pre
+	require	"TEXT"		// require the text utilities from the file "TEXT.vl"
+	require "BOOK.1"	// require book utilites in version 1
+
+
+
+

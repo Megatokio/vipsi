@@ -1,0 +1,38 @@
+
+
+
+
+h3	return
+
+pre	<b>return</b>
+	<b>return</b> <value>
+
+
+p
+	End procedure and optionally return a result value.
+p
+	If a procedure returns a value, it should be called like a function. The result value may be any data type and of any size.
+p
+	If a procedure returns no value, it should be called at the place of an instruction.
+p
+	If <tt>return</tt> is executed on 'ground level', that is, outside any procedure, it returns from the current script. Then <tt>return</tt> behaves just like the instruction <tt>end</tt>. The possible return value depends on the invocation of the script:
+
++	../includes/end and return values.txt
+
+
+
+
+p	e.g.:
+pre
+
+	proc Geomed(a,b) { return sqrt(a*b); }
+
+	proc Check(t) { if istext(t) return; else put "no text:",t; then }
+
+
+
+
+
+
+
+

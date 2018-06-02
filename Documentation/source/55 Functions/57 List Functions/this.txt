@@ -1,0 +1,71 @@
+
+
+
+
+
+
+
+
+
+
+
+h3	this
+pre
+	<list_ref> = <b>this</b>
+p
+	Return a reference to the list variable which contains the current procedure.
+p
+	This function must only be executed inside procedures. It returns a reference to the list which contains the procedure.
+p
+	Normally a variable is searched in the current <tt>privates</tt> context, walking up to the topmost <tt>locals</tt> list of the procedure. Then the enclosing list, which contains the procedure, is scanned. At last the interpreter searches the <tt>globals</tt> list.
+p
+	So normally it is not neccessary to use <tt>this</tt> to access a 'neighbour' variable.
+p
+	What is it good for anyway?
+p
+	The procedure might be locally defined inside another procedure. Then it can easily access all local variables of this procedure too.
+p
+	Or you put procedures into complicated lists to manage some aspects, offering a light-weight approach to object oriented programming.
+p
+	e.g.:
+pre
+	proc Swap(text,Text1,Text2)
+	{
+		proc Replace(Oldtext,NewText)
+		{
+			replace text,OldText,NewText
+		}
+
+		var z = ")(/&/%&%$§&%"
+		Replace( Text1, z )
+		Replace( Text2,Text1 )
+		Replace( z, Text2 )
+	}
+
+pre.src
+	var  Spin =
+	{
+		Again = 0,
+		Delay = 0.1,
+		Index = 1,
+		Count = 0,
+		Reset() { Count=0 },
+		Wheel()
+		{
+			if now>=Again
+				Again = now + Delay
+				Index %= 4
+				Index += 1
+				put "|/-\\"[Index],"\b"
+			then
+			return ++Count
+		}
+	}
+
+
+
+
+
+
+
+

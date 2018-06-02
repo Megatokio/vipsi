@@ -1,0 +1,182 @@
+
+
+h1	Modes of Operation
+p
+	There are basically three modes of operation: interactive shell, running a shell script and running a cgi script.
+
+
+
+h3	Interactive Shell
+p
+	If vipsi is launched without any command line arguments, it starts in interactive mode. First it prints a greeting and how to get help:
+
+shell
+	[localhost:~] kio% <b>vipsi</b>
+
+	<span class=yellow>vipsi - VIP Script Interpreter 0.8.3 (c) 2001-2003 kio@little-bat.de    &nbsp;
+	development release. please set your terminal to utf-8 and vt100.       &nbsp;
+	see <<http://vipsi.sourceforge.net>> for latest documentation.            &nbsp;
+
+	        vipsi is waiting for your commands.                             &nbsp;
+	        type an expression to calculate the result.                     &nbsp;
+	        type «words» for a list of words.                               &nbsp;
+	        type «info "foo"» for info on word «foo».                       &nbsp;
+	        use «pd_up» and «pd_dn» for history.                            &nbsp;
+	        type ctrl-D to quit.                                            &nbsp;</span>
+
+	i> <>
+
+p
+	Then it reads instructions line by line and executes them in turn.
+
+shell
+	i> dir ""
+
+	Host: localhost; User: kio(staff); SysLoad: 0.38,0.35,0.33
+	Time: 2002-04-24 20:00:28; Booted: 2002-04-24 17:57:33 (2h:2m:55s);
+
+	volume name                     flags      free  modified
+	------------------------------- ---- ----------  -------------------
+	/                               drwx   7.688 GB  2002-04-24 18:00:00
+	/Volumes/HD40                   drwx   1.507 GB  2002-04-22 15:29:14
+
+	i> <>
+
+p
+	Standard input is bold or colored by vipsi and error messages are inverted and red. You can set this in a preferences file.
+p
+	If an error occurs while executing your command, the appropriate message is displayed inverted and red and the bogus line is offered for input again, with the cursor positioned to to location where the parser stalled.
+
+shell
+	i> sin("apfelkuchen")*22
+	e> *****  not a number
+	i> sin("apfelkuchen")<*>22
+
+p
+	If the instruction typed in is an expression which returned a result, this result is automagically printed for your convenience:
+
+shell
+	i> 998.00 * 1.18  o> = 1177.64
+	i> <>
+
+p
+	Results are automagically printed only in interactive shell mode, not when running a script.
+
+
+h5	Preferences
+p
+	Preferences are read from <i>/usr/local/lib/vipsi/shell.prefs</i> or, if existent, from file <i>~/.vipsi/shell.prefs</i>. The preferences file contains a list literal according to the vip script language and is evaluated similar to <tt>eval</tt>. Not much preferences can be set yet, most useful is setting colors for stdin, stdout and stderr if you have problems with the default magic.
+
+h5	History
+p
+	The history of typed-in commands is available with <pd_up> and <pd_dn>.
+
+
+
+h3	Shell Scripts
+p
+	When vipsi is started with a filename as command line argument, then it loads that file and executes it.
+
+pre	[localhost:~] kio% <b>vipsi test.vs</b>
+
+p	This runs the script <i>test.vs</i>.
+
+p	If all is set up properly, a script can also be started like a program:
+
+pre	[localhost:~] kio% <b>./test.vs</b>
+
+p	This requires that vipsi is installed at the recommended position in <i>/usr/bin/</i> or that a link is placed there, and that the script file starts with the line <tt>#!/usr/local/bin/vipsi</tt> telling the system which interpreter to start and that the script file is tagged as executable with <tt>chmod a+x test.vs</tt> and that the script is in the system's command search path or that you type in the full path to the script.
+
+p   You may pass arguments to a script:
+
+pre	[localhost:~] kio% <b>vipsi test.vs anton bärbel cicero</b>
+
+p   or
+
+pre	[localhost:~] kio% <b>./test.vs anton bärbel cicero</b>
+
+
+p	These command line arguments are stored into global variables. Because the passed data has no name on it's own, these global variables remain unnamed. How the text appended to the script name as command line arguments is mixed up depends on your shell, but as a first rule of thumb expect that white space separates individual arguments.
+p
+	So the examples above result in 3 arguments with the value <i>"anton"</i>, <i>"bärbel"</i> and <i>"cicero"</i>.
+p
+	The following code snipped from a script shows how to access them:
+
+pre.src
+	#!/usr/local/bin/vipsi
+
+	var argc = count globals - 1;
+
+	put nl, "test script", nl
+	put nl, "you passed ", argc, " arguments:", nl
+	var i = 0
+	do
+		while ++i <= argc
+		put "arg[", i, "] = ", globals[i], nl
+	loop
+	end
+
+
+p
+	It's just that simple: all global variables are stored in a list variable which is called <i>globals</i>. You can access all global variables which you defined with <tt>new</tt> or <tt>var</tt> either by their name or by their position in the <i>globals</i> list variable, whichever suits best. For command line arguments it's clearly better to access them by position, because they are unnamned. B-)
+p
+	You may ask, why <tt>1</tt> was subtracted when calculating the number of arguments:
+p
+	Expressions are always evaluated from left to right. Functions and operators as soon as their arguments are complete. <tt>count globals</tt> is executed <b>after</b> <tt>var argc</tt>, and therefore the variable <tt>argc</tt> already exists when <tt>count</tt> counts the number of global variables. So the count will include variable <tt>argc</tt> and we subtract <tt>1</tt> for that fact.
+p
+	If an error occurs, the execution of the script is aborted and an error message is printed indicating the error and position in the file. The indicated position may be slightly behind the error. If the error occured in a procedure, the position in the procedure is indicated (if possible) or the position, where the procedure was called. The error message contains a stack trace:
+
+shell
+	i> proc a(w) { if w a(w-1) else fsdfsfj then }
+	i> a(3)
+	e> *****  Variable "fsdfsfj" not found
+	e>		in: a()
+	e>		in: a()
+	e>		in: a()
+	e>		in: a()
+	i> a(3)<>
+
+
+h5	Return values
+p
+	A script may optionally return a result value. Whether it is expected so and which values are acceptable depends on the caller.
++	includes/end and return values.txt
+
+
+
+h3	CGI Scripts
+p
+	vip scripts may be used to handle cgi requests. In order to be successfully called by the http server, scripts must be tagged as executable, must reside in a directory where the http server is willing to execute scripts and must of course start with the interpreter path in line 1:
+
+pre.src
+	#!/usr/local/bin/vipsi
+
+p
+	If you decide to put the vipsi interpreter into another location on your web server, then your scripts must start with that according path.
+p
+	If all that is done, your scripts can be called from your web browser, either directly or from a form.
+p
+	cgi scripts are passed arguments from the URL or form data either with method GET or method POST. both are already handled and decoded for you by vipsi when the script is started. Data passed to a cgi script is typically named. These arguments are stored in global variables which are named according to those cgi parameter names.
+p
+	Next, scripts are supposed to send a proper html page (or any other proper formatted data) by simply printing to stdout. First come two lines of http header (thereof the second is empty) and then the html page; or a gif file, if you decided so.
+p
+	The following example shows a simple cgi script, which presents it's cgi parameters in a table:
+
+include scripts/show_commandline_args.vs
+
+p
+	If your script contains an error, vipsi does it's best to display the error and position in the cgi script in a html file:
+
+p.c	<img src="b/screenshot_cgi_error.gif" alt="screenshot shows a cgi error message in mozilla">
+
+
+
+
+
+
+
+
+
+
+
+

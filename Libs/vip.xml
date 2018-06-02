@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+
+<language name="VIP" section="Scripts" version="0.10" kateversion="2.1"
+		  extensions="*.vs;*.vh;*.vl"
+          mimetype="text/x-vip;text/x-VIP">
+
+
+<!--     This file is free software        -->
+<!--     Maintained by kio@little-bat.de   -->
+<!-- (c) copyright 2004 Kio (Günter Woigk) -->
+
+
+<!-- authoritative location: $VIPSI/libs/vip.xml -->
+
+
+<highlighting>
+
+	<list name="constants">
+		<item> ec </item>
+		<item> pi </item>
+		<item> nl </item>
+		<item> tab </item>
+		<item> stdin </item>
+		<item> stdout </item>
+		<item> stderr </item>
+	</list>
+
+	<list name="functions">
+		<item> file </item>
+		<item> dir </item>
+		<item> link </item>
+		<item> mdate </item>
+		<item> count </item>
+		<item> index </item>
+		<item> name </item>
+		<item> random </item>
+		<item> abs </item>
+		<item> sign </item>
+		<item> int </item>
+		<item> fract </item>
+		<item> round </item>
+		<item> min </item>
+		<item> max </item>
+		<item> cos </item>
+		<item> sin </item>
+		<item> tan </item>
+		<item> acos </item>
+		<item> asin </item>
+		<item> atan </item>
+		<item> cosh </item>
+		<item> sinh </item>
+		<item> tanh </item>
+		<item> logn </item>
+		<item> log2 </item>
+		<item> loge </item>
+		<item> log10 </item>
+		<item> exp </item>
+		<item> exp2 </item>
+		<item> expe </item>
+		<item> exp10 </item>
+		<item> square </item>
+		<item> sqrt </item>
+		<item> istext </item>
+		<item> isnumber </item>
+		<item> islist </item>
+		<item> isproc </item>
+		<item> isfile </item>
+		<item> isdir </item>
+		<item> islink </item>
+		<item> exists </item>
+		<item> string </item>
+		<item> upperstr </item>
+		<item> lowerstr </item>
+		<item> charstr </item>
+		<item> charcode </item>
+		<item> hexstr </item>
+		<item> binstr </item>
+		<item> substr </item>
+		<item> midstr </item>
+		<item> leftstr </item>
+		<item> rightstr </item>
+		<item> datestr </item>
+		<item> now </item>
+		<item> dateval </item>
+		<item> find </item>
+		<item> rfind </item>
+		<item> env </item>
+		<item> match </item>
+		<item> fullpath </item>
+	</list>
+
+	<list name="instructions">
+		<item> new </item>
+		<item> del </item>
+		<item> swap </item>
+		<item> var </item>
+		<item> proc </item>
+		<item> freeze </item>
+		<item> melt </item>
+		<item> put </item>
+		<item> log </item>
+		<item> get </item>
+		<item> edit </item>
+		<item> getchar </item>
+		<item> write </item>
+		<item> read </item>
+		<item> ioctl </item>
+		<item> eval </item>
+		<item> call </item>
+		<item> sys </item>
+		<item> include </item>
+		<item> wait </item>
+		<item> info </item>
+		<item> sort </item>
+		<item> rsort </item>
+		<item> split </item>
+		<item> convert </item>
+		<item> replace </item>
+		<item> open </item>
+		<item> openin </item>
+		<item> openout </item>
+		<item> close </item>
+		<item> rename </item>
+		<item> cd </item>
+		<item> words </item>
+		<item> globals </item>
+		<item> locals </item>
+		<item> root </item>
+		<item> ; </item>
+	</list>
+
+	<list name="flowcontrol">
+		<item> return </item>
+		<item> end    </item>
+
+		<item> do    </item>
+		<item> while </item>
+		<item> until </item>
+		<item> exit  </item>
+		<item> next  </item>
+		<item> loop  </item>
+
+		<item> if   </item>
+		<item> try  </item>
+		<item> else </item>
+		<item> elif </item>
+		<item> then </item>
+	</list>
+
+	<list name="do">
+		<item> do </item>
+	</list>
+	<list name="loop">
+		<item> loop </item>
+	</list>
+	<list name="if">
+		<item> if </item>
+		<item> try </item>
+	</list>
+	<list name="then">
+		<item> then </item>
+	</list>
+	<list name="else">
+		<item> else </item>
+	</list>
+
+	<list name="separators">
+		<item> from </item>
+		<item> to   </item>
+	</list>
+
+
+<contexts>
+<!--
+	<context name="hash_bang" lineEndContext="normal_text" attribute="HashBang">
+		<RegExpr attribute="HashBang"  context="normal_text" String="#!/.*$" />
+		<RegExpr attribute="ALERT"     context="normal_text" String=".{0}" />
+		<RegExpr attribute="ALERT"     context="normal_text" String="^$" />
+		<RegExpr attribute="ALERT"     context="normal_text" String="^" />
+		<RegExpr attribute="ALERT"     context="normal_text" String="^?" />
+		<RegExpr attribute="ALERT"     context="normal_text" String="^*" />
+		<RegExpr attribute="ALERT"     context="normal_text" String="\n" />
+		<RegExpr attribute="ALERT"     context="normal_text" String="\n?" />
+		<RegExpr attribute="ALERT"     context="normal_text" String="\n*" />
+		<RegExpr attribute="ALERT"     context="normal_text" String=".?" />
+		<LineContinue attribute="ALERT"     context="normal_text" />
+	</context>
+-->
+	<context name="normal_text" lineEndContext="#stay" attribute="Normal Text">
+
+		<keyword String="constants"    context="#stay" attribute="Constants"    />
+		<keyword String="functions"    context="#stay" attribute="Functions"    />
+		<keyword String="instructions" context="#stay" attribute="Instructions" />
+
+		<keyword String="do"           context="#stay" attribute="Flow Control" beginRegion="DoLoop" />
+		<keyword String="loop"         context="#stay" attribute="Flow Control" endRegion="DoLoop"   />
+		<keyword String="if"           context="#stay" attribute="Flow Control" beginRegion="IfThen" />
+		<keyword String="then"         context="#stay" attribute="Flow Control" endRegion="IfThen"   />
+		<keyword String="flowcontrol"  context="#stay" attribute="Flow Control" />
+
+		<Detect2Chars char="/" char1="/"   attribute="Comment" context="line_comment" />
+		<Detect2Chars char="/" char1="*"   attribute="Comment" context="block_comment"
+															   beginRegion="BlockComment" />
+
+		<DetectChar attribute="Separators" context="#stay" char="{" beginRegion="Braces" />
+		<DetectChar attribute="Separators" context="#stay" char="}" endRegion="Braces" />
+		<AnyChar    attribute="Separators" context="#stay" String=",()[]" />
+
+		<RegExpr    attribute="HashBang"   context="#stay" String="^#!/.*$" />
+		<AnyChar    attribute="Operators"  context="#stay" String="+-!~@=-*/%#|^.&lt;&gt;&amp;" />
+
+		<DetectChar attribute="String"  context="string_literal"  char="&quot;" beginRegion="String" />
+		<DetectChar attribute="String"  context="string_literal2" char="«"      beginRegion="String" />
+
+		<Int        attribute="Number"  context="#stay" />
+		<Float      attribute="Number"  context="#stay" />
+		<RegExpr    attribute="Number"  context="#stay"        String="\$[0-9A-Fa-f]{1,16}"	/>
+		<DetectChar attribute="Number"  context="ascii_digits" char="'"                      />
+
+	</context>
+
+	<context attribute="Number" lineEndContext="#pop" name="ascii_digits">
+		<Detect2Chars attribute="Number" context="#stay" char="\" char1="\" />
+		<Detect2Chars attribute="Number" context="#stay" char="\" char1="'" />
+		<DetectChar   attribute="Number" context="#pop"  char="'"/>
+	</context>
+
+	<context attribute="Number" lineEndContext="#pop" name="dec_digits">
+		<RegExpr attribute="Number" context="#stay" String="[0-9](?=[0-9])"/>
+		<RegExpr attribute="Number" context="#pop"  String="[0-9](?![0-9])"/>
+	</context>
+
+	<context attribute="Number" lineEndContext="#pop" name="bin_digits">
+		<RegExpr attribute="Number" context="#stay" String="[01](?=[01])"/>
+		<RegExpr attribute="Number" context="#pop"  String="[01](?![01])"/>
+	</context>
+
+	<context attribute="String" lineEndContext="#stay" name="string_literal">
+		<LineContinue attribute="String" context="#stay"/>
+		<Detect2Chars attribute="String" context="#stay" char="\" char1="\" />
+		<Detect2Chars attribute="String" context="#stay" char="\" char1="&quot;" />
+		<DetectChar   attribute="String" context="#pop"  char="&quot;" endRegion="String" />
+	</context>
+
+	<context attribute="String" lineEndContext="#stay" name="string_literal2">
+		<LineContinue attribute="String" context="#stay"/>
+		<Detect2Chars attribute="String" context="#stay" char="\" char1="\" />
+		<Detect2Chars attribute="String" context="#stay" char="\" char1="»" />
+		<Detect2Chars attribute="String" context="#stay" char="\" char1="«" />
+		<DetectChar   attribute="ALERT"  context="#stay" char="«"  />
+		<DetectChar   attribute="String" context="#pop"  char="»" endRegion="String" />
+	</context>
+
+	<context attribute="Comment" lineEndContext="#stay" name="block_comment">
+		<Detect2Chars attribute="ALERT"   context="#stay" char="/" char1="*" />
+		<RegExpr      attribute="ALERT"   context="#stay" String="(###|NOTE|NOTICE|FIXME|TODO|NIMP)" />
+		<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="BlockComment" />
+	</context>
+
+	<context attribute="Comment" lineEndContext="#pop" name="line_comment">
+		<RegExpr attribute="ALERT" context="#stay" String="(###|NOTE|NOTICE|FIXME|TODO|NIMP)" />
+	</context>
+
+</contexts>
+
+
+	<itemDatas>
+		<itemData name="HashBang"     defStyleNum="dsOthers"/>
+
+		<itemData name="Normal Text"  defStyleNum="dsNormal"/>
+
+		<itemData name="Separators"   defStyleNum="dsOthers"/>
+		<itemData name="Operators"    defStyleNum="dsOthers"/>
+
+		<itemData name="Functions"    defStyleNum="dsKeyword"/>
+		<itemData name="Instructions" defStyleNum="dsKeyword"/>
+		<itemData name="Flow Control" defStyleNum="dsKeyword"/>
+
+		<itemData name="Number"		defStyleNum="dsDecVal"/>
+		<itemData name="Constants"    defStyleNum="dsDecVal"/>
+
+		<itemData name="String"		defStyleNum="dsString"/>
+		<itemData name="Comment"  	defStyleNum="dsComment"/>
+		<itemData name="ALERT" 	 	defStyleNum="dsKeyword" color="#000000" bold="1"/>
+    </itemDatas>
+
+</highlighting>
+
+<general>
+	<comments>
+		<comment name="multiLine" start="/*" end="*/" />
+		<comment name="singleLine" start="//" />
+	</comments>
+	<keywords casesensitive="1" additionalDeliminator="#«»'&quot;" />
+	</general>
+
+</language>
+
+

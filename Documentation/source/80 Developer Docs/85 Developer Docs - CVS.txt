@@ -1,0 +1,205 @@
+
+h2	How to use the cvs
+
+h3	Introduction to the Concurrent Versions System <i>CVS</i>
+
+
+
+p   This introduction is aimed to developers, not admins. in essence it says nothing more than sourceforge's documentation, it only leaves out 90% of it. :-) though it's written for developers working for <i>vipsi</i>, it's generally appliable for any other project at sourceforge.
+
+p   First i'll tell you some basics. then all the <i>unix</i> stuff; as far as i consider it useful. finally i hope i can add some Windows stuff too.
+
+p   If you find an error, something unclear or important to add, please <a href="mailto:kio&#64;little-bat.de">send me a note</a> and i'll add it.
+
+h4  Why do we need a CVS?
+
+p   When multiple developers work on the same source it is very likely that they simultaneously modify the same files. there needs to be some means of synchronization, merging the different branches back into the official source. you won't do this by hand.
+
+
+
+h4  How does it work, generally speaking?
+
+p   The main source is hosted at sourceforge and it is called the "repository". when you decide to join the effort on the project, you must retrieve a copy of the source, formally called "checkout", just like a book from the library.
+
+p   Now you can work with your local copy of the source, make modifications to it, compile it, verify that it works as expected and add some documentation.
+
+p   Regularly you must synchronize the main source, so that your fellow developpers can use your new or improved code. this is done in two or - maybe - three steps:
+ul
+li	Update your own local copy from the main source so that your local copy becomes the most up-to-date version of the source in the world. this process is called "update".
+li	If <tt>cvs</tt> tells you that it has encountered interfering changes in some files that can't be merged automatically, then you must manually work out the problems: you must edit all the problematic files and resolve all the problems. cvs has marked all locations very cleary in the source files.
+li	Finally synchronize the main source from your local copy. this is called "commit".
+
+
+p   <b>note:</b> if you can't resolve the problems after you have updated your local copy, you may well delete your local copy of the source discarding all your modifications so far. to reduce the probability of such an uncomfortable situation you should update your source right before you start work on it, thus incorporating all commits which were made in the past hours or days, and synchronize the repository every time you come to a safe state in your source modifications, which will not leave it unusable for others.
+
+
+
+h3  How does it work for me?
+
+p   Obviously you need <tt>cvs</tt> installed on your computer to retrieve and hand back source from the repository. you hopefully already have the <tt>cvs</tt> command installed on your system. if not, slot-in your OS installer CD and install it.
+
+p   It is required to log into the cvs server at sourceforge using the secure shell <tt>ssh</tt>. so you must also verify that you have installed the <tt>ssh</tt> command.
+
+p   A comprehensive <a href="http://sourceforge.net/docman/display_doc.php?docid=6841&amp;group_id=1">introduction to the <tt>ssh</tt></a> can be found on sourceforge's documentation page.
+
+h4  (1) your initial checkout of the source
+
+p   cvs looks for some environment variables, which should be set before it is executed. you can also supply these values as command line parameters there are 3 environment variables to set.
+
+p   If you use <tt>bash</tt> or something similar:
+pre
+	bash$ export EDITOR=joe
+	bash$ export CVS_RSH=ssh
+	bash$ export CVSROOT=YOUR_NAME@cvs.sourceforge.net:/cvsroot/vipsi
+
+p   if you use the <tt>csh</tt>:
+pre
+	csh> setenv EDITOR  joe
+	csh> setenv CVS_RSH ssh
+	csh> setenv CVSROOT YOUR_NAME@cvs.sourceforge.net:/cvsroot/vipsi
+
+p   The EDITOR variable is only required for committing and you may have configured your system so that this variable is already  set when you start a shell. set it to your favourite editor or you'll end up with <tt>vi</tt>, the default.
+
+p   CVS_RSH tells your <tt>cvs</tt> that it must use the <tt>ssh</tt> for connections to the <tt>cvs</tt> at sourceforge. this variable is required in all operations.
+
+p   CVSROOT tells your <tt>cvs</tt> the location of the repository. this is required only for the initial checkout. you can also supply this information directly to the <tt>cvs</tt> command with the <tt>-d</tt> option.
+
+p   Go to the directory where you want to settle your local copy of the source. it is also ok to retrieve it anywhere and copy the whole thing around on your harddisk.
+
+p   Checkout the source. vipsi's source tree is currently split into three subtrees:
+pre
+	your_dev_root/
+	your_dev_root/vipsi/                  &lt;-- from project "vipsi"
+	your_dev_root/vipsi/documentation     &lt;-- from project "vipsi"
+	your_dev_root/vipsi/libraries         &lt;-- from project "lib-kio"
+
+p   so, to checkout all sources do the following:
+	pre
+	bash$  cd YOUR_DEV_ROOT
+	bash$  export CVS_RSH=ssh
+	bash$  cvs -d:ext:YOU@cvs.sourceforge.net:/cvsroot/vipsi checkout vipsi
+	bash$  cvs -d:ext:YOU@cvs.sourceforge.net:/cvsroot/vipsi checkout documentation
+	bash$  cvs -d:ext:YOU@cvs.sourceforge.net:/cvsroot/lib-kio checkout libraries
+	bash$  mv libraries vipsi/
+	bash$  mv documentation vipsi/
+
+
+p   now you have your own copy of the source and can work on it. don't touch the folders named <i>CVS</i>. they contain administrative files for <tt>cvs</tt> and must remain in the folders they reside in.
+
+
+h4  (2) update your local copy from the repository
+
+p   instruct <tt>cvs</tt> to use the <tt>ssh</tt>, go to the directory which you want to update and do it:
+pre
+	bash$  export CVS_RSH=ssh
+	bash$  cd YOUR_DEV_ROOT/vipsi
+	bash$  cvs update
+
+p   <tt>cvs</tt> most times works on the <b>current directory</b> and retrieves most required informations from the data stored in the <i>CVS</i> folders. so in this case you only need to define <i>CVS_RSH</i> so that the <tt>ssh</tt> is used. perhaps some time they will store this in the <i>CVS</i> folders too.
+
+p   there are some useful options to <i>update</i> which you may decide to use:
+
+p   the option <tt>-d</tt> tells <tt>cvs</tt> that it shall create new subdirectories in your local source tree to match new directories in the repository. <tt>cvs</tt> does not create them by default! you must specify this option.
+
+p   Appending option <tt>-P</tt> has the opposite effect: if a subdirectory becomes empty after <tt>cvs update</tt>, then it is silently removed.
+
+p   You may find it best to always include these two options:
+pre
+	bash$ cvs update -dP
+
+h4  (3) resolve conflicts
+
+p   When you update your copy of the source, <tt>cvs</tt> lists all files inspected and prepends them with a flag:
+pre
+	cvs server: Updating .   info: cvs starts to inspect the current directory
+	M value.cp               <i>value.cp</i> has been locally modified (by you)
+	P value.h                <i>value.h</i> is updated in the cvs, patches were transferred
+	U verrors.h              <i>verrors.h</i> is updated in the cvs, file was transferred anew
+	C token.h                modified simultaneously in overlapping lines: <span class="red">collision!</span>
+
+p   You must edit the incriminated files, in the above example <tt>token.h</tt>, and work out the problems manually before you can commit your changes. differences are marked similarly to a <i>diff</i> output and look very prominent. working out the problems may be easy - or nearly impossible. you may decide to discard your changes and checkout the source anew, because you can't resolve the collissions. to reduce the probability of such an uncomfortable situation <span class="u">update your source regularly</span>!
+
+
+
+h4  (4) synchronize the repository from your source
+
+p   Go to the directory which you want to commit back to the repository. then commit your source:
+pre
+	bash$ export CVS_RSH=ssh
+	bash$ cd YOUR_DEV_ROOT/vipsi
+	bash$ cvs commit -m "add a comment about this commit here"
+
+
+p   If you forget the comment or intentionally leave it out, <tt>cvs</tt> starts the editor as mentioned above for you to insert one. in this case it is better that you have the EDITOR variable set:
+pre
+	bash$ export EDITOR=joe
+	bash$ export CVS_RSH=ssh
+	bash$ cd YOUR_DEV_ROOT/vipsi
+	bash$ cvs commit
+
+
+p   This will fire up the editor <tt>joe</tt> after you have entered the commit command.
+
+
+h4  (5) add files and directories
+
+p   Sometimes you must introduce new files into the source tree. <tt>cvs</tt> does not automatically add all files in the directories you commit to the repository. it only updates the files which it initially got with <i>checkout</i>. in fact, i have a lot more files around in <i>vipsi's</i> source tree, tests, docs and most notably intermediate files from the compiler. they are more or less ignored by <tt>cvs</tt>.
+
+p   To add a file or directory to the repository, you must create it, add it to your local cvs and submit the change:
+pre
+	bash$ export CVS_RSH=ssh
+	bash$ cd YOUR_DEV_ROOT/vipsi
+	bash$ cvs update
+	bash$ mkdir testdir
+	bash$ cvs add testdir
+	bash$ cvs commit -m "it's a test only"
+
+
+p   Don't add directories just for fun - they <span class="u">cannot be removed from the cvs repository!</span>
+
+
+
+h4  (6) delete  files and directories
+
+p   when you reorganize parts of your source it may also happen, that entire files or directories become obsolete. to remove a file from the repository, you first must delete it in your local tree (for security reasons), then remove it from your local cvs and finally submit the change:
+pre
+	bash$ export CVS_RSH=ssh
+	bash$ cd YOUR_DEV_ROOT/vipsi
+	bash$ cvs update
+	bash$ rm testfile
+	bash$ cvs rm testfile
+	bash$ cvs commit -m "it's a test only"
+
+p   Directories <span class="u">cannot be removed</span>. the only thing you can do is to delete all files in it and use the <tt>-P</tt> option whenever you update your local source. the <tt>-P</tt> option prunes empty directories from your local copy, as told above.
+
+
+
+h4  (7) Renaming files and folders
+
+p   Unluckily enough, this is also not supported by the <tt>cvs</tt>. instead, you must delete the old file and add it with the new name:
+pre
+	bash$ export CVS_RSH=ssh
+	bash$ cd YOUR_DEV_ROOT/vipsi
+	bash$ cvs update
+	bash$ mv oldname newname
+	bash$ cvs rm oldname
+	bash$ cvs add newname
+	bash$ cvs commit -m "it's a test only"
+
+
+p   Because directories cannot be removed from the cvs, they cannot be "moved" this way either. all you can do is create a new directory and ignore the old one...
+
+
+
+h4  The Windows version
+
+p   Still working on that - i don't have Windows! maybe s.o. else will do this for me?
+
+
+
+
+
+
+
+
+

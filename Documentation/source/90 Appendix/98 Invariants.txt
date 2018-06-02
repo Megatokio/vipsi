@@ -1,0 +1,113 @@
+
+
+
+
+
+h2	Invariants
+
+p
+	vipsi is work in progress and syntax may still change. But there are already some guaranteed invariants. Giving a feature the 'invariant' state is a very final step, so don't be disturbed if lots of them are not yet marked as 'invariant'. Most features will be fixed for ever with the release of version 1.0.0.
+
+
+h4	Built-in names
+p
+	Built-in words will be all lowercase letters a-z only, optionally ending on one or more decimal digit. They do not contain an underscore. They are max. 9 characters long.
+p
+	Operators may be combined from 1 to 3 special characters.
+
+
+h4	Shell immediate commands
+p
+	Shell immediate commands are not part of the vip script language and are provided for convenience only. They are expected to be used by humans and their behaviour may be changed without notice.
+
+
+
+h4	Built-in operators
+h6	monadic operators:
+p	Prefix: ++ -- + - ! ~ @
+p	Postfix: ++  -- [] ()
+
+h6	Assignments:
+p	A return value is not guaranteed.
+p	Right-to-left orientation is not guaranteed.
+p	Operator "=" ignores left-side data type.
+
+h6	Other operators
+p	Assignments: +=  -=  *=  /=  %=  #=  >>=  <<=  &&=  ||=  ^=  &=  |=  ##=
+p   Diadic: +  -  *  /  %  #  ##  >  <  >=  <=  ==  !=  <<  >>  &&  ||  &  |  ^  .
+p   Triadic:  ?:
+
+h6	General
+p	All operators which expect a single data type (that is: all except comparisons and ".") automatically cast their arguments to the required data type.
+p	Binary boolean operators and the triadic select operator do pruning. (Version 0.8.7: not yet implemented for &&= and ||=)
+p	All operators except those which require or accept lists (## ##= and comparisons and ".") expand their operation to whole lists if supplied. If two lists do not match in size then the remainder of the longer list is just copied. (Version 0.8.7.: not yet implemented for all operators)
+
+
+
+
+
+h4	Built-in functions and constants
+p	Omitting argument parenthesis is not guaranteed.
+
+h6	Guaranteed:
+p	Guaranteed functions may only be extended in syntax.
+p
+	abs  sign  int  fract  round  min  max  cos  sin  tan  acos  asin  atan  cosh  sinh  tanh
+	log2  loge  log10  exp  exp2  expe  exp10  square  sqrt  random
+	substr  midstr  leftstr  rightstr
+	find  rfind
+	istext  isnumber  islist  isproc  exists
+	file  dir  link  fullpath
+
+h6	Unclear:
+p	Unclear means that they might be removed, replaced, renamed or the syntax is still evaluated.
+p
+	ec  pi  nl  tab  stdin  stdout  stderr  pipe  sock  mdate  count  index  name  logn  ((name)) isfile  isdir  islink  string  upperstr  lowerstr  spacestr  charstr  charcode  hexstr  binstr  datestr  now  dateval  env  words  info  globals  locals  this  match  eval  call  sys  include  split  convert  replace
+
+
+
+h4	Built-in instructions
+p	Omitting ";" is not guaranteed.
+
+h6	Guaranteed:
+p	Guaranteed instructions may only be extended in syntax.
+p
+	put  get  log
+	if  else  elif  then  do  while  until  loop
+
+h6	Unclear:
+p	Unclear means that they might be removed, replaced, renamed or the syntax is still evaluated.
+p
+	eval  call  sys  include  require  split  convert  replace  new  del  swap  var  freeze  melt  edit  getchar  write  read  ioctl  wait  open  openin  openout  close  rename  cd  proc  return  end  try  exit  next  file  dir  link  sort  rsort
+
+
+
+h4	Data types
+p
+	Text values can contain characters of any size (32 bit) and can be of any length. Character code 0 is a valid character.
+p
+	Minimum numeric precision is 32 bit.
+p
+	Lists can be any length and nested to any level.
+p
+	Procedures are a variable type.
+p
+	Names can be any text value. Limits imposed on the parser are: 255 characters, international letters, underscore and international digits (not for the first character) only.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

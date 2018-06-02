@@ -1,0 +1,19 @@
+
+h3	abs
+
+pre
+	<number> = <b>abs</b> <number>
+	<number> = <b>abs</b> ( <number> )
+
+p
+	Calculate the absolute, unsigned value of a numeric value.
+p
+	Returns a 0 or positive numeric value.
+p
+	e.g.:
+shell
+	i> abs 34.56  o> = 34.56
+	i> abs -44.33  o> = 44.33
+	i> abs -0  o> = 0
+	i> <>
+

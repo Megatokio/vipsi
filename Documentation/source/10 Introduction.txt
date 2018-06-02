@@ -1,0 +1,164 @@
+
+
+h1	Introduction
+
+
+
+// ----------------------------------------------------------------
+h2	About vipsi
+
+
+h3	vipsi - the friendly one.
+
+p	<i>vipsi</i> is an interpreter for the vip script language. The vip script language is both, easy to use and powerful. vip scripts are easily readable and similar to C/C++, Pascal or Basic.
+
+p	<i>vipsi</i> is a command line application and can be invoked as an interactive shell, run shell scripts or process CGI scripts for a web server. <i>vipsi</i> is one language for all.
+
+p	<i>vipsi</i> uses unicode for text, double float for numbers and handles arrays and lists alike. It comes with lots of predefined functions, mathematical and for text manipulation and text conversion, has powerful list operations and of course all the basic stuff.
+
+h5	The name
+
+p	<i>vipsi</i> stands for VIP Script Interpreter. <i>vip</i> stands for Virtual Instruction Processor. Formerly the vip code was tailored to a virtual cpu and the language was forth-like. Then in summer 2001 i needed tools to generate and maintain a web site. I was too lazy to learn php or pearl, so i wrote vipsi.
+
+h5	Major drawback
+
+p   <i>vipsi</i> does not start with 'p'. &nbsp; ((!LAMP))
+
+
+
+
+// ----------------------------------------------------------------
+h3	How does it look like?
+
+p	Just to give you a first impression:
+
+p.c	<img src="b/screenshot_primes.gif">
+
+
+
+// ----------------------------------------------------------------
+h3	Project state
+
+p	The current project state is <b>beta</b>. The current release version is <b>0.9.9</b> (as of 2010-09-25).
+
+p	This project is looking for members. Everybody is invited to participate in this project, just send an <a href="mailto:kio@little-bat.de">email to Kio</a>, the project administrator.
+
+p	The documentation was last updated on %%DATE%% and reflects approx. version 0.8.8 with subsequent update to 0.9.9.
+
+
+h5	Supported platforms
+
+p	<i>vipsi</i> started on Mac OS classic, switched to MacOS X, and up to version 0.8.8 the primary development platform was Linux/i386. But now i'm back to Mac OSX again. Ports to other unix-like platforms should be fairly simple. 64 bit µPs are still a problem. Your help is needed here. ;-)
+
+p	Supported platforms are:
+	(no guarantees here!)
+ul
+li	MacOS X
+li	Linux
+li	BSD
+li	The Windows version needs help.
+
+
+
+// ----------------------------------------------------------------
+h3	What makes vipsi different from other projects?
+
+ul
+li	<b>Syntax:</b> vip script source is procedural and looks very similar to C/C++, Pascal or Basic. Everybody who ever asked what was similar to C in the csh: i dunno either. ;-) vip script is.
+
+li	<b>International characters</b> are treated equal to ascii characters: function and variable names may contain greece, cyrilic, suaheli letters or whatever your language may be. Numbers can be made out of non-latin digits.
+
+li	<b>Consistency:</b> It is a great goal for the vip script language not to have any unexpected gaps or derivative syntax for arguments or the like. Command should work as expected, similar commands should behave similar.
+
+li	<b>No ambiguities:</b> Ever wondered which argument of a function call get's evaluated first? ever wondered what the result of *a++ + *a++ might be? Ever grumbled over the compiler, which didn't know which overloaded function to call for argument <i>0</i>? Even if casted? Stunned when confrontated with C's function pointer syntax? <b>Welcome to vipsi!</b>
+
+li	<b>Power of lists:</b> You may pass lists to nearly every function or operator instead of numbers and texts, and the function or operation is performed on all list items. Recursively.
+
+li	<b>Power of text:</b>: vipsi uses Unicode and can handle all Unicode characters from $00 to $1FFFFF and even beyond, as opposed to Java and, unlucky enough, most Unices. There are no limits on text length except those imposed by your OS and amount of RAM ;-).
+
+li	<b>Quick introspection:</b> You can disassemble any procedure just by typing it's name. (2010-09-25: currently not supported) You can list all variables or local variables or any other variable you like just by typing their name; e.g.: <tt>globals</tt> for all globals or <tt>locals</tt> for all locals.
+
+li	<b>Quick help:</b> besides this html manual there is built-in help: just type <tt>words</tt> to get a list of all built-in words, or <tt>info a_word</tt> to get info on <i>a_word</i>.
+
+
+
+
+
+
+
+// ----------------------------------------------------------------
+h2	About this Guide
+
+h3	General
+
+p	This guide is intended as an introduction to vipsi for both, end users and project team members.
+
+p	As i'm not a native english writer please be tolerant to my syntax and spelling. You may send me your corrected pages if you like.
+
+
+
+// ----------------------------------------------------------------
+h3	Style conventions
+
+p	This manual makes use of css, but even if your browser does not support css, most will still apply to it.
+
+p	Normal text should be in plain non-serif letters.
+
+p	Code samples are in a teletype-like font and colored blue. Most code samples are preformatted and separeted from the remaining text in an own paragraph:
+
+h6	Script sample
+pre.src
+	proc fak(n) { if n>1 return n*fak(n-1); else return 1; then }
+
+p	Sometimes a code sample shows what you typed in in the interactive vipsi shell. Then the prompt, user input and result output look like this:
+
+h6	Shell sample
+shell
+	i> 4701+9  o> = 4710
+
+p	This resembles the settings for printing to stdin and stdout in vipsi.
+
+p	This documentation is cross referenced automatically. Don't expect every link to be meaningful.
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------------
+h2	Copyright & License
+
+p.b	Copyright (c) Günter Woigk 1990-2010
+p	<a href="mailto:kio@little-bat.de">kio@little-bat.de</a>
+
+p.c	<img src="b/bat_sw_128_frei.png" alt="little bat">
+
+p.b	This program is free software.
+
+p.b	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+p.b	Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+ul
+li	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+li	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+p.b	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+
+
+// ----------------------------------------------------------------------------
+h2	Useful Links
+
+p.c	<a href="mailto:kio@little-bat.de">Mail to project admin</a>
+	<a href="http://k1.spdns.de/Develop/projects/vipsi/distributions">Distributions</a>
+	<a href="http://k1.spdns.de/Develop/projects/vipsi/documentation">Documentation</a>
+
+
+
+
+
+

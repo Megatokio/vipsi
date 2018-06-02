@@ -1,0 +1,66 @@
+
+h3	cosh
+
+pre
+	<number> = <b>cosh</b> <number>
+	<number> = <b>cosh</b> ( <number> )
+
+p
+	Calculate the cosinus hyperbolicus of a number.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> cosh (pi/2)  o> = 2.5091784786581
+	i> <>
+
+
+
+
+
+h3	sinh
+
+pre
+	<number> = <b>sinh</b> <number>
+	<number> = <b>sinh</b> ( <number> )
+
+p
+	Calculate the sinus hyperbolicus of a number.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> sinh (pi/2)  o> = 2.3012989023073
+	i> <>
+
+
+
+
+
+
+
+h3	tanh
+
+pre
+	<number> = <b>tanh</b> <number>
+	<number> = <b>tanh</b> ( <number> )
+
+p
+	Calculate the tangens hyperbolicus of a number.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> tanh (pi/2)  o> = 0.91715233566727
+	i> <>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,49 @@
+
+
+h3  Call procedure "()"
+	call function, call built-in function, call a built-in function
+	call function or procedure, call procedure or function
+
+pre
+	<value> = <procedure> <b>(</b> <b>)</b>
+	<value> = <procedure> <b>(</b> <value> [, …] <b>)</b>
+
+	<value> = <function>
+	<value> = <function> <value>
+	<value> = <function> <b>(</b> <b>)</b>
+	<value> = <function> <b>(</b> <value> [, …] <b>)</b>
+
+p
+	Call a self-defined procedure or a built-in function.
+p
+	The return value depends on each procedure or function.
+p
+	The <tt>(…)</tt> operator evaluates the argument list and passes all arguments to the function or procedure. The arguments must match in type and count the definition of the function or procedure.
+p
+	Built-in functions frequently cast wrong data types to the required types and may extend their operation to all list items if a list is passed as argument instead of the required type. See description of each function.
+p
+	Built-in functions with no arguments and constants must be called without parenthesis.
+p
+	Built-in functions with exactly one argument may be called without parenthesis. Then the function behaves similar to a monadic prefix operator, that is: it's operand binding is very high and most subsequent operators fall outside the functions argument:
+pre
+	sin 2 * pi   ==   sin(2) * pi   !=   sin(2*pi)
+	sin myangels[i]   works as expected
+p
+	See table of operator precedences.
+
+
+h6	Other usage
+p
+	Parenthesis are also used at the place of an expression to override operator precedence and in instruction <tt>proc</tt> and procedure literal <tt>proc</tt> in a way very similar to this procedure call operator.
+
+
+
+
+
+
+
+
+
+
+
+

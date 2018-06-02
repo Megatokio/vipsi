@@ -1,0 +1,18 @@
+
+
+h3  rightstr
+
+pre
+    <text> = <b>rightstr</b> ( <text>, <number> )
+
+p
+	Returns substring consisting of <number> characters from the right side of the <text>. If number is larger than the text length, then the returned text is truncated to the source text length.
+
+p
+   e.g.:
+pre
+    rightstr ( "1234567890", 3 )  =  "890"
+    rightstr ( "1234567890", 99 ) =  "1234567890"
+    rightstr ( "1234567890", -5 ) =  ""
+
+

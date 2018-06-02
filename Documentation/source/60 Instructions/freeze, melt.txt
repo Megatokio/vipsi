@@ -1,0 +1,40 @@
+
+
+h3  freeze
+
+pre
+	<b>freeze</b> <text_var>
+	<b>freeze</b> file <filename>
+
+p
+	Compress text or file. Undo compression with <tt>melt</tt>.
+p
+	A files must fit into ram twice. Compression is typically more effective, the longer the input data is.
+p
+   e.g.:
+pre
+	var a="fuzzy";a#=a;a#=a;a#=a;
+	freeze a;
+	count a
+
+
+
+h3  melt
+
+pre
+	<b>melt</b> <text_var>
+	<b>melt</b> file <filename>
+
+p
+	Uncompress text or file which has been compressed with <tt>freeze</tt>.
+p
+	A files must fit into ram twice. Compression is typically more effective, the longer the input data is.
+
+p
+   e.g.:
+pre
+	var a="fuzzy";a#=a;a#=a;a#=a;
+	freeze a;
+	melt a;
+
+

@@ -1,0 +1,98 @@
+
+h3 log
+
+pre
+	<number> = <b>log</b> ( <base>, <number> )
+
+p
+	Calculate the logarithm of <number> to <base> which must be a numeric value too.
+p
+	The base must not be 0 or the result will be 'unlimited' and the number must not be 1 or the the result will be 'NaN'.
+p
+	e.g.:
+shell
+	i> logn(16,256)  o> = 2
+	i> logn(10,999)  o> = 2.999565488226
+	i> <>
+
+h5	<tt>log</tt> in the vipsi shell
++	../../includes/note on log.txt
+
+
+
+h3 log2
+
+pre
+ 	<number> = <b>log2</b> <number>
+ 	<number> = <b>log2</b> ( <number> )
+
+p
+	Calculate the logarithm of a number to base 2.
+p
+	The number must not be 1 or the the result will be 'NaN'.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> log2(8)  o> = 3
+	i> log2 255  o> = 7.9943534368589
+	i> <>
+
+
+h3 loge
+
+pre
+	<number> = <b>loge</b> <number>
+	<number> = <b>loge</b> ( <number> )
+
+p
+	Calculate the logarithm of a number to base e.
+p
+	The number must not be 1 or the the result will be 'NaN'.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> loge(ec*ec)  o> = 2
+	i> loge 10  o> = 2.302585092994
+	i> <>
+
+
+
+h3 log10
+
+pre
+	<number> = <b>log10</b> <number>
+	<number> = <b>log10</b> ( <number> )
+
+p
+	Calculate the logarithm of a number to base 10.
+p
+	The number must not be 1 or the the result will be 'NaN'.
++	../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> log10(100)  o> = 2
+	i> log10(999)  o> = 2.999565488226
+	i> <>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,118 @@
+
+h3 isfile
+
+pre
+	<number> = <b>isfile</b> <path>
+	<number> = <b>isfile</b> ( <path> )
+
+p
+	Test whether the path refers to a file.
+p
+	Returns a numeric value which is either <tt>1</tt> (true) or <tt>0</tt> (false).
+p
+	The path must be a text value and may be a full or partial path or start with "~" for the user's home directory. Symbolic links are followed. The path must exist except for the last path component, which may be broken. Else this function aborts with an error, which may be caught with <tt>try</tt>.
+p
+	The following is a list of what <tt>isfile</tt> returns under special conditions.
+ul
+li	Path refers to file -> 1
+li	Symbolic link to file -> 1
+li	Symbolic link to link to (...) file -> 1
+ul
+li	Path refers to directory -> 0
+li	Symbolic link to directory -> 0
+li	Symbolic link to link to (...) directory -> 0
+ul
+li	Path refers to nothing -> 0
+li	Path refers to broken link -> 0
+li	Symbolic link to link to (...) broken link -> 0
+
++ ../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> put isfile("~/.vipsi")  o> 0
+	i> <>
+
+
+
+h3 islink
+
+pre
+	<number> = <b>islink</b> <path>
+	<number> = <b>islink</b> ( <path> )
+
+p
+	Test whether the path refers to a link.
+p
+	Returns a numeric value which is either <tt>1</tt> (true) or <tt>0</tt> (false).
+p
+	The path must be a text value and may be a full or partial path or start with "~" for the user's home directory. Symbolic links are followed except for the last path component. The path must exist except for the last path component, which may be broken. Else this function aborts with an error, which may be caught with <tt>try</tt>.
+p
+	The following is a list of what <tt>islink</tt> returns under special conditions.
+ul
+li	Path refers to file -> 0
+li	Path refers to directory -> 0
+li	Path refers to nothing -> 0
+ul
+li	Symbolic link to file -> 1
+li	Symbolic link to directory -> 1
+li	Symbolic link to link -> 1
+li	Path refers to broken link -> 1
+
++ ../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> put islink("~/.vipsi")  o> 0
+	i> <>
+
+
+
+h3 isdir
+
+pre
+	<number> = <b>isdir</b> <path>
+	<number> = <b>isdir</b> ( <path> )
+
+p
+	Test whether the path refers to a directory.
+p
+	Returns a numeric value which is either <tt>1</tt> (true) or <tt>0</tt> (false).
+p
+	The path must be a text value and may be a full or partial path or start with "~" for the user's home directory. Symbolic links are followed. The path must exist except for the last path component, which may be broken. Else this function aborts with an error, which may be caught with <tt>try</tt>.
+p
+	The following is a list of what <tt>isdir</tt> returns under special conditions.
+ul
+li	Path refers to file -> 0
+li	Symbolic link to file -> 0
+li	Symbolic link to link to (...) file -> 0
+ul
+li	Path refers to directory -> 1
+li	Symbolic link to directory -> 1
+li	Symbolic link to link to (...) directory -> 1
+ul
+li	Path refers to nothing -> 0
+li	Path refers to broken link -> 0
+li	Symbolic link to link to (...) broken link -> 0
+
++ ../../includes/functions with 1 arg.txt
+p
+	e.g.:
+shell
+	i> put isdir("~/.vipsi")  o> 1
+	i> <>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

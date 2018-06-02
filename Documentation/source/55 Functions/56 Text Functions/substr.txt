@@ -1,0 +1,36 @@
+
+
+
+
+
+h3	substr
+
+pre
+    <text> = <b>substr</b> ( <text>, <startindex>, <endindex> )
+    <text> = <b>substr</b> ( <text>, <startindex> )
+
+p
+	Return substring from <startindex> to <endindex>.
+p
+	Returns substring from start index to end index inclusive, resulting in <startindex>-<endindex>+1 characters. If the end index is omitted, then return all characters to the end of text.
+p
+	Indexes start at 1.
+p
+	The start and end index are forced inside the text if required. If the start index is greater than end index then an empty text is returned.
+p
+   e.g.:
+pre
+    substr ( "1234567890", 3, 6 )  =  "3456"
+    substr ( "1234567890", 8, 99 ) =  "890"
+    substr ( "1234567890", 8, 4 )  =  ""
+    substr ( "1234567890", 8 )  =  "890"
+
+p
+	Functionally equivalent to:
+pre
+	<text> = <text> <b>[</b> <startindex> <b>to</b> <endindex> <b>]</b>
+	<text> = <text> <b>[</b> <startindex> <b>to ]</b>
+
+
+
+

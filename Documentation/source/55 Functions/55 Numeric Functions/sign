@@ -1,0 +1,10 @@
+h3	sign
+
+pre
+	<number> = <b>sign</b> <number>
+	<number> = <b>sign</b> ( <number> )
+
+p
+	Querry the sign of a numeric value.
+
++	../../includes/functions with 1 arg.txt

@@ -1,0 +1,21 @@
+
+
+h3	round
+
+pre
+	<number> = <b>round</b> <number>
+	<number> = <b>round</b> ( <number> )
+
+p
+	Round to nearest. xx.5 rounds upwards.
+
++	../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> round pi  o> = 3
+	i> round 0.5  o> = 1
+	i> round -0.5  o> = 0
+	i> <>
+

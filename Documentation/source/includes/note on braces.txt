@@ -1,0 +1,11 @@
+p
+	Braces <tt>{ ... }</tt> are used to enclose ranges of program code with a private variable scope and for list literals. This depends on the place where they are encountered. If a brace occurs at the place of an instruction then it starts a private variable scope. If a brace occurs at the position of an expression then it is the beginning of a list literal.
+p
+	The only place where this may lead to confusion is the vipsi shell: At the start of the command line the parser expects an instruction. For your convenience it is also possible to just type an expression and the shell will print the result. Thus if you just type in
+pre
+	{ x=22, y=1.5, z=0 }
+p
+	to see whether vipsi evaluates your list literal as expected, then the opening <tt>{</tt> stands at the position of an instruction and should be handled as the start of a range of statements with private variable scope.
+p
+	As of version 0.8.8 the shell has some automagic intelligence to detect this. If a command line starts with an opening brace <tt>{</tt> then the shell defaults to a list literal, except if it contains a semicolon ";" or a pure instruction like <tt>var</tt>. This is done by silently putting a <tt>put</tt> statement in front of the list and the printed result is not always identical to what would be printed if it would have been evaluated as an expression without glue.
+

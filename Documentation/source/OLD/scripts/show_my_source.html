@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META http-equiv=Content-Type content="text/html; charset=UTF-8">
+	<meta name="Generator"          content="hand crafted">
+	<meta name="Author"             content="kio&#64;little-bat.de">
+	<meta name="KeyWords"           content="vipsi shell script interpreter programming">
+
+	<title>vipsi - sample script</title>
+
+<script type="text/javascript">
+	if (top==self) top.location="../index.html#"+self.location.pathname;
+</script>
+
+	<link rel=stylesheet type="text/css" href="../main.css">
+</HEAD>
+
+<BODY background="b/hdgr.jpg" bgcolor="#CCCCCC" 
+	  text="#000000" link="#000000" vlink="#000000" alink="#CC0000">
+
+
+
+<h1>vipsi - shell and script language</h1>
+
+<h2>example scripts</h2>
+
+<h3>show my source</h3>
+
+<p>this example shows a procedure which, when called, prints it's own source.
+ok, that's not <i>that</i> useful, but try the same with another language of your choice.
+
+<pre>
+localhost: <b>vipsi</b>
+_______________________________________________________________________
+vipsi - VIP script interpreter 0.7.1 (c) 2001-2003 kio@little-bat.de
+development release. please set your terminal to utf-8 and vt100.
+see &lt>http://vipsi.sourceforge.net&gt; for latest documentation.
+
+        vipsi is waiting for your commands.
+        type an expression to calculate the result.
+        type «words» for a list of words.
+        type «info "foo"» for info on word «foo».
+        type ctrl-D to quit.
+_______________________________________________________________________
+
+vipsi&gt; <b>proc sms ( ) { log sms }</b>
+vipsi&gt; 
+vipsi&gt; // that's it was. now let's try it:
+vipsi&gt; 
+vipsi&gt; <b>sms()</b>      proc sms ( ) { log sms }
+vipsi&gt;
+</pre>
+
+<p>just to make it harder we'll now require additionally, that it must not use <tt>log sms</tt> for introspection. so we'll have to do it in a way how it works for most other languages too:
+<pre>
+// this program prints it's own source
+// (c) 1998-2002 kio@little-bat.de
+proc sms() {
+  proc p(s) { if f convert s to quoted; s="    p("#s#")"; then log s,nl; }
+  proc q() { log "  loop",nl,"  q()",nl,"}",nl }
+  var f=-1 do while ++f&lt;=1
+    p("")
+    p("// this program prints it's own source")
+    p("// (c) 1998-2002 kio&#64;little-bat.de")
+    p("proc sms() {")
+    p("  proc p(s) { if f convert s to quoted; s=\"    p(\"#s#\")\"; then log s,nl; }")
+    p("  proc q() { log \"  loop\",nl,\"  q()\",nl,\"}\",nl }")
+    p("  var f=-1 do while ++f&lt;=1")
+  loop
+  q()
+}
+</pre>
+
+<p>copy and paste this example into a file e.g. <i>sms.txt</i> and include and start it within a vipsi shell:
+
+<pre>
+vipsi&gt; <b>include "/Users/kio/projects/vipsi/examples/sms.txt"</b>
+vipsi&gt; <b>sms()</b>
+// this program prints it's own source
+// (c) 1998-2002 kio@little-bat.de
+proc sms() {
+  proc p(s) { if f convert s to quoted; s="    p("#s#")"; then log s,nl; }
+  proc q() { log "  loop",nl,"  q()",nl,"}",nl }
+  var f=-1 do while ++f&lt;=1
+    p("")
+    p("// this program prints it's own source")
+    p("// (c) 1998-2002 kio&#64;little-bat.de")
+    p("proc sms() {")
+    p("  proc p(s) { if f convert s to quoted; s=\"    p(\"#s#\")\"; then log s,nl; }")
+    p("  proc q() { log \"  loop\",nl,\"  q()\",nl,\"}\",nl }")
+    p("  var f=-1 do while ++f&lt;=1")
+  loop
+  q()
+}
+
+vipsi&gt;
+</pre>
+
+<p>Yee! it works. great! :-)
+
+<p>there are some people who add even more requirements to this job. i leave it as an excercise to the reader to add some lines so that they get an executable program (script) that can be started from the command line and print's it's source to stdout. i'd like to ask those people to add some lines to their (non-vipsi) programs so that they recompile themself. just to compare. B-)
+
+<p>you may also modify the script so that it prints a version number, which increases with each run. ;-)
+
+
+<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;
+</BODY>
+</HTML>

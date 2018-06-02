@@ -1,0 +1,21 @@
+
+
+
+
+h2	Text functions
+	string function
+
+
+p.c	Functions which return text values.
+
+
+
+
+
+
+
+
+
+
+
+

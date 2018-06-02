@@ -1,0 +1,27 @@
+
+
+
+h2	Preferences Files
+p
+	Default preferences files are installed into <i>/usr/local/lib/vipsi/</i> and every user may store his own preferences in <i>~/.vipsi/</i>. There are 3 different files:
+
+ol
+li	<b>shell.prefs</b> used for the interactive vipsi shell
+li	<b>script.prefs</b> used for scripts
+li	<b>/etc/vipsi.cgi.conf</b> used for cgi scripts
+
+p
+	Preferences are read from <i>/usr/local/lib/vipsi/shell.prefs</i> or, if existent, from file <i>~/.vipsi/shell.prefs</i>. The preferences file contains a list literal according to the vip script language and is evaluated similar to function <tt>eval</tt>. Not much preferences can be set yet, most useful is setting colors for stdin, stdout and stderr if you have problems with the default magic.
+
+
+h4	Default "shell.prefs"
+include	libs/shell.prefs
+
+h4	Default "script.prefs"
+include	libs/script.prefs
+
+h4	Default "vipsi.cgi.conf"
+include	libs/vipsi.cgi.conf
+
+
+

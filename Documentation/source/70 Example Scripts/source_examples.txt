@@ -1,0 +1,101 @@
+
+
+h2	Easy Example Scripts
+
+// ----------------------------------------------------
+h3	Factorial "!"
+
+p	This script calculates the factorial n! of the passed argument n.
+p	This is an easy example for a script, which can be called in two different ways:
+ol
+li	as shell command
+li	or called from another vip script.
+
+p	If invocated in the traditional way, either from the bash shell or from a vip script with function sys(), then the passed argument is a text. No chance for anything else. So we convert the text to a number and... hm, print the result to stdout. No other way else.
+
+p	If invovated from another vip script or from the vipsi shell with call(), then we can pass arguments of any type and can return a value of any type. So, if we detect a numeric argument, we do it just like this.
+
+h4	Download link
+p.c	<a href="scripts/fak.vs">fak.vs</a>
+
+h4	Listing
+include	scripts/fak.vs
+
+
+
+// ----------------------------------------------------
+h3	Prime Factor Factorizing
+
+p	Of course an interpreter language is not suitable for number crunching, but for testing an algorithm it is quite conveniant.
+
+p	When i worked on factorizing of large numbers i write this script to test the first thoughts. You can just call it w/o parameters to run a test on a automatically generated number, which is secretly calculated by multiplying two primes of the preset size, or supply values for the number of test loops, size of prime A, size of prime factor B or pass an own number to factorize.
+
+p	note: accuracy of 8 byte float arithmetic is 53 bits. You'll find this number in the listing.
+
+p	Comments in the script are German.
+
+h4	Download link
+p.c	<a href="scripts/prime.vs">prime.vs</a>
+
+h4	Listing
+include	scripts/prime.vs
+
+
+
+// ----------------------------------------------------
+h3	Speedometer
+
+p	This is a simple speed test i wrote in the early days of vipsi. It does some fancy stuff and counts, how often it can do it in 10 seconds. Then the result is normalized to a value i got then on my P4@2.53GHz. That result i called one megaboogie.
+
+p	I ran it right now again and i got 0.86 megaboogies. Hm, either a donkey sucks the water from my water cooling, or some added error checkings slow it down. Or, dare not believe it, it's got slower since.
+
+p	If you think that 710 loops in 10 seconds, which i obviously achieved on my P4, are poor: ok, it's not dread fast. But the loop also contains a call to fak(100), that means a 100 times recursive calls to the factorial proc, and it's doing some heavy list operations. Not that bad.
+
+p	Update: With version 0.8.8 introduced variable name hashing my P4 runs at 1.70 megaboogies. Impressive speed bump. B-)
+
+p	Just take a look at the source to get a feeling for the vip script language.
+
+h4	Download link
+p.c	<a href="libs/speedometer.vs">speedometer.vs</a>
+
+h4	Listing
+include	libs/speedometer.vs
+
+
+
+
+// ----------------------------------------------------
+h3	VIP Script Test Suite
+
+p	This is the primary test suite used to test the interpreter. Lots of test are missing. Yes, i know. Send in what ever you like...
+
+p	The test suite is part of every distribution and this listing may not be up to date.
+
+h4	Download directory
+p.c	<a href="libs/test_suite/">test_suite/</a>
+
+h4	Listing
+include	libs/test_suite/00_test.vs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

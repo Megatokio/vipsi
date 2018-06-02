@@ -1,0 +1,43 @@
+
+
+
+h3  eval
+
+pre
+	<value> = <b>eval</b> <text>
+	<value> = <b>eval</b> ( <text> )
+
+p
+	Execute <text> as a vip script and return it's result value.
+p
+	The text is parsed just like a script, so almost every expression is possible here, including execution of own procedures.
+p
+	The evaluated expression ends when it executes an <tt>end</tt> instruction, <tt>return</tt> on ground level (not inside a procedure) or execution reaches the end of the text. It also ends when it encounters an uncatched error, which generates an error in the calling script which subsequently will terminate the calling script if it does not catch the error.
+p
+	If the script text does not return a value, then this will probably generate an error when the result is used as argument to an instruction or operator <tt>=</tt>.
+p
+	There is also an instruction <i>eval</i> which expects no result value.
+
+shell
+	i> // stupid example
+	i> put eval «"hello!"»  o> hello!
+
+pre.src
+	var text = ""
+	do
+		put nl, "eval> "
+		get text
+		while text!=""
+
+		put " =  "
+		try
+			put eval text
+		else
+			put #stderr, "bummer!"
+		then
+	loop
+
+	put nl, "bye bye!",nl
+
+
+

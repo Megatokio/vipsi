@@ -1,0 +1,21 @@
+h3  midstr
+
+pre
+    <text> = <b>midstr</b> ( <text>, <index>, <number> )
+    <text> = <b>midstr</b> ( <text>, <index> )
+
+p
+	Return substring starting at <index> and including the next <number> characters. Index must be a numeric value.
+p
+	If the length is omitted, then return all text up to the end. If <number> reaches beyond the end of the source text, then the returned text is truncated. If <index> already sterts behind text end, then the returned text is empty. If index points to a position before the beginning of the text, then index is set to <tt>1</tt> and the <number> is reduced accordingly.
+p
+	Indexes start at 1.
+
+p   e.g.:
+pre
+    midstr ( "1234567890", 3, 4 )  =  "3456"
+    midstr ( "1234567890", 8, 99 ) =  "890"
+    midstr ( "1234567890", 5 )     =  "567890"
+    midstr ( "1234567890", 8, -4 ) =  ""
+    midstr ( "1234567890", -4, 8 ) =  "123"
+

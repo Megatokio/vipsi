@@ -1,0 +1,23 @@
+
+
+
+
+
+
+
+h3	cd
+pre
+	<b>cd</b> new/working/dir
+
+p
+	Change working directory.
+p
+	This shell command does the same as the instruction <tt>cd</tt>.
+p
+	The only difference is that the path can optionally be given with no quotes. If it is a text expression then the real <tt>cd</tt> instruction is executed.
+
+pre.out
+	vipsi> <span class=in>cd ..</span>
+	vipsi> <span class=in>cd "~"</span>
+	vipsi> <span class=crsr> </span>
+

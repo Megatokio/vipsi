@@ -1,0 +1,4 @@
+
+
+p
+	The <path> must be a text value. The path may be a full or partial path and may start with '~' for the user's home directory. Symbolic links are followed. All path components except the last must exist.

@@ -1,0 +1,10 @@
+
+# preferences for vipsi
+# if started in interactive shell mode
+
+#prompt		vipsi>
+
+# e.g.: normal, black, dark blue, bright_red, bold blue, inverse, bold underline green
+stdout_attr
+stdin_attr	blue
+stderr_attr	inverse red

@@ -1,0 +1,21 @@
+
+
+h3  datestr
+
+pre
+	<text> = <b>datestr</b> ( <number> )
+    <text> = <b>datestr</b> <number>
+
+p
+   Converts numeric date format to readable <text>. The reverse function is <tt>dateval</tt>. The numeric date is expected to be in Greenwich mean time UTC+0:00.
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+p
+	Note: applying of local time zone not yet implemented. Actually <tt>now</tt> returns local time too, so this is at least consistent.
+
+p   e.g.:
+pre
+    datestr 0 = "1970-01-01 01:00:00"
+
+
+

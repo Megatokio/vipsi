@@ -1,0 +1,25 @@
+
+
+
+h3  leftstr
+
+pre
+	<text> = <b>leftstr</b> ( <text>, <number> )
+
+p
+	Returns substring consisting of <number> characters from the left side of the <text>.
+p
+	If <number> reaches beyond the end of the text, then the returned text is truncated to the length of the source text.
+p
+	Indexes start at 1.
+
+p   e.g.:
+pre
+	leftstr ( "1234567890", 3 )  =  "123"
+	leftstr ( "1234567890", 99 ) =  "1234567890"
+	leftstr ( "1234567890", -5 ) =  ""
+
+p   Functionally equivalent to
+pre
+	<text> = <b>[ to</b> <number> <b>]</b>
+

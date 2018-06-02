@@ -1,0 +1,35 @@
+
+h3	info
+pre
+	<text> = <b>info</b> <text>
+	<text> = <b>info</b> ( <text> )
+p
+	Querry information on a built-in word.
+p
+	Returns a text value.
+p
+	Returns usage information on the built-in word which name was passed in the text argument. (Version 0.8.7)
+p
+	Note: this may be changed to a list in the future.
+
++	../../includes/functions with 1 arg.txt
+
+
+p
+	e.g.:
+
+shell
+	i> put nl,info("do")
+	syntax: do … loop
+	repeat statements between do and loop.
+	e.g.: var i=1; do; put i; while i<10; i++; loop;
+
+	i> <>
+
+
+p
+	There is also a <i>shell immediate command</i> <tt>info</tt> which prints the text.
+p
+	In order to call function <tt>info</tt> in the shell, you must prevent that <tt>info</tt> is recognized as the shell immediate command. This can be done by not starting in column 1, e.g. prepending a space or ";", or by using <tt>put</tt> just like you had to do in a script.
+
+

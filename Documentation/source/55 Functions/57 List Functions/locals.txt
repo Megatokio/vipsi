@@ -1,0 +1,41 @@
+
+
+
+
+
+
+
+
+
+
+
+h3	locals
+pre
+	<list_ref> = <b>locals</b>
+p
+	Return a reference to the local variables list.
+p
+	This is useful if you want to access unnamed arguments in a procedure with a variable argument list.
+p
+	e.g.:
+pre
+	put locals
+
+	proc Test_A ( * )
+	{
+		var acnt = count locals -1;
+		rename locals[1] = style;
+		/*
+			...
+		*/
+	}
+
+
+
+p
+	<tt>locals</tt> is actually also the real name of the local variables list. You can rename it, but you can always access it with <tt>locals</tt>.
+
+
+
+
+

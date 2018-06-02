@@ -1,0 +1,20 @@
+
+
+h3  cd
+
+pre
+	<b>cd</b> <pathname>
+
+p
+	Change working directory to <pathname>. Pathname must be a text value and may be a full or partial path or start with '~' for the user's home directory.
+p
+	e.g.:
+pre
+	cd "../";
+
+p
+	There is also a shell immediate command, which is most likely executed when you type <tt>cd</tt> in the vipsi shell, which also accepts a pathname without quotes.
+
+
+
+

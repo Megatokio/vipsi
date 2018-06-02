@@ -1,0 +1,51 @@
+
+
+
+
+
+
+h3	file
+pre
+	<b>file</b> <filename>
+	<b>file</b> <filename> = <text>
+	<b>file</b> <filename> #= <text>
+
+p
+	Create a new file at file system location <filename> if it not already exists.
+p
+	The <path> must be a text value. The path may be a full or partial path and may start with '~' for the user's home directory. Symbolic links are followed. All path components except the last one must exist or instruction <tt>file</tt> fails with an error which may be caught with <tt>try</tt>.
+p
+	<tt>file</tt> without a following assignment operator just creates or touches the file. (bogus in version 0.8.7: truncates!)
+p
+	<tt>file</tt> followed by operator <tt>=</tt> rewinds and truncates the file and writes the <text> in binary mode to the file.
+p
+	<tt>file</tt> followed by operator <tt>#=</tt> appends the <text> in binary mode to the file.
+p
+	All character codes should be in range 0 ... 255 or they are chopped losing information. You should convert character encoding beforehand manually with the function or instruction <tt>convert</tt>, most likely to utf8.
+p
+	There is also a function <tt>file</tt>, which reads from a file.
+p
+	This instruction may fail for a number of reasons and exit with an error. e.g.:
+ul
+li	A component of the path (except the last) is no directory or symbolic link to a directory
+li	The item at the desired position is a directory, named pipe or the like
+li	The item at the desired position is a symbolic link to a directory, pipe or the like
+li	You have no write permission at the desired location
+
+
+p
+	e.g.:
+
+shell
+	li> file "dump" = globals
+	li> <>
+
+pre
+	var myText = file "~/.myPrefs/rcData"
+	convert myText from utf8
+	...
+	convert myText to utf8
+	file "~/.myPrefs/rcData" = myText
+
+
+

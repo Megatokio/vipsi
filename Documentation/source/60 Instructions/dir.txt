@@ -1,0 +1,31 @@
+
+
+
+
+
+
+h3	dir
+
+	<b>dir</b> <text>
+
+p
+	Create a new directory at file system location <text> if it not already exists. The path may be full or partial and may start with '~' for the user's home directory.
+p
+	This instruction may fail for a number of reasons and exit with an error. e.g.:
+ul
+li	A component of the path (except the last) is no directory or symbolic link to a directory
+li	The item at the desired position is a regular file, named pipe or the like
+li	The item at the desired position is a symbolic link to a file, pipe or the like
+li	You have no write permission at the desired location
+
+p
+	There is also a shell immediate command <tt>dir</tt>, which prints a beautified folder listing and a function <tt>dir</tt>, which returns a list with the contents of a directory.
+
+p
+	To execute this instruction <tt>dir</tt> on the command line is unluckily not straight forward, because you will normally execute the shell immediate command. The trick is as usual not to start the instruction on the first character of the input line:
+
+shell
+	i> dir "foo"           // lists contents of dir foo
+	i>  dir "foo"          // creates dir foo
+	i> ;dir "foo"          // dito
+

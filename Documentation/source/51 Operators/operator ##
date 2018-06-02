@@ -1,0 +1,35 @@
+
+
+h3  Concatenate Lists "##"
+	concatenate
+
+pre
+	<list> = <list> <b>##</b> <list>
+
+p
+	Concatenate two list values. Returns a list.
+p
+	If one operand is not a list, it is converted to a list first, just by creating a list with this operand as a single item.
+
+shell
+	i> put {1,2,3} ## {4,5,6}  o> =  { 1, 2, 3, 4, 5, 6 }
+	i> put {1,2,3} ## "anton"  o> =  { 1, 2, 3, "anton" }
+	i> put "anton" ## {1,2,3}  o> =  { "anton", 1, 2, 3 }
+	i> put "ant" ## "0123.40"  o> =  { "ant", "0123.40" }
+	i> put "anton" ## 0123.40  o> =  { "anton", 123.4 }
+	i> put 123.456 ## 0123.40  o> =  { 123.456, 123.4 }
+	i> <>
+
+p
+	Note: operator <tt>##</tt> concatenates two lists. If you wish to append a list as a single item at the end of another list, then you must put it into a list first:
+
+shell
+	i> var a={1,2,3} i4="i4", i5={5,6}
+	i> a ##  i4   o>= { 1, 2, 3, "i4" }
+	i> a ## {i4}  o>= { 1, 2, 3, "i4" }
+	i> a ##  i5   o>= { 1, 2, 3, 5, 6 }
+	i> a ## {i5}  o>= { 1, 2, 3, { 5, 6 } }
+	i>
+
+
+

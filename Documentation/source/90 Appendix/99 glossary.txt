@@ -1,0 +1,281 @@
+
+h2	Glossary
+
+
+h4	Variable, var_ref
+	var_ref, variable
+p
+	A reference to a variable. This is required for assignments. In the following example <tt>a</tt> is passed as a reference to the operator <tt>=</tt>, so that it can store data in it.
+pre
+	a = 77
+p
+	Frequently an expression returns not only a 'simple value', but a reference to a variable, which contains the expressions result. This is done whenever it is possible. You won't notice the difference unless you maliciously modify the referenced variable before it is passed to who ever needed the argument, or unless you want to store data in it, as the operator <tt>=</tt> does.
+p
+	If the term <variable> or <var_ref> is used to declare an argument type for a function or the like, then this means, that the function requires a value which must be a variable reference.
+p
+	If the term <variable> or <var_ref> is used to declare an result type of a function or the like, then this means, that the function returns a value which is always a variable reference.
+
+
+
+h4	num_ref, num_var
+	num_ref, num_var
+p
+	A reference to a variable which contains numeric data. This is required for operator <tt>+=</tt> and the like. In the following example <tt>a</tt> is passed by reference to the operator <tt>+=</tt>, so that this operator can store data in <tt>a</tt>.
+pre
+	a += 77
+
+
+
+
+
+h4	text_ref, text_var
+	text_ref, text_var
+p
+	A reference to a variable which contains text data. This is required for operator <tt>#=</tt> and the like. In the following example <tt>a</tt> is passed by reference to the operator <tt>#=</tt>, so that this operator can store data in <tt>a</tt>.
+pre
+	a #= "bruckner"
+
+
+
+
+
+h4	list_ref, list_var
+	list_ref, list_var
+p
+	A reference to a variable which contains a list. This is required for operator <tt>##=</tt>. In the following example <tt>a</tt> is passed by reference to the operator <tt>##=</tt>, so that this operator can store data in <tt>a</tt>.
+pre
+	a ##= { 77, 33 }
+
+
+
+
+h4	Value
+p
+	A value of any kind. Currently this may be a number, a text, a list or a procedure. Operators, instructions, functions and self-defined procedures require values as arguments. Only some of the built-in words require the value also to be a reference to a variable, a <var_ref>.
+p
+	Expressions yield a value as result, which sometimes may also be a variable reference.
+p
+	e.g.:
+pre
+	a + 33
+	"anton"#" ist doof."
+	"anton"
+	a			// returns a reference to a
+p
+	If the term <value> is used to declare an argument type for a function or the like, then this means, that the function requires a value, which may also be a variable reference.
+p
+	If the term <value> is used to declare an result type of a function or the like, then this means, that the function returns a value, which may also be a variable reference in some cases.
+
+
+
+h4	number, num_val
+	num_val, num_value, number
+p
+	A numeric value. Numeric functions and numeric operators return a numeric value. e.g.:
+pre
+	33+4
+	sin(pi/3)
+
+
+h4	text, text_val
+	text_val, text_value, text
+p
+	A text value. String functions and string concatenation return a text value. e.g.
+pre
+	leftstr("ssssssssssssss",3)
+	"anton" # " " # "bruckner"
+
+
+h4	list, list_val
+	list, list_val, list_value
+p
+	A list value. List concatenation return a list value. e.g.
+pre
+	{ 1, 2, 3, 4 } ## { 5 }
+
+
+
+h4	Name, Identifier
+	name, idf, identifier
+p
+	Names are required to identify variables. In this sense they do not refer to the names of built-in words. Whenever a name is encountered where a value is expected, the name is taken as a variable's name and the variable is looked up, yielding a reference to that variable.
+p
+	Example:
+pre
+	put a		// 'a' is taken as a variable's name
+				//     and that variable is printed
+	a = 77		// 'a' is taken as a variable's name
+				// 	   and a reference to that variable
+				//     is passed to operator '='
+p
+	Some instructions, functions and operators explicitly require a name as one of their arguments. Names can also be calculated, using the <tt>@</tt> prefix operator, which returns none of the known 4 data types but a name.
+p
+	Examples:
+pre
+	mylist.foo				// operator '.' requires a list and a name
+	convert mytext to html	// special syntax, 'html' is a name
+	var a="foo"
+	put mylist.@a			// operator '@' supplies the name to '.'
+
+h4	Statement
+p
+	Every program is made out of a sequence of statements simply appended one after the other. Statements start with an instruction, which is a built-in word or procedure which does not return a result value (or which is ignored) and are frequently followed by arguments, which are expressions. Multiple arguments are separated by commas.
+p
+	Statements may also be expressions, that is, they may return a result value which is simply ignored. Only the vipsi shell prints result values for your convenience, if they don't result from an assignment.
+pre
+	i=0 do if i==1 put "i=1",nl exit else i++ put "*" then loop
+p
+	this breaks up into the following statements:
+pre
+	i=0 			expression, operator "=" returns a result
+	do 				instruction, no arguments
+	if i==1 		instruction, 1 argument
+	put "i=1",nl 	instruction, 2 arguments
+	exit 			instruction, no argument
+	else 			instruction, no argument
+	i++ 			expression, operator "++" returns a result
+	put "*" 		instruction, 1 argument
+	then 			instruction, no arguments
+	loop 			instruction, no arguments
+p
+	All these are statements.
+
+
+
+
+h4	Arguments
+p
+	Most instructions, functions and procedures require some sort of arguments, which must be passed to them when they are executed. Some require no, some one, some multiple and some even accept a varying ammount of arguments. Each argument is made out of one expression, which yields a value as result which in return is passed as the argument to the function. Multiple arguments are separated with commas.
+p
+	e.g.:
+pre
+	put sin(2*pi)
+p
+	The expression '2*pi' is taken as an argument for the function 'sin', which itself returns a value.
+p
+	The expression 'sin(2*pi)' is taken as an argument for the instruction 'put' which does not return a result. That's why it is an instruction.
+
+
+
+
+h4	Expression
+p
+	Expressions are in the simplest case values. These may be constants, literals, function calls or procedure calls. More mocked-up expressions are expressions linked by operators. Most (all?) expressions return a result value, which also may be a variable reference.
+p
+	Examples:
+pre
+	12345
+	"multimixmode"
+	sin(22)
+	Foo(2,3/i)
+	123 + 456 / 789
+	myList[33]
+	+(33-a)
+
+
+
+h4	Literal
+p
+	If a value is written verbatim in a program, then this is called a literal. The vip script language knows about 4 data types, and so there are 4 kinds of literals:
+ul
+li	Number literals: <tt>123.456</tt>
+li	Text literals: <tt>"Anton Bruckner"</tt>
+li	List literals: <tt>{ 1, 2, "Pünktchen", 4 }</tt>
+li	Procedure literals: <tt>proc(a){ return a*a }</tt>
+p
+	All literals a similar to constants. Constants may be considered as named literals. As constants, literals return a value of their respective type, which obviously is not a ref_var, a reference to a variable.
+
+
+
+
+h4	Instruction
+p
+	Instructions are built-in words or user-defined procedures, which return no result value. For that reason they can't be part of an expression. Therefore they can only occur as first word in a statement. Most instructions require arguments, which are made out of expressions, which in return are made out of values and maybe operators.
+
+
+
+
+h4	Function
+p
+	In the terms of the vip script language, <i>functions</i> are built-in words, which return a result value.
+p
+	e.g.:
+pre
+	put sin(2)
+	put log2(16)
+	put sqrt 100
+	put env
+	put min(2,3)
+p
+	If a function takes no arguments, then it must not be called with parenthesis.
+	If a function takes exactly one argument, then it may be called with or without parenthesis.
+	If called without parenthesis the function has very high binding to it's argument, like a prefix monadic operator, so that most operators will fall out of the argument.
+	If a function takes 2 or more or a varying amount of arguments, then it must be called with parenthesis.
+
+
+
+h4	Procedure
+p
+	In the terms of the vip script language, <i>procedures</i> are the user defined functions and instructions. Procedures are one of the 4 variable types.
+p
+	Typical definition:
+pre
+	proc Anton(a) { return a*a }
+	var Berta = proc(a,b) { put a,b }
+p
+	Typical invocation:
+pre
+	put Anton(33)
+	Berta(1,2)
+
+
+
+
+h4	Operator
+	operand
+p
+	Operators are, with rare exceptions, named with special characters to make them self-separating from the surrounding values. Operators combine the left- and right-side expressions to another, larger expression.
+p
+	e.g.:
+pre
+	123 + 345 * 567
+p
+	'123', '345' and '567' are numeric values and therefore also expressions - the simplest possible ones.
+	Operator <tt>*</tt> combines '345' and '567' to a larger expression: '345 * 567'.
+	Operator <tt>+</tt> combines '123' and '345 * 567' to the final expression: '123 + 345 * 567'.
+p
+	There are also monadic operators, which only take one argument. Preceding or prefix operators stand before their argument while postfix operators stand thereafter.
+p
+	Prefix operators:
+pre
+	+ - ++ --
+p
+	Postfix operators:
+pre
+	++ -- () []
+p
+	Last not least there is one triadic operator: The selection operator <tt>? .. :</tt> which consists of two tokens which separate it's three arguments.
+
+
+
+
+h4	Operand
+p
+	Arguments to operators are called operands.
+
+
+
+
+
+h4	Constant
+p
+	The vip script language defines some few constants. These are <tt>pi</tt>, <tt>ec</tt> (Euler's constant), <tt>stdin</tt>, <tt>stdout</tt> and <tt>stderr</tt>, the numbers of the standard streams. (version 0.8.7) All these constants return a numeric value, or num_val.
+
+
+
+
+
+
+
+
+

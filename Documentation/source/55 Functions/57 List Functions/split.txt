@@ -1,0 +1,27 @@
+
+
+
+h3  split
+pre
+	<list> = <b>split</b>( <text> )
+	<list> = <b>split</b>( <text> ,<separator> )
+
+	<list> = <b>split</b>( <list> )
+	<list> = <b>split</b>( <list> ,<separator> )
+
+p
+	Split the text at the given separator and return the resulting list of text chunks. The separator must be a text value and may be a single character or any longer text. It is removed and not preserved when splitting a line.
+p
+	If no separator is given, then the text is split at any character which looks like a line break: char(0), char(10), char(13) and char(10)+char(13).
+p
+	If <tt>split</tt> is passed a list instead of a text value, then it works on all list items. Recursively.
+p
+	There is also an instruction <tt>split</tt> which stores back the list in the original variable.
+pre
+	var mytext = file "foobär"
+	mytext = split mytext		// into lines
+	mytext = split mytext, tab	// each line at tabs
+
+
+
+

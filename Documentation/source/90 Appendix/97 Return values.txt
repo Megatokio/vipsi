@@ -1,0 +1,10 @@
+
+
+h2 Return values
+
+p
+	vip scripts can return values of any type with <tt>end</tt> or, if executed outside any procedure, with <tt>return</tt>, or they can decide to not return any value at all. What they are expected to do depends on the method of invocation.
+
++	../includes/end and return values.txt
+
+

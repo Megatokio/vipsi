@@ -1,0 +1,46 @@
+
+
+
+
+
+
+
+
+h3	try … then
+	try, else, then
+pre
+	<b>try</b>
+		<statements>
+	<b>then</b>
+pre
+	<b>try</b>
+		<statements>
+	<b>else</b>
+		<statements>
+	<b>then</b>
+p
+	Execute statements with a "safety net".
+p
+	If a runtime error occurs, then the program is not aborted with an error message. Instead the program execution resumes after <i>then</i> or, if present, at your error handler after <tt>else</tt>.
+p
+	In case of an error the variable <i>errorstr</i> is created (if it not already exists) and contains the error message.
+p
+	Your error handler gets also called if the error occurs deep inside some nested procedure call, if no other error handler catches it before you.
+
+p	e.g.:
+pre
+	try
+		openin #4, "that damn ol' file"
+	else
+    	log "failed: ", errorstr, nl
+	then
+
+
+
+
+
+
+
+
+
+

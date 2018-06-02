@@ -1,0 +1,19 @@
+
+
+h3  Named Item Selector "."
+	item selector, dot
+
+pre
+	<variable> = <list> <b>.</b> <name>
+
+p
+	Select named item in list.
+p
+   e.g.:
+pre
+   var a={1,2,3};
+   var a.b=4;
+   rename a[2]="z"; put a.z,a.b;
+
+
+

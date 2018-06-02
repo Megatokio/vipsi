@@ -1,0 +1,106 @@
+
+
+h3  Add "+"
+	addition, plus, plus sign
+
+pre
+	<number> = <number> <b>+</b> <number>
+	<number> = <b>+</b> <number>
+
+p
+	Add two numeric values.
+p
+	Add two numeric values or text values, which are converted to numbers, results in a number. If one operand is a list, the result is a list, where the operation was applied to all items. If both are lists, they should match in size and the operation is applied to all matching items.
+p
+	e.g.:
+shell
+	i> 4+5  o> = 9
+	i> put {4,5}+3  o> = { 7, 8 }
+	i> put {2,3}+{4,5}  o> = { 6, 8 }
+	i> <>
+
+h6	Monadic operator "+"
+p
+	Superfluxous operator which complements the '<tt>-</tt>' monadic operator.
+p
+	e.g.:
+shell
+	i> +(2*3)  o> = 6
+	i> <>
+p
+	Note: preceding a text value with operator '<tt>+</tt>' converts it to a number.
+shell
+	i> istext("2")  o> = 1
+	i> istext(+"2")  o> = 0
+	i> isnumber(+"2")  o> = 1
+	i> <>
+
+
+
+h6	Other usage
+
+p
+	'<tt>+</tt>' is also used as a (optional and rarely used) positive number sign for number literals.
+p
+	e.g.:
+pre
+	+123, +$affe, +"0123", +"$affe"
+
+
+
+
+
+
+
+h3  Subtract "-"
+	sub, minus, minus sign
+
+pre
+	<number> = <number> <b>-</b> <number>
+	<number> = <b>-</b> <number>
+
+p
+	Subtract two numerical values.
+p
+	Subtract two numeric values or text values, which are converted to numbers, results in a number. If one operand is a list, the result is a list, where the operation was applied to all items. If both are lists, they should match in size and the operation is applied to all matching items.
+p
+	e.g.:
+shell
+	i> 9-5  o> = 4
+	i> put {4,5}-3  o> = { 1, 2 }
+	i> put {4,5}-{2,3}  o> = { 2, 2 }
+	i> <>
+
+
+h6	Monadic operator "-"
+p
+	Complements the number sign of a value.
+p
+	e.g.:
+shell
+	i> -(2*3)  o> = -6
+	i> <>
+p
+	Note: preceding a text with operator '<tt>-</tt>' converts it to a number.
+shell
+	i> istext("2")  o> = 1
+	i> istext(-"2")  o> = 0
+	i> isnumber(-"2")  o> = 1
+	i> <>
+
+
+h6	Other usage
+
+p
+	'<tt>-</tt>' is also used as a negative number sign for number literals.
+p
+	e.g.:
+pre
+	put -123, -$affe, -"0123", -"$affe"
+
+
+
+
+
+
+

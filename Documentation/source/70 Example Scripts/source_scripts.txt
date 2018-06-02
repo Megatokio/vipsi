@@ -1,0 +1,8 @@
+
+
+h2	Scripts
+h3	Cleanup Filenames
+h3	Delete Trashfiles
+h3	Convert Textfiles to UTF-8
+h3	Automate Makefile and Distributions
+h3	Vipsi Install Script

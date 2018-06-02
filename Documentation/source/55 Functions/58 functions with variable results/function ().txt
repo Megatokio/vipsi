@@ -1,0 +1,32 @@
+
+
+
+
+
+h3  bracket expression "()"
+	parenthesis, round brackets
+
+pre
+	<value> = <b>(</b> <expression> <b>)</b>
+	<var_ref> = <b>(</b> <expression> <b>)</b>
+
+p
+	Enclose an expression.
+p
+	Return value is that of the expression.
+p
+	Parenthesis are most frequently used to enclose sub expressions to override operator precedence.
+p
+	e.g.:
+shell
+	i> 1 * 2 + 3  o> = 5
+	i> 1 * (2+3)  o> = 6
+	i> <>
+
+h6	Other usage
+p
+	Parenthesis are also used at the place of an operator to call a function or procedure and in instruction <tt>proc</tt> and procedure literal <tt>proc</tt> in a way similar to the procedure call operator.
+
+
+
+

@@ -1,0 +1,46 @@
+
+
+
+
+h3	dir
+
+pre
+	<b>dir</b> <text>
+	<b>dir</b> unquoted path
+
+p
+	Display a beautified listing of the directory at file system position <text>. The text may be a standard vip script text expression or, for your convenience only, an unquoted path. The path may be full or partial or start with ~ for the user's home directory and may contain a match pattern with wildcards for files to list.
+p
+	Displayed length is in bytes for files or number of entries for directories. Symbolic links are dereferenced prior to listing.
+p
+	flags[1] is 'd' for directories and 'l' for symbolic links.
+p
+	If you pass an empty text "" to <tt>dir</tt>, then a <b>list of mounted devices</b> is printed. Not all information can currently be deduced on all systems. This feature will probably be moved into a separate function in the near future.
+p
+	There is also an instruction <tt>dir</tt>, which creates a directory and a function <tt>dir</tt>, which returns a list of the dirctory contents.
+
+shell
+	i> dir "./var*"
+
+	Folder unix/var*                                  35.882 GB free
+
+	file or folder name             flags    length  modified
+	------------------------------- ---- ----------  -------------------
+	var.o                           -rw-      51072  2003-10-20 20:02:52
+	var_test_suite.o                -rw-      87544  2003-10-20 20:02:52
+
+	i> dir ""
+
+	Host: vanilla; User: kio(no group); SysLoad: 0.09,0.13,0.10
+	Time: 2003-10-20 20:33:07; Booted: 2003-10-20 17:02:38 (3h:30m:29s);
+
+	volume name                     flags      free  modified
+	------------------------------- ---- ----------  -------------------
+	/                               drwx   4.710 GB  2003-10-20 20:26:17
+	/home                           drwx  41.750 GB  2003-10-20 20:25:02
+	/local                          drwx  20.199 GB  2003-10-20 20:26:17
+
+	i> <>
+
+
+

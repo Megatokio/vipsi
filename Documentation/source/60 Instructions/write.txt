@@ -1,0 +1,21 @@
+
+h3  write
+
+pre
+	<b>write</b> <value>
+	<b>write</b> #number, <value>
+
+p
+	Write text in binary mode.
+	The default stream is stdout. The stream may be changed with <i>#number</i>.
+p
+	No conversions applied. The text is written 'as is'. All characters written are masked to fit into a byte! you should convert your data to the desired destination format using <i>convert</i>.
+
+shell
+	i> convert mytext to ucs4
+	i> openout #9, "myfile.txt"
+	i> write #9, mytext
+	i> close #9
+	i> <>
+
+

@@ -1,0 +1,20 @@
+
+h3  binstr
+	binary
+
+pre	<text> = <b>binstr</b> ( <number> )
+	<text> = <b>binstr</b> ( <number>, <digits> )
+p	Convert integer number to binary literal representation.
+p	Convert <number> to a binary digit string. Resulting <text> is sized to fit or sized according to <digits>, which must be a numeric value, truncating or padding with '0's or '1's to the left.
+p	Positive values are padded with '0's to the left, negative values are printed as their -1-complement, as is common for integer numbers, and padded with '1's to the left. If no <digits> are given, then negative values are always printed with the most significant bit set, e.g. they always start with digit '1'.
+p	e.g.:
+shell
+	i> binstr(10)  o> 1010
+	i> binstr(10,8)  o> 00001010
+	i> binstr(10,1)  o> 0
+	i> binstr(-10,4)  o> 0110
+	i> binstr(-10,8)  o> 11110110
+	i> binstr(-10)  o> 10110
+	i> binstr(1e10)  o> 1001010100000010111110010000000000
+	i> <>
+

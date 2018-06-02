@@ -1,0 +1,72 @@
+
+
+// instruction proc
+
+
+h3	proc
+pre
+	<b>proc</b> <name> ( <arguments> ) { <statements> }
+
+p
+	Create a procedure.
+p
+	The instruction <tt>proc</tt> creates a variable and assigns it a procedure as it's value. The procedure itself is written in a form very similar to that of a procedure literal.
+p
+	<arguments> denotes a list of argument names. It may be empty, consist of one name, or a list of names separated by commas. The last item in the arguments list may be the special character <tt>*</tt>, which indicates that an unknown amount of further arguments may be passed to the procedure. These are stored in unnamed local variables, which can be accessed using <tt>locals[<index>]</tt>.
+p
+	<statements> are the statements which are executed when the procedure is called.
+p
+	Actually instruction <tt>proc</tt> is a short form for creating a variable with instruction <tt>var</tt> and assigning it a procedure literal as initial value. Note the difference:
+p
+	Instruction <tt>proc</tt>:
+pre
+	<b>proc</b> <name> ( <arguments> ) { <statements> }
+p
+	Instruction <tt>var</tt> with procedure literal as initial value:
+pre
+	<b>var</b> <name> = <b>proc</b> ( <arguments> ) { <statements> }
+
+p
+	e.g.:
+pre
+	proc foo(bär) { return bär }
+	var foo = proc(bär) { return bär }
+p
+	See --> Procedure literals for more details on procedure literals. (sic!)
+
+
+p	Examples
+pre
+	proc foo()  { }
+	proc bee(a) { put a }
+	proc x(a,b) { return a+b }
+	proc foo.bar() { }
+
+	proc fak(n) { if n<=1 return 1; else return n*fak(n-1); then }
+    put fak(77)
+
+    proc foo(a) { put a }	// define procedure foo
+    foo(123)         	    // call foo; prints the number: <i>123</i>
+    foo("abc")				// call foo; prints the text: <i>abc</i>
+    put foo                 // put prints foo: disassembly
+
+	proc add ( * )
+	{
+		var i = count(locals)
+		// note: count(locals) includes +1 for var i itself!
+		var result = 0
+		do
+			while --i
+			result += locals[i]
+		loop
+		return result
+	}
+
+
+
+
+
+
+
+
+

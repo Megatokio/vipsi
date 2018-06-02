@@ -1,0 +1,49 @@
+
+
+
+h3  Local scope "{}"
+	braces, curly brackets
+
+pre
+	<b>{</b> <statements> <b>}</b>
+
+p
+	Define a range of statements with private variable scope.
+p
+	The instruction <tt>{</tt> starts a range of instructions with a local variable scope. All variables defined within this scope are deleted when the scope is left at <tt>}</tt>. Variables with the same name as existing variables outside the scope can be defined within this scope and will be used instead of those outside. The private variables are stored in a liste named <tt>privates</tt> which is also accessible by name.
+p
+	In the following example all statements are embraced by curly quotes to prevent that variables defined here accidently overwrite global variables of the same name.
+pre
+	{
+		var i=0
+		do
+			while ++i <= count globals
+			var Data = globals[i]
+			var Name = name(globals[i])
+			if istext(Data) Data=Data[to 60]; convert Data to quoted; then
+			put nl, Name, " = ", Data
+		loop
+	}
+
+
+
+
+
+
+h5	Other usage
+p
+	Braces are also used for list literals and in instruction <tt>proc</tt> and procedure literals to enclose the statements of the procedure.
+
+
+
+h5	Braces in the shell
+
++	../includes/note on braces.txt
+
+
+
+
+
+
+
+

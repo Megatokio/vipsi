@@ -1,0 +1,20 @@
+
+
+h3  replace
+
+pre
+	<text> = <b>replace</b> ( <text>, <oldtext>, <newtext> )
+
+p
+	Replace in <text> any occurance of <oldtext> with <newtext>. The converted text is returned as result.
+p
+	The source text is scanned from left to right and replaced text is not scanned again. If the search text <oldtext> is an empty string, then nothing is done.
+p
+   version 0.8.7: <i>replace</i> does not yet work on lists. this will be implemented in the near future.
+p
+	There is also an instruction <tt>replace</tt> which replaces the target text variable.
+p
+	e.g.:
+pre
+	put replace ( my_email_addr, "@", "&amp;#64;" )    // obscure mailto link
+

@@ -1,0 +1,60 @@
+
+
+
+
+
+
+
+h3	Semicolon ";"
+	semi colon
+
+p
+	The semicolon ";" is used to separate statements. It is optional and almost never required by the parser but improves readability of your source.
+
+p
+   These following examples are just the same:
+p
+	Without ";"
+pre
+	var i=1 do if i>100 exit then i+=i loop put "i = ", i, nl
+p
+	With ";"
+pre
+	var i=1; do; if i>100; exit; then; i+=i; loop; put "i = ", i, nl;
+p
+	Best write it this way, with or without ";":
+pre
+	var i=1
+	do
+		if i>100 exit then
+		i+=i
+	loop
+	put "i = ", i, nl
+
+
+
+
+p
+	Actually sometimes the semicolon is required.
+p
+   These two lines are just the same:
+pre
+	var a = 0; log a; a++; log a;
+	var a = 0  log a  a++  log a
+
+p
+	On the other hand, these two lines differ!
+pre
+	var a = 0; log a; ++a; log a;
+	var a = 0  log a  ++a  log a
+p
+	Because the parser does not know about the "evident meaning" of spaces and thus sees:
+pre
+	var a = 0  log a++  a  log a
+p
+	(which in this example actually just wouldn't matter. idiotic example, i admit.)
+
+
+
+
+

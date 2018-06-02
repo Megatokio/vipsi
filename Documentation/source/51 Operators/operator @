@@ -1,0 +1,47 @@
+h3  Make Identifier "@"
+	identifier from text, text to identifier
+	name from text, text to name
+	name, at, idf, identifier
+
+pre
+	<name> = @<text>
+
+p
+	Returns the text value converted to a name.
+p
+	Names are identifiers for variables and procedures and some special functions like <tt>convert</tt>. Using operator <tt>@</tt> it is possible to calculate names for variables etc. at runtime.
+
+p
+   e.g.:
+pre
+	var a=1;
+	var theName="a";
+	put @theName;
+
+	var tabWidth=4
+	convert myText to @(tab#tabWidth)
+
+p
+	All monadic operators have highest operand binding but operator <tt>@</tt> tops them all. If you want to pass a calculated expression to this operator it's best that you always use parenthesis.
+p
+	e.g.:
+pre
+	wrong:
+		var @"aaaaaaaaaaa"[to 3] = 77
+	right:
+		var @("aaaaaaaaaaa"[to 3]) = 77
+p
+	The above example defines a variable named 'aaa'. The first version does not work, because operator <tt>@</tt> has an even higher priority than range selector <tt>[]</tt>. Therefore the first example evaluates to:
+pre
+		var (@"aaaaaaaaaaa")[to 3] = 77
+	=>
+		var aaaaaaaaaaa[to 3] = 77
+p
+	which is not what you meant and, lucky enough, syntactical nonsense, so that the parser complains with an error.
+
+p
+	In general the operator <tt>@</tt> is not recommended for beginners.
+
+
+
+

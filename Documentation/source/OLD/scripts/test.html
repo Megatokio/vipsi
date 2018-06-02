@@ -1,0 +1,543 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0.1 strict//EN">
+<HTML>
+<HEAD>
+	<META http-equiv=Content-Type content="text/html; charset=UTF-8">
+	<meta name="Generator"          content="hand crafted">
+	<meta name="Author"             content="kio&#64;little-bat.de">
+	<meta name="KeyWords"           content="vipsi shell script interpreter programming">
+
+	<title>vipsi - test suite</title>
+
+<script type="text/javascript">
+	if (top==self) top.location="../index.html#"+self.location.pathname;
+</script>
+
+	<link rel=stylesheet type="text/css" href="../main.css">
+</HEAD>
+
+<BODY background="b/hdgr.jpg" bgcolor="#CCCCCC" 
+	  text="#000000" link="#000000" vlink="#000000" alink="#CC0000">
+
+
+
+<h1>vipsi - shell and script language</h1>
+
+<h2>example scripts</h2>
+
+<h3>test suite</h3>
+
+<p>this script is a test suite to validate the proper implementation of vipsi syntax. every now and then it has to be modified to accomodate syntax changes… vipsi is still evolving. and, of course, <b><i>lots</i></b> of tests are missing. if you submit more test code i'll be happy to include it.
+
+<p>the test suite is also an interesting example for vipsi's overall syntax and special capabilities. btw.: the source was html-ified using vipsi's <tt>convert</tt> instruction (but a <i>detab</i> function is still missing…).
+
+<pre>
+
+/* ---- vipsi test script ----------------------------
+
+        test a lot of vipsi functionality
+        add more tests as you like ...
+        demonstrates syntax and capabilities as well
+
+        kio 2001-08-24
+        kio 2002-03-09
+        kio 2002-03-31
+		kio 2003-08-14
+*/
+
+
+log nl,nl,&quot;test script for vipsi&quot;,nl
+
+if count globals
+    log nl, count globals, &quot; global variable&quot;, &quot;s&quot;[count globals&gt;1], &quot; already defined:&quot;, nl
+    {
+        var i=1;
+        do
+            while i&lt;count globals   // globals[count globals] = local { … }
+            if name globals[i]!=&quot;&quot; log name globals[i], &quot; = &quot;
+            else log &quot;unnamed variable: &quot; then
+            log globals[i], nl
+            i++
+        loop
+    }
+then
+
+del *
+var a,b,c,d
+var err = 0;
+var errors = 0
+var e,f,g,h
+
+
+// ----------------------------------------------------------
+log nl,&quot;basic test requirements:&quot;
+log &quot; t1&quot; if 0                              log &quot; failed&quot; end then
+log &quot; t2&quot; a=4 if a!=4                       log &quot; failed&quot; end then
+log &quot; t3&quot; a++ if a!=5                       log &quot; failed&quot; end then
+log &quot; t4&quot; a-- if a!=4                       log &quot; failed&quot; end then
+log &quot; t5&quot; a=1 b=2 a=b   if a!=2||b!=2       log &quot; failed&quot; end then
+log &quot; t6&quot; a=3 var z=a   if a!=3||z!=3       log &quot; failed&quot; end then
+
+log &quot; t7&quot; if 0 log &quot; failed(1)&quot; end else ;                    then
+log  &quot;.&quot;  if 0 log &quot; failed(2)&quot; end                           then
+log  &quot;.&quot;  if 1 ;                    else log &quot; failed(3)&quot; end then
+
+log &quot; t8&quot; if err!=0 log &quot; failed&quot; end then
+log &quot;.&quot;   err++; if err!=1 log &quot; failed&quot; end then
+log &quot;.&quot;   err--; if err!=0 log &quot; failed&quot; end then
+log &quot;.&quot;   proc trap(f) { if f err++ then }
+log &quot;.&quot;   trap(0) if err!=0 log &quot; failed&quot; end then
+log &quot;.&quot;   trap(1) if err!=1 log &quot; failed&quot; end then err--
+
+log &quot; t9&quot; proc trap(f) { if f err++ log &quot; failed&quot; then }
+log &quot;.&quot;   trap(0) if err!=0 log &quot; failed&quot; end then
+
+log &quot; passed&quot;,nl
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;branching:&quot;
+log &quot; t1&quot; if 0                                      log &quot; failed&quot;   err++ then
+log &quot; t2&quot; if 1 else                                 log &quot; failed&quot;   err++ then
+log &quot; t3&quot; if 1 a=1 b=2 else                         log &quot; failed&quot;   err++ then
+log &quot; t4&quot; if 1 if 0 else then else                  log &quot; failed&quot;   err++ then
+log &quot; t5&quot; if 1 if 1 else then else                  log &quot; failed&quot;   err++ then
+
+log &quot; t6&quot; err++ if 0 if 0 log&quot; failed(1)&quot; else log&quot; failed(2)&quot; then else err-- then
+log &quot;.&quot;   err++ if 0 if 1 log&quot; failed(1)&quot; else log&quot; failed(2)&quot; then else err-- then
+
+log &quot; t7&quot; a=10 do a-=1 while a loop                 trap(a)
+log &quot;.&quot;   a=10 do a-=1 until !a loop                trap(a)
+log &quot;.&quot;   a=10 do a-=1 if a next then exit loop     trap(a)
+log &quot;.&quot;   a=10 do a-=1 if !a exit then loop         trap(a)
+log &quot;.&quot;   a=10 if 1 do a-=1 while a loop then       trap(a)
+log &quot;.&quot;   a=10 if 0 else do a-=1 while a loop then  trap(a)
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;comparing:&quot;
+log &quot; t1&quot; trap( 1==2 )
+log &quot;.&quot;   trap( 2!=2 )
+log &quot;.&quot;   trap( 1&gt;=2 )
+log &quot;.&quot;   trap( 2&lt;=1 )
+log &quot;.&quot;   trap( 2&gt;2 || 1&gt;2 )
+log &quot;.&quot;   trap( 2&lt;2 || 2&lt;1 )
+
+log &quot; t2&quot; var e=1 var z=2
+log &quot;.&quot;   trap( e==z )
+log &quot;.&quot;   trap( z!=z )
+log &quot;.&quot;   trap( e&gt;=z )
+log &quot;.&quot;   trap( z&lt;=e )
+log &quot;.&quot;   trap( z &gt;z )
+log &quot;.&quot;   trap( z&lt; z )
+log &quot;.&quot;   trap( e!=1 || z!=2 )
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;numerics:&quot;
+log&quot; t1&quot; a=4 trap( a!=4.0 )
+log&quot; t2&quot; trap( a+4!=8 )
+log&quot;.&quot;   trap( 17%5!=2 )
+log&quot;.&quot;   trap( -17%5!=-2 )
+log&quot;.&quot;   trap( 17%2.5!=2 )
+log&quot;.&quot;   trap( -17%2.5!=-2 )
+log&quot;.&quot;   trap( 17%-2.5!=2 )
+log&quot;.&quot;   trap( -17%-2.5!=-2 )
+log&quot; t3&quot; trap( 4-3.5!=0.5 )
+log&quot; t4&quot; trap( -a!=+3-7.0 )
+log&quot;.&quot;   trap( -0!=0 )
+log&quot;.&quot;   trap( !0!=1 || !55!=0 )
+log&quot;.&quot;   trap( ~0!=256*256*256*256-1 )
+log&quot; t5&quot; trap( +a!=4 )
+log&quot;.&quot;   trap( a*3.5!=14 )
+log&quot;.&quot;   trap( a/0.5!=+0.0+8 )
+log&quot;.&quot;   trap( 123.456!=((((123.0))+(0.456))) )
+
+log&quot; t6&quot; trap( (3+4*50)!=203 )
+log&quot;.&quot;   trap( (3-4/5)!=2.2 )
+log&quot;.&quot;   trap( (3*(4+5))!=27 )
+log&quot;.&quot;   trap( ((3+4)*5)!=35 )
+log&quot;.&quot;   trap( (3+-4)!=-1 )
+log&quot;.&quot;   trap( (15&amp;26!=10)!=0 )
+
+log&quot; t7&quot; a = 123.456+385.12*46.1/46/(1.02*(0.03+164.44))
+         b = 1.02*0.03+164.44*1.02
+         c = 385.12*46.1
+         d = c/23/2.000
+         trap( a!=d/b+123+0.456 )
+
+log&quot; t8&quot; a=44 trap( ++a!=45 || ++a!=46 )
+log&quot;.&quot;   a=44 trap( --a!=43 || --a!=42 )
+log&quot;.&quot;   a=44 trap( a++!=44 || a++!=45 )
+log&quot;.&quot;   a=44 trap( a--!=44 || a--!=43 )
+
+log&quot; t9&quot; trap( (3&gt;4?(2*3):&quot;B&quot;)!=&quot;B&quot; )
+log&quot;.&quot;   trap( (!0?&quot;A&quot;#&quot;B&quot;:0)!=&quot;AB&quot; )
+log&quot;.&quot;   trap( (0?5:0?6:1?7:1?8:0)!=7 )
+log&quot;.&quot;   trap( (0?5:0?6:1?7:0?8:1)!=7 )
+
+log&quot; t10&quot; a=123; a-=20+3;       trap( a-100 )
+log&quot;.&quot;    a=123; a+=-46/2;      trap( a-100 )
+log&quot;.&quot;    a=123; a*=3+2*10;     trap( a!=2829 )
+log&quot;.&quot;    a=1604.928 a/=123.456 trap( a!=13 )
+
+log&quot; t11&quot; trap( stdin!=0 )
+log&quot;.&quot;    trap( stdout!=1 )
+log&quot;.&quot;    trap( stderr!=2 )
+log&quot;.&quot;    trap( pi!=3.141592653589793 )
+log&quot;.&quot;    trap( ec!=2.718281828459045 )
+
+log &quot; t12&quot; a=3 a=a+a+a trap( a!=9 )
+log &quot;.&quot;    trap( 33&lt;&lt;2 != 132 )
+log &quot;.&quot;    trap( 132&gt;&gt;2 != 33 )
+log &quot;.&quot;    trap( $1234!=4660 )
+log &quot;.&quot;    trap( $9Affe54f!=2600461647 )
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+// ----------------------------------------------------------
+log nl,&quot;strings:&quot;
+if &quot;abcde&quot;#&quot;fghi&quot;!=&quot;abcdefghi&quot; log &quot; t1 failed&quot; err++ then
+if &quot;abcde&quot;[2]!=&quot;b&quot;          log &quot; t2 failed&quot; err++ then
+if &quot;abcde&quot;[to 2]!=&quot;ab&quot;      log &quot; t3 failed&quot; err++ then
+if &quot;abcde&quot;[4 to]!=&quot;de&quot;      log &quot; t4 failed&quot; err++ then
+if &quot;abcde&quot;[2 to 4]!=&quot;bcd&quot;   log &quot; t5 failed&quot; err++ then
+if &quot;abcde&quot;[-2 to 2]!=&quot;ab&quot;   log &quot; t6 failed&quot; err++ then
+if &quot;abcde&quot;[-2 to]!=&quot;abcde&quot;  log &quot; t7 failed&quot; err++ then
+if &quot;abcde&quot;[to 99]!=&quot;abcde&quot;  log &quot; t8 failed&quot; err++ then
+if &quot;abcde&quot;[to -5]!=&quot;&quot;       log &quot; t9 failed&quot; err++ then
+
+if &quot;abcde&quot;&lt;&quot;abcde&quot;  log &quot; t10 failed&quot; err++ then
+if &quot;abcde&quot;&gt;&quot;abcde&quot;  log &quot; t11 failed&quot; err++ then
+if &quot;abcde&quot;!=&quot;abcde&quot; log &quot; t12 failed&quot; err++ then
+if &quot;abcde&quot;&lt;&quot;abcd&quot;   log &quot; t13 failed&quot; err++ then
+if &quot;abcde&quot;&lt;&quot;abcdE&quot;  log &quot; t14 failed&quot; err++ then
+if upperstr&quot;AnToN MüLLer öäüßÖÄÜ&quot;!=&quot;ANTON MÜLLER ÖÄÜßÖÄÜ&quot; log &quot; t15 failed&quot; err++ then
+if lowerstr&quot;AnToN MüLLer öäüßÖÄÜ&quot;!=&quot;anton müller öäüßöäü&quot; log &quot; t16 failed&quot; err++ then
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+// ----------------------------------------------------------
+log nl,&quot;string functions:&quot;
+if string(0)!=&quot;0&quot;                   log &quot; t1 failed&quot; err++ then
+if string(0.001)!=&quot;0.001&quot;           log &quot; t2 failed&quot; err++ then
+if string(100.11+0.001)!=&quot;100.111&quot;  log &quot; t3 failed&quot; err++ then
+if find(&quot;hasta la vista&quot;,&quot;la&quot;)!=7   log &quot; t4 failed&quot; err++ then
+if find(&quot;hasta la vista&quot;,&quot;zz&quot;)!=0   log &quot; t5 failed&quot; err++ then
+if find(&quot;hasta la vista&quot;,&quot;ha&quot;)!=1   log &quot; t6 failed&quot; err++ then
+if find(&quot;hasta la vista&quot;,&quot;&quot;)!=1     log &quot; t7 failed&quot; err++ then
+if find(&quot;la&quot;,&quot;hasta la vista&quot;)!=0   log &quot; t8 failed&quot; err++ then
+if find(&quot;xyz&quot;,&quot;xyz&quot;)!=1             log &quot; t9 failed&quot; err++ then
+if find(&quot;xyz&quot;,&quot;xy&quot;)!=1              log &quot; t10 failed&quot; err++ then
+if find(&quot;xyz&quot;,&quot;yz&quot;)!=2              log &quot; t11 failed&quot; err++ then
+if find(&quot;&quot;,&quot;&quot;)!=1                   log &quot; t12 failed&quot; err++ then
+if charstr(65)!=&quot;A&quot;                 log &quot; t13 failed&quot; err++ then
+b=&quot;B&quot; if charstr(65)#b#charstr(67)!=&quot;ABC&quot;   log &quot; t14 failed&quot; err++ then    if b!=&quot;B&quot; log &quot; t14.1 failed&quot; err++ then
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;numeric functions:&quot;
+a=0 do while ++a&lt;10000 b=random 10000 c=random b until c&lt;0 || c&gt;=b loop
+if a!=10000 log &quot; t1 failed&quot; err++ then
+if round 7.1!=7     log &quot; t19 failed&quot; err++ then
+if round 8.5!=9     log &quot; t20 failed&quot; err++ then
+if round -8.5!=-8   log &quot; t21 failed&quot; err++ then
+if round -8.4!=-8   log &quot; t22 failed&quot; err++ then
+if sign 3434.1!=1   log &quot; t23 failed&quot; err++ then
+if sign 0 != 0      log &quot; t24 failed&quot; err++ then
+if sign -0.001!=-1  log &quot; t25 failed&quot; err++ then
+if abs +124.4!=124.4 log &quot; t26 failed&quot; err++ then
+if abs 0.0!=0       log &quot; t27 failed&quot; err++ then
+if abs -17.3!=17.3  log &quot; t28 failed&quot; err++ then
+if int 99.9!=99     log &quot; t29 failed&quot; err++ then
+if int -99.9!=-99   log &quot; t30 failed&quot; err++ then
+if round(1000*fract 99.9)!=900 log &quot; t31 failed&quot; err++ then
+if round(1000*fract -99.9)!=-900 log &quot; t32 failed&quot; err++ then
+
+if min(2,5)!=2            log &quot; t33 failed&quot; err++ then
+if min(2,5,-55,0,17)!=-55 log &quot; t34 failed&quot; err++ then
+if min(5)!=5              log &quot; t35 failed&quot; err++ then
+a=44 b=33 c=66 min(a,b,c)=99 if b!=99 &quot; t36 failed&quot; err++ then
+if max(2,5)!=5            log &quot; t37 failed&quot; err++ then
+if max(2,5,-55,17,0)!=17  log &quot; t38 failed&quot; err++ then
+if max(5)!=5              log &quot; t39 failed&quot; err++ then
+a=44 b=33 c=66 max(a,b,c)=99 if c!=99 log &quot; t40 failed&quot; err++ then
+a=44 b=55 c=66 if max(a,b,c)!=66 log &quot; t41 failed&quot; err++ then
+if (a!=44) log &quot; t42 failed&quot; err++ then
+if (b!=55) log &quot; t43 failed&quot; err++ then
+if (c!=66) log &quot; t44 failed&quot; err++ then
+a=44 b=55 c=66 if max(c,b,a)!=66 log &quot; t45 failed&quot; err++ then
+if (a!=44) log &quot; t46 failed&quot; err++ then
+if (b!=55) log &quot; t47 failed&quot; err++ then
+if (c!=66) log &quot; t48 failed&quot; err++ then
+d=99 d=max(c,b,a) if d!=66 log &quot; t49 failed&quot; err++ then
+if (a!=44) log &quot; t50 failed&quot; err++ then
+if (b!=55) log &quot; t51 failed&quot; err++ then
+if (c!=66) log &quot; t52 failed&quot; err++ then
+if (d!=66) log &quot; t53 failed&quot; err++ then
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;vektor functions:&quot;
+log &quot;t1 &quot; a={} if count(a)!=0 log &quot;failed &quot; err++ then
+log &quot;t2 &quot; a[1]=1 if count(a)!=1 log &quot;failed &quot; err++ then
+log &quot;t3 &quot; a[55]=&quot;&quot; if count(a)!=55 log &quot;failed &quot; err++ then
+log &quot;t4 &quot; if !islist a log &quot;failed &quot; err++ then
+log &quot;t5 &quot; if !isvoid a[5] log &quot;failed &quot; err++ then
+log &quot;.&quot;   a[2]=&quot;AnToN MüLLer öäüßÖÄÜ&quot; convert a to html
+log &quot;t6 &quot; if !isnumber a[1] log &quot;failed &quot; err++ then
+log &quot;t7 &quot; if !istext a[55] log &quot;failed &quot; err++ then
+//log &quot;t8 &quot; if a[2]!=&quot;AnToN M&amp;uuml;LLer &amp;ouml;&amp;auml;&amp;uuml;&amp;szlig;&amp;Ouml;&amp;Auml;&amp;Uuml;&quot; log &quot;failed &quot; err++ then
+log &quot;t9 &quot; if !isvoid a[6] log &quot;failed &quot; err++ then
+log &quot;t10 &quot; if a[2,3]!=&quot;T&quot; log &quot;failed &quot; err++ then
+log &quot;t11 &quot; if {}##1##&quot;1&quot; != {1,&quot;1&quot;}             log &quot;failed &quot; err++ then
+log &quot;t12 &quot; a={1,2} a[3]=a if a!={1,2,{1,2,*}}   log &quot;failed &quot; err++ then
+log &quot;t13 &quot; a={2,3} a=a##a if a!={2,3,2,3}       log &quot;failed &quot; err++ then
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;variables:&quot;
+log &quot; t1&quot; a=0 if !isnumber a            log &quot; failed&quot; err++ then
+log &quot;.&quot;   a=0 if istext a               log &quot; failed&quot; err++ then
+log &quot;.&quot;   a=0 if islist a               log &quot; failed&quot; err++ then
+log &quot;.&quot;   a=0 if !exists a              log &quot; failed&quot; err++ then
+log &quot;.&quot;   a=0 if exists a.foo           log &quot; failed&quot; err++ then
+log &quot;.&quot;   a=0 if exists foo             log &quot; failed&quot; err++ then
+log &quot; t2&quot; var foo if !exists foo        log &quot; failed&quot; err++ then
+log &quot;.&quot;   foo={} foo[1]=1 foo[2]=2 foo[3]=3 foo[4]=4
+log &quot;.&quot;   if !exists foo[2]             log &quot; failed&quot; err++ then
+log &quot;.&quot;   foo[2]={} foo[2,5]=0
+log &quot;.&quot;   if !exists foo[2,5]           log &quot; failed&quot; err++ then
+log &quot;.&quot;   if !isnumber foo[2,5]         log &quot; failed&quot; err++ then
+log &quot;.&quot;   if count foo[2]!=5            log &quot; failed&quot; err++ then
+log &quot; t3&quot; del foo[2]
+log &quot;.&quot;   if count foo[2]!=0            log &quot; failed&quot; err++ then
+log &quot;.&quot;   if !isnumber foo[2]           log &quot; failed&quot; err++ then
+log &quot; t4&quot; foo={1,2,3,4,5}
+log &quot;.&quot;   if count foo!=5               log &quot; failed&quot; err++ then
+log &quot;.&quot;   del foo[5] if count foo!=4    log &quot; failed&quot; err++ then
+log &quot;.&quot;   del foo[3] if count foo!=3    log &quot; failed&quot; err++ then
+log &quot;.&quot;   if foo!={1,2,4}               log &quot; failed&quot; err++ then
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;structured vektors:&quot;
+log &quot;.&quot; var punkt
+log &quot;.&quot; punkt={}
+log &quot; t0&quot; if name punkt[1]!=&quot;&quot; log &quot;failed &quot; err++ then
+log &quot;.&quot;   rename punkt[1]=&quot;x&quot; log&quot;.&quot; punkt.x=0
+log &quot;.&quot;   rename punkt[2]=&quot;y&quot; log&quot;.&quot; punkt.y=0
+
+log &quot; t1&quot; if name punkt[1]!=&quot;x&quot; log &quot;failed &quot; err++ then
+log &quot;.&quot;   if name punkt[2]!=&quot;y&quot; log &quot;failed &quot; err++ then
+log &quot;.&quot;   punkt[1]=77; if punkt.x!=77  log &quot;failed &quot; err++ then
+log &quot;.&quot;   punkt[2]=88; if punkt.y!=88  log &quot;failed &quot; err++ then
+log &quot;.&quot;   punkt.x=34;  if punkt[1]!=34 log &quot;failed &quot; err++ then
+log &quot;.&quot;   punkt.y=45;  if punkt[2]!=45 log &quot;failed &quot; err++ then
+
+log &quot; t2&quot; var v={} v[3]=punkt rename v[3]=&quot;pt&quot;
+log &quot;.&quot;   if string v != &quot;{ *, *, { &quot; # string punkt.x # &quot;, &quot; # string punkt.y # &quot; } }&quot; log &quot;failed &quot; err++ then
+log &quot;.&quot;   if !exists v.pt    log &quot;failed &quot; err++ then
+log &quot;.&quot;   if v[3,1]!=punkt.x log &quot;failed &quot; err++ then
+log &quot;.&quot;   if v[3,2]!=punkt.y log &quot;failed &quot; err++ then
+log &quot;.&quot;   if v[3].x!=punkt.x log &quot;failed &quot; err++ then
+log &quot;.&quot;   if v[3].y!=punkt.y log &quot;failed &quot; err++ then
+log &quot;.&quot;   if v.pt.x!=punkt.x log &quot;failed &quot; err++ then
+log &quot;.&quot;   if v.pt.y!=punkt.y log &quot;failed &quot; err++ then
+log &quot;.&quot;   if !exists punkt.y log &quot;failed &quot; err++ then
+log &quot;.&quot;   if  exists punkt.z log &quot;failed &quot; err++ then
+log &quot;.&quot;   if !exists v.pt.y  log &quot;failed &quot; err++ then
+log &quot;.&quot;   if  exists v.pt.z  log &quot;failed &quot; err++ then
+log &quot;.&quot;   if !exists v[3].y  log &quot;failed &quot; err++ then
+log &quot;.&quot;   if  exists v[3].z  log &quot;failed &quot; err++ then
+
+log &quot; t3&quot; var a.foo.boo.z = 1
+log &quot;.&quot;   if !exists a.foo.boo.z        log &quot; failed&quot; err++ then
+log &quot;.&quot;   if a.foo.boo.z!=1             log &quot; failed&quot; err++ then
+log &quot;.&quot;   b=&quot;boo&quot; if !exists a.foo.@b.z log &quot; failed&quot; err++ then
+log &quot;.&quot;   b=&quot;foo.boo&quot; if !exists a.@b.z log &quot; failed&quot; err++ then
+log &quot;.&quot;   if a.@b.z!=1                  log &quot; failed&quot; err++ then
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;special instructions:&quot;
+47+2; &quot;123&quot;;    // just execute it
+a=1;a++; if a!=2 log &quot; t1 failed&quot; err++ then
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;more branching:&quot;
+
+log &quot; t1&quot;
+var i=0
+var j={} j[6]=0 j[6]+=1 if j[6]!=1 log &quot; failed&quot; err++ then
+log &quot; t2&quot;
+do
+    until ++i==9
+    if i==2 j[1]=1 next then
+    if i==2 j[2]=2 next then
+    if i==9 j[3]=3 next then
+    if i==5
+        if 0 j[4]=4 exit else j[5]=5 exit then
+    else
+        j[6]+=1
+    then
+loop
+if string(j) != &quot;{ 1, *, *, *, 5, 4 }&quot; log &quot; failed&quot;, &quot; string(j)=&quot;,string(j) err++ then
+
+log &quot; t3&quot;
+var i=0
+var j={} j[4]=0
+var k=0
+do
+    while ++i!=9
+    if i==2 j[1]=1 next then
+    if i==2 j[2]=2 next then
+    if i==9 j[3]=3 next
+    else
+        if i!=5
+            if ++k==10 log &quot;abort &quot; end then
+            j[4]+=1
+            next
+        else
+            if 1 j[5]=5 exit else j[6]=6 exit then
+            j[7]=7
+        then
+    then
+    j[8]=8
+loop
+if string(j) != &quot;{ 1, *, *, 3, 5 }&quot; log &quot; failed&quot; err++ then
+
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+log nl,&quot;functions:&quot;
+
+log &quot; t0&quot; proc test1 ( ) { a=77 }               if !isproc test1 log &quot; failed&quot;  err++ then
+log &quot;.&quot;   proc test2 ( a,b,c) {return a*b*c}    if !isproc test2 log &quot; failed&quot;  err++ then
+proc drei ( ) { return 3 }
+proc vier(){return 4}
+log &quot; t1&quot; a=10 test1() if a!=77         log &quot; failed&quot;  err++ then
+log &quot;.&quot; a=10 if test2(2,3,4)!=24        log &quot; failed&quot;  err++ then
+log &quot;.&quot; if a!=10                        log &quot; failed&quot;  err++ then
+log &quot;.&quot; a=10 if a+drei()!=13            log &quot; failed&quot;  err++ then
+log &quot;.&quot; if a!=10                        log &quot; failed&quot;  err++ then
+log &quot;.&quot; a=10 if drei()+a!=13            log &quot; failed&quot;  err++ then
+log &quot;.&quot; if a!=10                        log &quot; failed&quot;  err++ then
+log &quot;.&quot; if drei()*vier()!=12            log &quot; failed&quot;  err++ then
+proc zwei(a){var b return count locals}
+log &quot; t2&quot; if zwei(0)!=2                 log &quot; failed&quot;  err++ then
+proc das(a){return locals[1]}
+log &quot; t3&quot; if das(55)!=55                log &quot; failed&quot;  err++ then
+proc mult(a,b){return locals[1]*locals[2]}
+log &quot; t4&quot; if mult(5,6)!=30              log &quot; failed&quot;  err++ then
+log &quot;.&quot; a={} a[1]=drei if !isproc a[1]log &quot; failed&quot;  err++ then
+log &quot;.&quot; a=a[1]() if a!=3                log &quot; failed&quot;  err++ then
+proc t(*){return count locals}
+log &quot; t5&quot; if t()!=0                     log &quot; failed&quot;  err++ then
+log &quot;.&quot; if t(4)!=1                      log &quot; failed&quot;  err++ then
+log &quot;.&quot; if t(6,a)!=2                    log &quot; failed&quot;  err++ then
+log &quot;.&quot; if t(a,5+6,0)!=3                log &quot; failed&quot;  err++ then
+proc t1(*){return count locals}
+log &quot; t6&quot; if t1(4)!=1                   log &quot; failed&quot;  err++ then
+log &quot;.&quot; if t1(6,a)!=2                   log &quot; failed&quot;  err++ then
+log &quot;.&quot; if t1(a,5+6,0)!=3               log &quot; failed&quot;  err++ then
+proc mult(*) { var n; n=count locals; var r=1; do while --n r*=locals[n] loop return r }
+log &quot; t7&quot; if mult()!=1                  log &quot; failed&quot;  err++ then
+log &quot;.&quot; if mult(4,5.5)!=22              log &quot; failed&quot;  err++ then
+log &quot;.&quot; if mult(pi)!=pi                 log &quot; failed&quot;  err++ then
+var a=10,b=20
+log &quot; t8&quot; if mult(a,2,b)!=400           log &quot; failed&quot;  err++ then
+log &quot;.&quot; if a!=10||b!=20                 log &quot; failed&quot;  err++ then
+proc fak(n){ if n&lt;=1 return n then return n*fak(n-1)}
+log &quot; t9&quot; if fak(11)!=39916800          log &quot; failed&quot;  err++ then
+
+var a={} rename a[1]=&quot;wert&quot; rename a[2]=&quot;SetWert&quot; rename a[3]=&quot;GetWert&quot; a.wert=55
+
+proc gw() {return wert}     a.GetWert = gw
+proc sw(n){wert=n}          a.SetWert = sw
+
+log &quot; t10&quot; a.SetWert(66) if a.wert!=66  log &quot; failed&quot;  err++ then
+log &quot;.&quot;    if a.GetWert()!=66           log &quot; failed&quot;  err++ then
+a.SetWert(77)
+log &quot; t11&quot; { if a.GetWert()!=77         log &quot; failed&quot;  err++ then }
+
+if !err log &quot; passed&quot; else errors+=err err=0 then
+
+
+
+// ----------------------------------------------------------
+
+log nl,nl,&quot;mounted devices:&quot;    dir &quot;&quot;      // mounted devices
+
+log nl,nl,&quot;root directory:&quot;     dir &quot;/&quot;     // root directory
+
+log nl,nl,&quot;home directory:&quot;     dir &quot;~&quot;     // home directory
+
+log nl,nl,&quot;current directory:&quot;  dir &quot;./&quot;    // current directory
+
+
+
+// ----------------------------------------------------------
+if errors
+    log nl,&quot; &quot;,nl,&quot;--- &quot;,errors,&quot; errors total ---&quot;,nl
+else
+    log nl,&quot; &quot;,nl,&quot;+++ all tests passed +++&quot;,nl
+then
+
+
+
+end
+
+
+
+</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;
+</BODY>
+</HTML>

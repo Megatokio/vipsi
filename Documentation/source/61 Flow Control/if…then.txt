@@ -1,0 +1,55 @@
+
+
+
+h3	if … then
+	if, else, elif, then
+
+pre
+	<b>if</b> <condition>
+		<statements>
+	<b>then</b>
+pre
+	<b>if</b> <condition>
+		<statements>
+	<b>else</b>
+		<statements>
+	<b>then</b>
+pre
+	<b>if</b> <condition>
+		<statements>
+	<b>elif</b> <condition>
+		<statements>   <span class=grey>
+	[ <b>elif</b> <condition>
+		<statements> … ]</span>
+	<b>else</b>
+		<statements>
+	<b>then</b>
+
+p
+	Execute <statements> only if the <condition> is true.
+p
+	All conditions must be a numeric values and are considered 'true' if they are non-zero.
+p
+	If the condition is true, then the statements in the following branch are executed and the program finally jumps to the <tt>then</tt> statement, skipping all optionally present <tt>elif</tt> and <tt>else</tt> branches.
+p
+	If the condition is false, then this branch is skipped, and all optionally present <tt>elif</tt> conditions are tested in order. The branch of the first <tt>elif</tt> condition which is true is executed and the program finally jumps to the <tt>then</tt> statement, skipping all other <tt>elif</tt> and <tt>else</tt> branches.
+p
+	If all conditions fail, then the final <tt>else</tt> branch is executed, if present. If no <tt>else</tt> branch is present, then actually no statements between <tt>if</tt> and <tt>then</tt> except for the <tt>elif</tt> instructions are executed at all.
+
+p
+	e.g.
+pre
+	if (a>b) return a; else return b; then;
+
+	if a<0
+		put "a is smaller than zero"
+	elif a==0
+		put "a is exactly zero"
+	elif a>0
+		put "a is greater than zero"
+	else
+		put "you caught a NaN"
+	then
+
+
+

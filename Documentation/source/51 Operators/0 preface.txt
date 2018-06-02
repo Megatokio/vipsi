@@ -1,0 +1,151 @@
+
+
+h1 Operators
+
+p
+	Operators are typically special characters or tupels, sometimes even triples of them. This is because our ancestors liked to omit separating spaces and so operators had to be self-separating from their arguments. Sort of.
+p
+	Most operators are diadic, which means, they need two operands, one operand written to the left and one to the right sides. Some are monadic, requiring only one operand, and to make it more difficult, they may stand before (prefix) or behind (postfix) their operand.
+p
+	As a real od man out there is also a triadic operator. Guess which. ;-)
+p
+	Some examples:
+pre
+	a * 2 + 47			// operators: * +
+	i++ + ++a			// ++ + ++
+	47*100 + 11			// * +
+	a[1] + a[2] + a[3]	// + +
+	f = a>0				// = >
+
+
+h3  Operator precedence
+	operator priority
+p
+	Operators string subexpressions to chains of any length. The simplest approach here would be to evaluate them from left to right as they occur. But as we all know, there is something like operator precedence, making some operators more eager to evaluate their result than others.
+
+p   vipsi evaluates expressions with proper operator hierarchy.
+p	Example:
+pre
+    2 + 3 * 4  ==  2 + ( 3 * 4 )
+
+
+p   The exact listing of all operator precedences is like this:
+
+pre
+	highest						@
+		item selector, postfix: .  [ … ]  ( … ) ++ --
+		prefix: 				+ - ! ~ ++ --
+		bit shifting:       	>>  <<
+		bit masking:        	&  |  ^
+		multiplication:     	*  /  %
+		addition:           	+  -
+		concatenation:      	# ##
+		comparision:        	==  !=  >=  <=  >  <
+		boolean:            	&&  ||
+		triadic selector:   	? … : …
+		assignment:         	=  +=  -=  *=  /=  %=  #=  >>=  <<=  ->
+								&&=  ||=  ^=  &=  |=  ##=
+	lowest
+
+p
+	The round brackets <tt>( … )</tt> at the highest position are the argument brackets in function or procedure calls, not priority overriding brackets, though those priority is pretty high too. B-) But priority brackets are no operators, because they stand on behalf of an expression. Hmm, probably more a note for the experts. ;-)
+p
+	Note: the operator precedence is different to that in C and i consider it much more reasonable than that in C.
+p
+	Assignments are right-oriented: if an expression is made up with multiple assignments, the rightmost assignment operator is evaluated first. This allows for things like
+pre
+	a = b = c = 0
+
++	../includes/note on assignment operators.txt
+
+
+p
+	Comma and semicolon are no operators, they are separators. If they are viewed at as operators, then comma would be of lower priority than even assignments and it would return some weird combined data type, B-) semicolon would be of lower priority than even comma, and would require operands of no value, returning no value. Too weird, really. Better think of them as separators.
+
+
+
+
+
+
+h3  Automatic type casting
+	casting
+
+p
+	Operators which only take one type of argument try their best, to convert any type of argument to the required type. In addition, if a list is supplied to an operator which takes no lists, then the operation is applied to all items in the list.
+
+
+h4	Type casting
+
+h6	Numeric addition
+shell
+	i> 123 + "456"  o> 579
+	i> "47" + "11"  o> 58
+	i> 1000 + "abc"
+	e> ***** not a number
+	i> 1000 + "abc"<>
+p
+	Not numeric operands are silently converted to number. If conversion fails, an error is generated and the program aborts, except if you catch the error with <tt>try</tt>.
+
+
+h6	Text concatenation
+pre
+	123 # "456"  = "123456"
+	50 # 6000    = "506000"
+p
+	The non-text operands are silently converted to text.
+
+
+h6	List concatenation
+pre
+	123 ## {4,5,6}  =  { 123, 4, 5, 6 }
+	123 ## "anton"  =  { 123, "anton" }
+p
+	Non-list operands are silently converted to lists.
+p
+	Note: you must be cautious, if you want to append a list as new item to another list, that you don't append the contents of the list. see --> concatenate lists.
+
+h6	No automatic type casting for comparisons
+p
+	Automatic type casting is not performed for comparison operators. There are ambiguities which can't be resolved. If values of different data type are compared then an error is generated.
+
+
+h4	Expanded operation on list:
+
+h6	Numeric addition, one argument is a list
+pre
+	123 + {4,5,6}  =  {127,128,129}
+p
+	The operation is performed on every item of the list.
+
+
+h6	Numeric addition, both arguments are lists
+pre
+	{1,2,3} + {4,5,6}  =  {5,7,9}
+p
+	The operation is performed on every pair of matching list items. Excess items on either side are left as is.
+
+
+h6	List expansion for boolean and triadic selection operators
+p
+	Boolean operators <tt>&&</tt> and <tt>||</tt> and the triadic operator <tt>?:</tt> are not yet expanded for list arguments. (Version 0.8.7)
+
+h6	No List expansion for comparisons
+p
+	Comparison operators are not expanded for lists because comparison operators generally don't convert their arguments, and you do can compare lists. So either you pass two lists and they are compared as entities, returning a boolean value of 0 or 1, or the comparison operators complain about mixed data types.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,16 @@
+
+
+h3	Technical informations
+
+
+h2	Speed
+
+p
+	vip script interpreters are <i>interpreters</i>, which makes scripts notably slower than compiled programs. On the other hand program development is much faster, which is in essence the main advantage of interpreters.
+p
+	The script interpreter makes some efforts to increase speed:
+ul
+li	Scripts are precompiled before execution.
+li	Variable names are stored as hashes.
+
+

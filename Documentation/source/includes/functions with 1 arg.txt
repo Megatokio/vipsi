@@ -1,0 +1,2 @@
+p
+	As with all functions which accept exactly one argument the parenthesis are optional and may be omitted if the argument is no expression with operators.

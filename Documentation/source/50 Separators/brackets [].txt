@@ -1,0 +1,25 @@
+
+
+
+h3	Square brackets "[ … ]"
+	brackets
+
+p   Square brackets enclose subrange or item selector for texts or lists. indexes start with 1.
+p   e.g.:
+
+pre
+	put "abcde"[2 to 3]
+	put {1,2,3}[1]
+	put my_textlist[47, 3 to ]
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,72 @@
+
+
+h2	Known bugs
+
+
+h3	Deleting Variables in use
+
+p
+	With some maliciosness it is possible to delete variables which are currently in use. this will crash vipsi. This problem is probably solved in the next version of vipsi after version 1.0.
+
+shell
+	i> var a;
+	i> proc bummer() { del a; return "haha!" }
+	i> a = bummer();
+	Sorry, a fatal error occured:
+	../libraries/var/var.cp in line 248: internal error
+	Abgebrochen
+	bash$ <>
+
+
+h3	Operators and Functions with Side Effects
+
+p
+	In an ideal world an expression is made up out of terms which modify nothing but their result value, which they are expected to modify.
+p
+	But there are some operators which modify their operands and you will probably frequently write procedures which not only return a result value but also modifies some global data directly.
+p
+	Vipsi, and other computer languages, try to avoid unneccessary copying of data. Therefore operands and arguments in expressions which simply refer to a variable are not copied for further evaluation, but only a reference to the variable is remembered.
+p
+	This comes to a problem if the pending variable is modified by the side effect of a procedure or operator later in the expression.
+p
+	This is not detected for the sake of speed. and it may even be made part of the syntax definition of vipsi! After all most usages this way are either exotic or knowingly abusive.
+
+
+h4	operator ++ and --
+
+p
+	The prefix and postfix operators <tt>++</tt> and <tt>--</tt> modify the referenced variable. They are the <i>bad</i> side of this problem. in addition, prefix <tt>++</tt> and <tt>--</tt> only keep a reference to the just modified variable (postfix can't!) and thus are also the <i>vulnerable</i> side of the problem:
+pre
+	vipsi> <b>var a = 1</b>
+	vipsi> <b>a + ++a</b>    = 4         (not 3)
+
+	vipsi> <b>var a = 1</b>
+	vipsi> <b>a + a++</b>    = 3         (not 2)
+
+
+h4	Assignment operators = += -= *= /= %= #= ##= etc.
+
+p
+	Assignment operators deliberately modify their left-side argument, the <i>bad</i> side of our problem, and in addition to that, all modify-and-assign operators also read their value from the referenced variable, making them <i>vulnerable</i> for our problem.
+pre
+	vipsi> <b>var a = 20</b>
+	vipsi> <b>a += (a=4)</b>    = 8       (not 24)
+
+	vipsi> <b>var a={}</b>
+	vipsi> <b>a[4]=a[3]=a</b>    = { 0, 0, {0,0,0,0}, {0,0,0,0} }     not:  {0,0,{},{}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

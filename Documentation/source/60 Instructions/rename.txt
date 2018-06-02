@@ -1,0 +1,16 @@
+
+
+
+h3  rename
+
+pre
+	<b>rename</b> <variable> = <text>
+	<b>rename</b> file <path> = <text>
+	<b>rename</b> link <path> = <text>
+	<b>rename</b> dir <path> = <text>
+
+p
+	Rename or assign name to variable. e.g. <tt>rename a[0]="anton"</tt>
+p
+	Rename file, link or directory. files can be moved to another directory this way.
+

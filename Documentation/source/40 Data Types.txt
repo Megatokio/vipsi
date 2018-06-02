@@ -1,0 +1,318 @@
+
+
+
+
+h1	Data Types
+
+p
+	The vip script language knows about 4 data types:
+ol
+li	Numbers
+li	Text
+li	Lists / arrays
+li	Procedures
+
+p
+	Sometimes <i>names</i> itself may be considered as a 5th data type.
+
+
+
+h2	Numbers
+p
+	Numbers are stored internally in an 8-byte IEEE floating point format (except if this format is not available) which allows for a precision of up to 53 bits including sign bit (approx. ±16 decimal digits) and an exponent of 11 bits (approx. ±308 decimal digits).
+p
+	Support for 10-byte IEEE numbers as a compile-time option is planned (as of version 0.8.7), which will give you 64 bit accuracy.
+
+h5   Maximum values are:
+pre
+	min./max. integer:	      ±((1<<53)-1)
+							= ±9.007199254741e+15
+
+	min./max. values:  	      ±(((1<<53)-1)<<52)<<1023
+							= ±1.7976931348623e+308
+
+	nearest values to null:   ±1>>1022
+	(full precision)       	= ±2.2250738585072e-308
+
+	nearest values to null:   ±(1>>52)>>1022
+	(denormalized)         	= ±4.9406564584125e-324
+
+
+p   Besides that are some abnormal monstrosities like NaNs and signed zeros. I hope for your sake that you never need it. B-)
+
+
+
+h3	Number literals
+p
+	Number literals can be written in multiple styles. All number literals can be preceded by a number sign '+' or '-'.
+
+h4	Integer numbers
+
+h5	Decimal
+p
+	Number literals with base 10:
+pre
+    1234
+    -1234
+	+234567
+
+h5	Hexadecimal
+p
+	Number literals with base 16 are introduced with a dollar sign '$':
+pre
+	$123affe
+	-$adf
+	+$adfeee
+
+h5	Binary
+p
+	Number literals with base 2 are introduced with a percent sign '%':
+pre
+	%10100101
+	%1011010010101010101010101010100101
+    +%10100101
+	-%010111
+
+h5	Base 256
+p
+	Number literal with 'character digits'. Each character represents a digit in range [0 .. 255]. If you include characters with a character code greater than 255 then the character code is silently chopped.
+pre
+	'a'
+	'bee'
+	+'mixa'
+	-'AFFE'
+	'2A\'s'				escaping a "'"
+	'\n'				other escape codes are allowed too
+	'\x1e'				see --> Escape characters
+
+
+h4	Floating point
+p
+	Floating point number can be written with a decimal, hexadecimal and binary number base. Scientific notation (with exponent) is only supported for decimal numbers.
+
+h5	Decimal
+pre
+	-123.456
+	0.456
+	123.456e78          scientific notation
+	+123.456e-78
+pre.red
+	.123				this is not a number!
+
+
+h5	Hexadecimal
+pre
+	$0.FFFFFFFF
+    -$b00.b00f
+    +$afddb00.00d
+
+
+h5	Binary
+pre
+    %101000.00101
+    +%1010.0101
+    -%1010.010100
+
+
+
+
+
+// ============================================================
+h2	Text
+	String
+p
+	Text is stored internally in a format that allows for virtually any text length and can store any unicode character (and beyond) including character code 0. There is no problem storing binary daty in strings. In fact, it is common practice to read whole files into a string before starting work on them. ;-)
+p
+	When reading text from a file in binary mode the resulting text consists only of characters with codes in range [0 .. 255]. You can do manual conversion with <i>convert</i> if required, mocrifying your binary data into a real and unicode compliant text. When reading a text in the preferred way with <i>get</i> from an opened stream then you get <i>text</i>, not binary data, and the conversion is already done for you. The default encoding is UTF-8. Writing to files and streams works similar - just reverse.
+
+h3	Text literals
+p
+	Text literals are written 'as is' and enclosed in either of two types of separators:
+pre
+	"hello"             a simple text
+    «say "hello"»		a simple text which contains quotes
+	"this is a longish text literal
+	which includes two line breaks.\n"
+	var myText = "this is a long text literal \
+				  which spans multiple lines \
+				  but which does not include the line breaks \
+				  and indentation characters."
+p
+	Text literals can enclose any character, including line breaks, but except the closing separator. Some control codes may be hard too. B-)
+
+h4	Escape character
+p
+	Control codes and characters with special meaning, that is, the escape character and the closing separator, and most other characters too can be escaped using c- and bash-style character escaping and encoding introduced with the backslash '\' character:
+pre
+	\\		escapes the escape character
+	\"		escapes the closing separator in ".." strings
+	\»		escapes the closing separator in «..» strings
+	\123	circumscribes a character with octal notation
+			character code range: [0 .. 255]
+	\x1a	circumscribes a character with hexadecimal notation
+			character code range: [0 .. 255]
+	\cX		circumscribes a control character by applying a bit mask
+			character code range: [0 .. 31]
+	\n		circumscribes a character with it's 'well known name'
+			this is the list:
+		 		\e  \a  \b  \f  \n  \r  \t  \v
+				$1B $07 $08 $0C $0A $0D $09 $0B
+	\		at end of line: discards the line break and all white space
+			up to the first printable character. Used to break up text
+			in text literals for readability.
+p
+	A "\" backslash before any other character without special meaning is simply discarded.
+
+
+h4	Short survey on substrings
+
+p   Individual characters and substrings are accessed with either leftstr() and the like or an array-like notation:
+
+pre
+    put "Anton"[3]                 // prints: <i>t</i>
+    put "Anton Bruckner"[3 to 5]   // prints: <i>ton</i>
+    put "Caesar Cicero"[to 5]      // prints: <i>Caesar</i>
+    put "Caesar Cicero"[8 to]      // prints: <i>Cicero</i>
+    put "Casiopeia"[ to ]          // prints: <i>Casiopeia</i>
+
+
+p   Indexes start at 1, ranges are declared with the first and last index inclusive.
+
+
+
+
+// ==========================================================================
+h2	Lists and arrays
+	List, Array
+
+p
+	Lists may be of any size and nested to any level until you run out of RAM.
+
+
+h4	List literals
+p
+	Lists can be initialized with <tt>{ ... }</tt> in one go, including nested sub-lists and naming of list items.
+
+pre
+	{ }                   an empty list
+	{ 1, 2, 3 }           a list with three items
+	{ "a", "b", 44 }      again three items
+	{ 1, {"a","b"} }      two items. the second item itself is a list
+	{ x=22, y=1.5, z=0 }  items may by named
+
+
+h5	Printing list literals in the vipsi shell
+
++	includes/note on braces.txt
+
+
+
+h4	Short survey on sublists and access to single items
+p
+	Individual items and substrings are accessed either by name or with an array-like notation:
+p
+	Indexes start at 1, ranges are declared with the first and last index inclusive.
+p
+	Accessing an item beyond the end of a list automatically creates all intermediate items, which are unnamed and set to number value 0.0.
+
+pre
+	var my_list = { 1, 2, 3, a=4, b=5, c=6 }
+	put my_list.a             	// prints: 4
+	put my_list[3]              // prints: 3
+	put my_list[3 to 5]         // prints: { 3, a=4, b=5 }
+	put my_list[to 4]           // prints: { 1, 2, 3, a=4 }
+	put my_list[5 to]           // prints: { b=5, c=6 }
+	put my_list[ to ]           // prints: { 1, 2, 3, a=4, b=5, c=6 }
+pre
+	var list2 = { 1, z={ 2, z="Anton", 3}, 4 }
+	put list2.z                 // prints: { 2, z="Anton", 3 }
+	put list2.z.z               // prints: Anton
+	put list2[2,2,to 3]         // prints: Ant
+	put list2.z[2,to 3]         // prints: Ant
+pre
+	var list3={}				// create empty list
+	list3[100]					// resize list to 100 elements
+pre
+	var i = int(random(2)) +1
+	put { "foo", "bär" }[i]
+
+
+
+
+// ===========================================================================
+h2	Procedures
+p
+	Procedures are a data type. Once defined, they can be executed, disassembled, passed to other procedures as argument or put into a list.
+p
+	Procedures can be called recursively.
+p
+	Procedures in a list can access 'neighbour' data elements by name, thus supplying a light-weight approach for object oriented programming.
+p
+	Procedures can either take a fixed number of arguments or a variable amount, indicated with an asterics <tt>*</tt>.
+p
+	They can return a result of any data type (number, text, list or a procedure) or no result. The result they return may vary depending on the argument data or other criteria.
+p
+	Procedures may be defined locally inside other procedures. Because they can access 'neighbour' data items, they can access the local data of the enclosing procedure.
+
+
+h4	Procedure literals
+p
+	Procedure literals start with the keyword <tt>proc</tt>, followed by parenthesis surrounding the arguments list and braces surrounding the statements to execute.
+pre
+	<procedure> = <b>proc</b> ( <arguments> ) { <statements> }
+p
+	The more common way to define a procedure is with the instruction <tt>proc</tt>.
+p
+	Instruction <tt>proc</tt> creates a variable and stores the procedure in one go. The procedure itself is written in a form very similar to that of a procedure literal. Instruction <tt>proc</tt> is a short form for creating a variable as with instruction <tt>var</tt> and assigning it a procedure literal as initial value. Note the difference:
+p
+	Instruction <tt>proc</tt>:
+pre
+	<b>proc</b> <name> ( <arguments> ) { <statements> }
+p
+	Instruction <tt>var</tt> with procedure literal as initial value:
+pre
+	<b>var</b> <name> = <b>proc</b> ( <arguments> ) { <statements> }
+
+p
+	Using a real procedure literal is sometimes convenient if you want to put it in a list or if you want to pass it to another procedure as an argument.
+p
+	When you convert a procedure or a list containing a procedure to a string, which is implicitely done when you print it using <tt>put</tt>, it is reverted to it's literal appearance.
+
+p
+	Store procedure literal in a variable:
+pre
+	var foo = proc(bär) { return bär }
+	var z = proc() { put "hi" }
+
+p
+	Store procedure somewhere into a list:
+pre
+	var mylist = {}
+	mylist[100] = proc() { put "foobär" }
+	put mylist[100]		// print item 100. prints disassembly
+	mylist[100]()		// execute the proc. prints <i>foobär</i>
+
+p
+	A procedure literal as part of a list literal:
+pre
+	var mylist = { 22, 33, z=proc(){return this[1]+this[2]} }
+	put mylist.z		// prints the proc: disassembly
+	put mylist.z()		// prints return value of proc: <i>55</i>
+
+p
+	A procedure literal as argument to another procedure:
+pre
+	SetMyFooIterator ( proc(i){return i+1} );
+p
+	But in most cases you would first define a procedure and then pass this variable as an argument, because procedures tend to be a little bit longish. ;-)
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+
+
+h3  read
+
+pre
+	<b>read</b> <variable>
+	<b>read</b> #<number>, <variable>
+
+p
+	Read text in binary mode.
+	Default stream is stdin. The stream may be changed with <i>#number</i>.
+p
+	Reads from tty (terminal) without echo. No conversion applied. Text is read 'as is', every byte making a character. The destination text variable is filled with data from stream. On timeout, eof or error the text is truncated according to the number of bytes actually read.
+p
+	You probably should convert the read binary data to text with <i>convert <variable> from utf8</i>.
+
+shell
+	i> var mytext = spacestr(20000)
+	i> openin #9, "myfile.txt"
+	i> read #9, mytext
+	i> close #9
+	i> convert mytext from ucs4
+	i> <>
+
+
+
+
+

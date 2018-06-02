@@ -1,0 +1,148 @@
+
+
+
+
+
+
+
+
+
+
+h3	do … loop
+	do, loop
+
+pre
+	<b>do</b>
+		<statements>
+	<b>loop</b>
+
+	<b>do</b>
+		<b>while</b> <condition>
+		<b>until</b> <condition>
+		if <value> <b>next</b> then
+		if <value> <b>exit</b> then
+	<b>loop</b>
+
+p
+	Repeat statements between do and loop.
+p
+	When the loop is entered at <tt>do</tt> nothing special happens. But when the program execution reaches <tt>loop</tt>, then the program jumps back to the matching <tt>do</tt> instruction. do-loops can be nested to any level.
+
+p	e.g.:
+pre
+	var i=1; do; put i; while i<10; i++; loop;
+
+
+
+
+h3	while
+pre
+	<b>do</b>
+		<statements>
+		<b>while</b> <condition>
+		<statements>
+	<b>loop</b>
+
+p
+	Conditionally leave the loop. The condition must be a numeric value. If the <condition> is false (<tt>==0</tt>) then the loop is aborted and program execution resumes behind <tt>loop</tt>.
+p	e.g.
+pre
+	var d = dir(".")
+	put " current directory contents: ", nl
+	var i=0
+	do
+		while i <= count d
+		put d.fname, nl
+	loop
+
+
+
+h3	until
+pre
+	<b>do</b>
+		<statements>
+		<b>until</b> <condition>
+		<statements>
+	<b>loop</b>
+
+p
+	Conditionally leave the loop. The condition must be a numeric value. If the <condition> is true (<tt>!=0</tt>) then the loop is aborted and program execution resumes behind <tt>loop</tt>. Tis is just the same as <tt>while</tt>, except with reverted condition.
+p	e.g.
+pre
+	do
+		var n=""
+		put #stdin, "gimme a number: "
+		get n
+		until n==""		// break from loop
+
+		n = int(eval(n))
+
+		var a = 1
+		do
+			while (a+=2) <= sqrt(n)
+			until fract(n/a) == 0
+		loop
+		if a > sqrt(n) put " is prime", nl
+		else           put " = ", a, " * ", n/a, nl
+		then
+	loop
+
+
+
+h3	exit
+pre
+	<b>do</b>
+		<statements>
+		<b>exit</b>
+		<statements>
+	<b>loop</b>
+
+p
+	Unconditionally leave the loop. The program execution resumes behind <tt>loop</tt>. Since it makes no sense otherwise, <tt>exit</tt> is most likely within a conditional branch between <tt>if</tt> and <tt>then</tt>.
+
+p	e.g.:
+pre
+	var i=1
+	do
+		if i>100 exit then
+		i+=i
+	loop
+	put "i = ", i, nl
+
+
+
+h3	next
+pre
+	<b>do</b>
+		<statements>
+		<b>next</b>
+		<statements>
+	<b>loop</b>
+
+p
+	Jump back to <tt>do</tt> and restart execution of the loop. This is just what <tt>loop</tt> does, and since it would make no sense otherwise, <tt>next</tt> is most likely within a conditional branch between <tt>if</tt> and <tt>then</tt>.
+p	e.g.
+pre
+	var i=1
+	do
+		i+=i
+		if i<100 next then
+		exit
+		log "never seen"
+	loop
+	put "i = ", i, nl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

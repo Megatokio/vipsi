@@ -1,0 +1,24 @@
+
+h3  call
+
+pre
+	<b>call</b> <filename>
+	<b>call</b> <filename>, <value> [,…]
+
+
+p
+	Call another vip script like a procedure with parameters.
+p
+	Calling another vip script is very similar to executing a shell script except that the script can be passed and return values of any type. The called script shares the preferences of the current context but cannot access it's variables and procedures.
+p
+	The included script ends when it executes an <tt>end</tt> instruction, <tt>return</tt> on ground level (not inside a procedure) or program execution reaches the end of the script file. It also ends when it encounters an uncatched error, which generates an error in the calling script which subsequently will terminate the calling script if it does not catch the error.
+p
+	There is also a function <tt>call</tt> which returns a result value.
+
+p
+	e.g.:
+pre
+	call "utils/store_db_entry.vs", user_id, number, value
+
+
+

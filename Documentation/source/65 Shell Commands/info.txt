@@ -1,0 +1,19 @@
+
+h3	info
+p
+	Prints information on a built-in word or a defined variable. The word to query must be written verbatim, not in quotes or the like.
+
+shell
+	i> info do
+	syntax: do … loop
+
+	repeat statements between do and loop.
+	e.g.: var i=1; do; put i; while i<10; i++; loop;
+
+	i> <>
+
+
+p
+	There is also a <i>function</i> <tt>info</tt> which returns a text.
+
+

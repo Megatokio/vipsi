@@ -1,0 +1,21 @@
+
+h3  fullpath
+
+pre
+	<text> = <b>fullpath</b> ( <text> )
+	<text> = <b>fullpath</b> <text>
+
+p
+	Get fully resolved, absolute path for partial path. Expands "./" and "../", symbolic links, "~" and relative path to the absolute file or directory path.
+p
+	The path must actually exist, or this function throws an error, which may be catched with <tt>try</tt>. Only the last path component is allowed to be non-existent, which for instance may be a wildcard pattern.
+p
+	If the fully dereferenced path refers to a directory, then the returned path always ends with a trailing slash "/".
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+
+p   e.g.:
+pre
+    fullpath "~" = "/home/kio/"
+
+

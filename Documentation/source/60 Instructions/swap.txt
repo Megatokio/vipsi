@@ -1,0 +1,26 @@
+
+h3  swap
+
+pre
+	<b>swap</b> <variable>, <variable>
+	<b>swap</b> <b>file</b> <filename>, <b>file</b> <filename>
+	<b>swap</b> <b>file</b> <filename>, <filename>
+
+p
+   Exchange contents of two variables or two files.
+p
+	Note on names: currently (version 0.8.8), if the list items are named then the names are swapped along with their data. Thus accessing items by name yields the same data as prior to shuffling, except if multiple items with same name are present in the list. This may be changed. Future version will probably only move the data and no names.
+
+
+shell
+	i> var a = { x=22, y=33, z=44 }
+	i> put a  o>  { x=22, y=33, z=44 }
+	i> swap a.y,a.z
+	i> put a  o> { x=22, y=44, z=33 }
+	i>
+	i> var a = 22, b=33
+	i> put a,b  o> 2233
+	i> swap a,b
+	i> put a,b  o> 3322
+	i> <>
+

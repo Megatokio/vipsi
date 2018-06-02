@@ -1,0 +1,42 @@
+
+
+
+h3	square
+
+pre
+	<number> =	<b>square</b> <number>
+	<number> =	<b>square</b> ( <number> )
+
+p
+	Calculate number * number.
+
++	../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> square 5  o> = 25
+	i> <>
+
+
+
+
+
+h3	sqrt
+
+pre
+	<number> =	<b>sqrt</b> <number>
+	<number> =	<b>sqrt</b> ( <number> )
+
+p
+	Calculate square root of number.
+
++	../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> sqrt 25  o> = 5
+	i> <>
+
+

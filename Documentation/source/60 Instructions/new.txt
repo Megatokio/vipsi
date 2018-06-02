@@ -1,0 +1,73 @@
+h3	new
+
+pre
+	<b>new</b> <name>
+	<b>new</b> <name> = <value>
+
+	<b>new var</b> <name>
+	<b>new var</b> <name> = <value>
+
+	<b>new proc</b> <name> ( ) { <instructions> }
+
+	<b>new file</b> <filename>
+	<b>new file</b> <filename> = <text>
+
+	<b>new link</b> <filename>
+	<b>new link</b> <filename> = <text>
+
+	<b>new dir</b> <filename>
+
+p
+	Create new variable, file, link or directory. An initial value is sometimes optional and sometimes required. Does the same as if <tt>new</tt> was omitted, except that <tt>new</tt> fails with an error, if the item already exists.
+p
+	<tt><filename></tt> in the above syntax charts are text values.
+	<tt><name></tt> denotes an identifier, a variable name.
+p
+	For the rest of it all see instructions --> var, proc, file, link and dir.
+
+p
+	Just some examples:
+
+pre
+	/*	create dir, require a new directory:
+		catch error, e.g. if it already exists.
+	*/
+	try
+		new dir "/usr/local/bin/vipsi/"
+	else
+		log nl, «creating "/usr/local/bin/vipsi/" failed:»
+		log nl, errorstr
+	then
+
+
+	/* two ways to create a procedure variable:
+	*/
+	new Book.DummyReadHandler = proc(i) { return i+1 }
+
+	new proc Book.DummyReadHandler(i) { return i+1 }
+
+
+	/* create link, require new link:
+	*/
+	try
+		new link "books" = "~/books/"
+	then
+
+
+	/* create file, require new file:
+	   e.g. dump all variables.
+	*/
+	try
+		new file "testdata" = globals
+	then
+
+
+
+
+
+
+
+
+
+
+

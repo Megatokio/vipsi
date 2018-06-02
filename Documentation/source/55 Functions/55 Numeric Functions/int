@@ -1,0 +1,31 @@
+
+h3 int
+
+pre
+ <number> = <b>int</b> <number>
+ <number> = <b>int</b> ( <number> )
+
+p
+	Return integral part of a numeric value.
+p
+	The integral part of a number has the same number sign as the number itself. The fractional part is chopped off and the returned number is rounded towards <tt>0</tt> (zero).
+p
+	<tt>int</tt> does not convert the number to an 'integer number' as known in <i>C</i>, it returns the integral part of a number which may be much larger than a C-style 'integer number'.
+
++ ../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> int pi  o> = 3
+	i> int 0.7  0> = 0
+	i> int -33.44  o> = -33
+	i> int 50  o> = 50
+	i> int 1e40  o> = 1e+40
+	i> <>
+
+
+
+
+
+

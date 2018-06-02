@@ -1,0 +1,391 @@
+
+
+
+
+h3  Assignment "="
+	assign
+
+pre	<variable> <b>=</b> <value>
+
+p	Assign value to variable.
+p	The right-side operand <value> may be of any data type and the data type of the left-side operand <variable> is ignored and overwritten.
+p   e.g.:
+pre	var a = 47
+	var x,y,z; x=y=z=47
+
++	../includes/note on assignment operators.txt
+
+
+
+
+// ===================================================================
+h3	Add to Variable "+="
+	add to, add
+
+pre	<num_var> <b>+=</b> <number>
+
+p	Add numeric value to variable.
+p	If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p   e.g.:
+shell
+	i> var a=20, b
+	i> b = a += 33
+	i> put a, ",", b  o> 53,53
+	i> a += {1,"2",3}  o> = { 54, 55, 56 }
+	i> <>
+
++	../includes/note on assignment operators.txt
+
+
+
+
+// ===================================================================
+h3  Subtract from Variable "-="
+	subtract from, subtract
+
+pre	<num_var> <b>-=</b> <number>
+
+p	Subtract value from variable.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If this conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+shell
+	i> var a=33, b
+	i> b = a -= 20
+	i> put a, ",", b  o> 13,13
+	i> a -= {1,"2",3}  o> = { 12, 11, 10 }
+	i> <>
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+
+
+
+// ===================================================================
+h3  Multiply to Variable "*="
+	multiply with, multiply to, mult, multiply
+
+pre	<num_var> <b>*=</b> <number>
+
+p	Multiply variable with value.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If this conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+shell
+	i> var a=5, b
+	i> b = a *= 4
+	i> put a, ",", b  o> 20,20
+	i> a *= {1,"2",3}  o> = { 20, 40, 60 }
+	i> <>
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+
+
+// ===================================================================
+h3  Divide with Variable "/="
+	divide by, divide, divison
+
+pre	<num_var> <b>/=</b> <number>
+
+p	Divide variable by value.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+shell
+	i> var a=20, b
+	i> b = a /= 4
+	i> put a, ",", b  o>  5,5
+	i> a /= {1,"2",3}  o>  = { 1, 2.5, 1.666666666666667 }
+	i> <>
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+
+
+// ===================================================================
+h3  Remainder with Variable "%="
+	store remainder, remainder
+
+pre	<num_var> <b>%=</b> <number>
+p	Divide variable by value and store remainder.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+shell
+	i> var a=20, b
+	i> b = a %= 6
+	i> put a, ",", b  o> 2,2
+	i> a %= {1,"2",3}  o> = { 0, 0, 2 }
+	i> <>
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+// ===================================================================
+h3  Append Text to Variable "#="
+	concatenate, concatenate text
+
+pre	<text_var> <b>#=</b> <text>
+p	Append text to text variable.
+p	If one of both operands is a list, then the operation is performed on all items. recursively. If both operands are lists then the operation is applied to matching items. Eventually remaining items in the longer list are kept or copied as is.
+p   If either operand is no text and no list, then it is converted to text first.
+
+shell
+	i> var a="abc";   a #= "de";   put a;  o> abcde
+	i> var a={1,2,3}; a #= "X" ;   put a;  o> { "1X", "2X", "3X" }
+	i> var a="X";     a #= {1,2,3} put a;  o> { "X1", "X2", "X3" }
+	i> var a={1,2,3}; a #= {4,5};  put a;  o> { "14", "25", "3" }
+	i> <>
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+// ===================================================================
+h3  Append List to Variable "##="
+	concatenate, concatenate list
+
+pre	<list_var> <b>##=</b> <list>
+
+p	Append list to list variable.
+p	If any of both operands is not a list, then it is converted to a list first.
+p	e.g.:
+pre
+	var a={2,4,8},b="abc";
+	a ##= "de";
+	b ##= a;
+	a ##= {1,"2",3}
+
+p	note: operator <tt>##=</tt> concatenates two lists. if you wish to append a list as a single item at the end of another list, you must put it into a list first:
+shell
+	i> var a={1,2,3}, b=a, i4="i4", i5={5,6}
+	i> a ##=  i4   o> = { 1, 2, 3, "i4" }
+	i> b ##= {i4}  o> = { 1, 2, 3, "i4" }
+	i> a ##=  i5   o> = { 1, 2, 3, "i4", 5, 6 }
+	i> b ##= {i5}  o> = { 1, 2, 3, "i4", { 5, 6 } }
+	i> <>
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+// ===================================================================
+h3	Shift Right Variable ">>="
+	bitwise shift right, shift bitwise right
+	shift right, right shift
+
+pre	<num_var> <b>>>=</b> <number>
+
+p	Shift value of numeric variable bitwise right <number> times.
+p	This may yield a fractional number! Right side operand may be negative but not fractional (will be forced to integer). This works for any number of any size, even fractional numbers. The effect is that of dividing the variable by a multiple of 2, or, more techi, decrementing the floating point exponent by the given number.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+pre
+	var a=20
+	a >>= 5
+	a >>= {"-1",2,3}
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+
+// ===================================================================
+h3  Shift Left Variable "<<="
+	bitwise shift left, shift bitwise left
+	shift left, left shift
+
+pre	<num_var> <b><<=</b> <number>
+
+p	Shift value of numeric variable bitwise left <number> times.
+p	This may yield a fractional number! Right side operand may be negative but not fractional (will be forced to integer). This works for any number of any size, even fractional numbers. The effect is that of multiplying the variable by a multiple of 2, or, more techi, incrementing the floating point exponent by the given number.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+pre
+	var a=20
+	a <<= 0.05
+	a <<= {"-1",2,3}
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+// ===================================================================
+h3  Boolean And with Variable "&&="
+	and, boolean and, logical and
+
+pre	<num_var> <b>&&=</b> <number>
+
+p	Boolean 'and' of <variable> and <value>.
+p	Calculate result of boolean 'and' and store result in variable.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	Boolean operators are pruning (skipping) the second argument, if the result is already defined by the result of the first argument. For boolean '&&' this means, if the first argument is 0.
+p	e.g.:
+pre
+	var a = 1
+	a &&= 1
+	a &&= 0
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+// ===================================================================
+h3  Boolean Or with Variable "||="
+	or, boolean or, logical or
+
+pre	<num_var> <b>||=</b> <number>
+
+p	Boolean 'or' of <variable> and <value>.
+p	Calculate result of boolean 'or' and store result in variable.
+p	Both operands must be numeric. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	Boolean operators are pruning (skipping) the second argument, if the result is already defined by the result of the first argument. For boolean '||' this means, if the first argument is non-zero.
+p	e.g.:
+pre
+	var a = 0
+	a ||= 0
+	a ||= 1
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+// ===================================================================
+h3	Bitwise And with Variable "&="
+	and, bitwise and
+
+pre	<num_var> <b>&=</b> <number>
+
+p	Bitwise 'and' of <variable> and <value>.
+p	Calculate result of bitwise 'and' and store result in variable. 
+p	Bitwise operators work on 64 bit integers. If you need less, you must mask the result.
+p	Depending on the floating point format selected at compile time, the precision may be less than 64 bit. 53 bit is common for 8-byte-floats. 
+p	Both operands must be numeric and are forced to integer. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p
+	e.g.:
+pre
+	var a = 23
+	a &= 5
+	a &= {"-1",2,3}
+
++	../includes/note on assignment operators.txt
++	../includes/note on bitwise operators.txt
+
+
+
+
+
+
+
+// ===================================================================
+h3  Bitwise Or with Variable "|="
+	or, bitwise or
+
+pre	<num_var> <b>|=</b> <number>
+
+p	Bitwise 'or' of <variable> and <value>.
+p	Calculate result of bitwise 'or' and store result in variable. 
+p	Both operands must be numeric and are forced to integer. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+pre
+	var a = 20
+	a |= 5
+	a |= {"-7",2,3}
+
++	../includes/note on assignment operators.txt
++	../includes/note on bitwise operators.txt
+
+
+
+
+// ===================================================================
+h3  Bitwise Exclusive Or with Variable "^="
+	xor, exor, exclusive or
+
+pre	<num_var> <b>^=</b> <number>
+
+p	Bitwise 'exclusive or' of <variable> and <value>.
+p	Calculate result of bitwise 'exclusive or' and store result in variable. 
+p	Both operands must be numeric and are forced to integer. If any of both arguments is a text, then it is evaluated as number. If the conversion fails then an error is generated.
+p	If any of both is a list, then the operation is performed on all items. Recursively.
+p	e.g.:
+pre.out
+	i> var a = 23
+	i> a ^= 5  o>  18
+	i> a ^= {"77",2,3}  o> = { 95, 16, 17 }
+	i> <>
+
++	../includes/note on assignment operators.txt
++	../includes/note on bitwise operators.txt
+
+
+
+
+
+// ===================================================================
+h3  Assign Variable Reference "->"
+	assign, varref, var_ref, vref, reference, pointer
+
+pre	<variable> <b>-></b> <variable>
+
+p	Assign variable reference to variable.
+p	The right-side operand <variable> may be of any data type. The data type of the left-side operand is ignored. It becomes a reference variable.
+
+p	After having assigned a target to a reference variable, all references to this variable actually refer to the assigned destination. Even "del <ref_var>" refers to this destination.
+
+p	Setting a reference to a reference variable makes it point directly to the target's target.
+p	Setting a reference to an enclosing list of the reference variable is not allowed.
+
+p   e.g.:
+shell
+	i> var a=0,b=1,p  
+	i> p->a  
+	i> globals  = o> { a=0, b=1, p=0 }
+	i> p->b  
+	i> globals  = o> { a=0, b=1, p=1 }
+	i> p->globals  
+	e> *****  reference variable is child of target
+
+
++	../includes/note on assignment operators.txt
+
+
+
+
+
+
+
+

@@ -1,0 +1,61 @@
+
+h1	The Built-in Words
+
+p   vipsi knows about 170 built-in words: instructions, functions, constants, operators and separators.
+p   this list was generated using the word <i>words</i>:
+
+p.b	Separators
+pre
+    ,  ;  (  )  [  ]  {  }
+
+p.b Monadic operators
+pre
+    ++  --
+
+p.b Assignment operators
+pre
+    =  +=  -=  *=  /=  %=  #=  >>=  <<=  &&=  ||=  ^=  &=  |=  ##=  ->
+
+p.b Other diadic operators
+pre
+    +  -  *  /  %  #  ##  >  <  >=  <=  ==  !=  <<  >>  &&  ||  &  |  ^  .
+
+p.b Triadic operators
+pre
+    ?  :
+
+p.b Constants
+pre
+    ec  pi  nl  tab  stdin  stdout  stderr
+
+p.b Functions
+pre
+    !  ~  @  file  dir  link  pipe  sock  mdate  count  index  name  random  abs
+    sign  int  fract  round  min  max  cos  sin  tan  acos  asin  atan  cosh
+    sinh  tanh  logn  log2  loge  log10  exp  exp2  expe  exp10  square  sqrt
+    istext  isnumber  islist  isproc  isfile  isdir  islink  exists  string
+    upperstr  lowerstr  spacestr  charstr  charcode  hexstr  binstr  substr
+    midstr  leftstr  rightstr  datestr  now  dateval  find  rfind  env  words
+    info  globals  locals  this  match  fullpath
+
+p.b Instructions
+pre
+    eval  call  sys  include  split  join  convert  replace  new  del  swap  var
+    freeze  melt  put  log  get  edit  getchar  write  read  ioctl  wait  sort
+    rsort  open  openin  openout  close  rename  cd
+
+p.b Flow control
+pre
+    proc  return  end  do  then  if  else  elif  try  while  until  exit  next
+    loop
+
+p.b	Shell immediate commands
+pre
+    globals  words  info  pwd  cd  dir  env  exit  quit  end
+
+
+
+
+
+
+

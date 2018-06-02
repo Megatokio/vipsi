@@ -1,0 +1,72 @@
+
+
+
+
+h3	Bitwise shift left "<<"
+	shift bitwise left, shift left, left shift
+
+pre
+	<number> = <number> <b><<</b> <number>
+
+p
+	Shift <i>left-side number</i> bitwise left <i>right-side number times</i>.
+p
+	This may yield a fractional number! The right-side operand may be negative but not fractional. It will be forced to an integer. This works for any number of any size, even fractional numbers. The effect is that of multiplying the variable by a power of 2, or, more techi, incrementing the floating point exponent by the given number.
+p
+	If any of both arguments is a text, then it is evaluated as number.
+p
+    If any of both is a list, then the operation is performed on all items. Recursively.
+
+p   e.g.:
+shell
+	i> put 8<<2  o> 32
+	i> <>
+
+p.i	note:
+p	The shift operator multiplies/divides the number by a power of 2. This is also true for negative numbers. If you expect a negative number to be stored as a -1 complement (as is common for integer numbers) you will fail here. Make the number positive and force it into desired range by masking it with operator &.
+shell
+	i> put -8<<2  o> -32
+	i> var a=-8
+	i> put (a&$ffff)<<2  o> 262112
+	i> put hexstr((a&$ffff)<<2,4)  o> FFE0
+
+
+
+h3  Bitwise shift right ">>"
+	shift right bitwise
+	shift right, right shift
+
+pre
+	<number> = <number> <b>>></b> <number>
+
+p
+	Shift <i>left-side number</i> bitwise right <i>right-side number times</i>.
+p
+	This may yield a fractional number! The right-side operand may be negative but not fractional. It will be forced to an integer. This works for any number of any size, even fractional numbers. The effect is that of dividing the variable by a power of 2, or, more techi, incrementing the floating point exponent by the given number.
+p
+	If any of both arguments is a text, then it is evaluated as number.
+p
+    If any of both is a list, then the operation is performed on all items. Recursively.
+
+p   e.g.:
+shell
+	i> put 17>>1  o> 8.5
+	i> <>
+
+p.i	note:
+p	The shift operator multiplies/divides the number by a power of 2. This is also true for negative numbers. If you expect a negative number to be stored as a -1 complement (as is common for integer numbers) you will fail here. Make the number positive and force it into desired range by masking it with operator &.
+shell
+	i> put -9>>2  o> -2.25
+	i> var a=-8
+	i> put (a&$ffff)>>2  o> 16382
+	i> put hexstr((a&$ffff)>>2,4)  o> 3FFE
+
+
+
+
+
+
+
+
+
+

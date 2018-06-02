@@ -1,0 +1,21 @@
+
+h3  hexstr
+	hexadecimal, hex
+
+pre	<text> = <b>hexstr</b> ( <number> )
+	<text> = <b>hexstr</b> ( <number>, <digits> )
+p	Convert integer number to hexadecimal literal representation.
+p	Convert <number> to a hexadecimal digit string. Resulting <text> is sized to fit or sized according to <digits>, which must be a numeric value too, truncating or padding '0's or 'F's to the left.
+p	Positive values are padded with '0's to the left, negative values are printed as their -1-complement, as is common for integer numbers, and padded with 'F's to the left. If no <digits> are given, then negative values are always printed with the most significant bit set, e.g. they always start with a digit in range '8' to 'F'.
+p	e.g.:
+shell
+	i> hexstr(240)  o> F0
+	i> hexstr(240,4)  o> 00F0
+	i> hexstr(240,1)  o> 0
+	i> hexstr(-240,4)  o> FF10
+	i> hexstr(-240,8)  o> FFFFFF10
+	i> hexstr(-240)  o> F10
+	i> hexstr(1e20)  o> 56BC75E2D63100000
+    i> <>
+
+

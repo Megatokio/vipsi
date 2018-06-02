@@ -1,0 +1,30 @@
+
+
+h3	index
+
+pre
+	<number> = <b>index</b> <variable>
+	<number> = <b>index</b> ( <variable> )
+
+p
+	Get	position of	a variable in it's enclosing list.
+p
+	If you know a variable by name, you can get it's index in the enclosing <tt>globals</tt> or <tt>locals</tt> variables list.
+p
+	If you know a list item's name you can get it's position in the list.
+p
+	Indexes start at 1.
+
++ ../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> var a,b,c,d,e
+	i> index b  o> = 2
+	i> index(globals[2])  o> = 2
+	i> var z={1,2,3,i=4,5}
+	i> index z.i  o> = 4
+	i> <>
+
+

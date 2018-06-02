@@ -1,0 +1,96 @@
+
+
+h3 istext
+
+pre
+ <number> = <b>istext</b> <value>
+ <number> = <b>istext</b> ( <value> )
+
+p
+	Test whether the argument is a text value.
+p
+	Returns a numeric value which is either 1 'true' or 0 'false'. If the value is a variable reference, then this variable must exist, or <tt>isnumber</tt> will abort with an error.
++	../../includes/functions with 1 arg.txt
+p
+ 	e.g.:
+shell
+	i> istext("foo")  o> = 1
+	i> var z = {1,2}
+	i> istext(z)  o> = 0
+	i> istext 771  o> 0
+	i> proc Test(){}
+	i> istext(Test)  o> 0
+	i> <>
+
+
+
+h3	isnumber
+pre
+ <number> = <b>isnumber</b> <value>
+ <number> = <b>isnumber</b> ( <value> )
+
+p
+	Test whether the argument is a numeric value.
+p
+	Returns a numeric value which is either 1 'true' or 0 'false'. If the value is a variable reference, then this variable must exist, or <tt>isnumber</tt> will abort with an error.
++	../../includes/functions with 1 arg.txt
+p
+ 	e.g.:
+shell
+	i> istext "foo"  o> = 0
+	i> istext({})  o> = 0
+	i> istext 771  o> 1
+	i> proc Test(){}
+	i> istext(Test)  o> 0
+	i> <>
+
+
+
+
+
+h3 islist
+
+pre
+ <number> = <b>islist</b> <value>
+ <number> = <b>islist</b> ( <value> )
+
+p
+	Test whether the argument is a list value.
+p
+	Returns a numeric value which is either 1 'true' or 0 'false'. If the value is a variable reference, then this variable must exist, or <tt>islist</tt> will abort with an error.
++	../../includes/functions with 1 arg.txt
+p
+ 	e.g.:
+shell
+	i> istext("foo")  o> = 0
+	i> istext({1,2})  o> = 1
+	i> istext 771  o> 0
+	i> istext(proc Test(){})  o> 0
+	i> <>
+
+
+
+
+h3 isproc
+
+pre
+ <number> = <b>isproc</b> <value>
+ <number> = <b>isproc</b> ( <value> )
+
+p
+	Test whether the argument is a procedure value.
+p
+	Returns a numeric value which is either 1 'true' or 0 'false'. If the value is a variable reference, then this variable must exist, or <tt>isproc</tt> will abort with an error.
++	../../includes/functions with 1 arg.txt
+p
+ 	e.g.:
+shell
+	i> istext("foo")  o> = 0
+	i> istext({})  o> = 0
+	i> istext 771  o> 0
+	i> proc Test(){}
+	i> istext(Test)  o> 1
+	i> <>
+
+
+

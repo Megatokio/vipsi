@@ -1,0 +1,113 @@
+
+h1	Constants
+
+
+h3	ec
+
+p   Euler's constant:
+pre
+	e = 2.718281828459045
+
+	f'(x)=f(x)  <=>  f(x)=exp(e,x)
+
+
+
+h3  pi
+
+p   Natural constant:
+pre
+	π = 3.141592653589793
+
+p	Circumference of circle:
+pre
+	radians * 2 * π
+
+p   e.g.:
+shell
+	i> put "sin(180°) = ", sin(pi); o> sin(180°) = 1.2246063538224e-16
+	i> <>
+
+
+h3  nl
+
+p   Text constant for 'line break'.
+	e.g.:
+shell
+	i> put "hello!", nl;  o> hello!
+	o>
+	i> <>
+
+
+h3  tab
+
+p   Text constant for 'tabulator'.
+	e.g.:
+shell
+	i> put nl, "foo =", tab, "bär";
+	o> foo =   bär
+	i> <>
+
+
+
+h3  stdin
+
+p   Constant for the standard input stream: <tt>0</tt>. This is the default stream for the instruction 'get'.
+p   e.g.:
+pre
+	get foo
+	get #stdin, foo		// just the same.
+
+	put #stdin, "your choice: "
+	get #stdin, wahl
+
+h5	redirect stdin
+pre
+	openin #stdin, "autoInput.txt"
+p
+	When doint this in the vipsi shell, you won't get locked out. For your security command input is always read from the original stdin. Only subsequent get, read etc. read from the redirected stdin.
+
+
+h3  stdout
+
+p   Constant for the standard output stream: <tt>1</tt>. This is the default stream for the instruction 'put'.
+p   e.g.:
+pre
+	put foo
+	put #stdout, foo	// just the same
+	log #stdout, foo	// makes 'log' printing to stdout too
+
+h5	redirect stdout
+pre
+	openout #stdout, "mitschrift.txt"
+
+
+
+
+h3  stderr
+
+p   Constant for the standard error stream: <tt>2</tt>. this is the default stream for the instruction 'log'.
+p   e.g.:
+pre
+	log foo
+	log #stderr,foo		// just the same
+	put #stderr,foo		// make 'put' printing to stderr too
+
+h5	redirect stderr
+pre
+	openout #stderr, "Fehlerprotokoll.txt"
+p
+	Version 0.8.8: the redirected stderr is not yet passed to external programs which were called with sys or the like.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

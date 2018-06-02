@@ -1,0 +1,38 @@
+h3  get
+
+pre
+	<b>get</b> <variable>
+	<b>get</b> #<number>, <variable>
+
+p
+	Read data in text format.
+p
+	The default stream is <i>stdin</i>. The stream may be changed with #<number>. The default text encoding is UTF-8 unicode. Input stops at next end of line for each variable. Reading from a tty (terminal) uses the line editor. Input is colorized according to the settings for <i>stdin</i>.
+p
+	Text output to a tty is colorized by vipsi to make it unique for stdin, stdout and stderr:
+pre
+	<span class=in>This is text written / echoed to stdin</span>
+	<span class=out>This is text written to stdout</span>
+	<span class=err>This is text written to stderr</span>
+p
+	The color and attributes are choosen to hopefully match the capabilities of your terminal and can be overridden by preferences in <i>~/.vipsi/shell.prefs</i>:
+
+include libs/shell.prefs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

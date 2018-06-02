@@ -1,0 +1,57 @@
+
+h3	words
+p
+	Print a beautified list of all built-in words.
+shell
+	i> words
+	_____________________________________________________________________________
+	separators:
+		,  (  )  [  ]  {  }
+	monadic operators:
+		++  --
+	assignment operators:
+		=  +=  -=  *=  /=  %=  #=  >>=  <<=  &&=  ||=  ^=  &=  |=  ##=
+	other diadic operators:
+		+  -  *  /  %  #  ##  >  <  >=  <=  ==  !=  <<  >>  &&  ||  &  |  ^  .
+	triadic operators:
+		?  :
+	constants:
+		ec  pi  nl  tab  stdin  stdout  stderr
+	functions:
+		!  ~  @  file  dir  link  pipe  sock  mdate  count  index  name  random  abs
+		sign  int  fract  round  min  max  cos  sin  tan  acos  asin  atan  cosh
+		sinh  tanh  logn  log2  loge  log10  exp  exp2  expe  exp10  square  sqrt
+		istext  isnumber  islist  isproc  isfile  isdir  islink  exists  string
+		upperstr  lowerstr  spacestr  charstr  charcode  hexstr  binstr  substr
+		midstr  leftstr  rightstr  datestr  now  dateval  find  rfind  env  words
+		info  globals  locals  this  match  fullpath
+	instructions:
+		eval  call  sys  include  require  split  convert  replace  new  del  swap
+		var  freeze  melt  put  log  get  edit  getchar  write  read  ioctl  wait
+		sort  rsort  open  openin  openout  close  rename  ;  cd
+	flow control:
+		proc  return  end  do  then  if  else  elif  try  while  until  exit  next
+		loop
+	shell immediate commands:
+		globals  words  info  pwd  cd  dir  env  exit  quit  end
+
+	i> <>
+
+p
+	There is also a function <tt>words</tt> which returns a list with the names of all built-in words. If you want to see this list on the command line, you should use:
+
+shell
+	i> put words
+
+
+
+
+
+
+
+
+
+
+
+
+

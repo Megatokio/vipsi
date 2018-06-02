@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META http-equiv=Content-Type content="text/html; charset=UTF-8">
+	<meta name="Generator"          content="hand crafted">
+	<meta name="Author"             content="kio&#64;little-bat.de">
+	<meta name="KeyWords"           content="vipsi shell script interpreter programming">
+
+	<title>vipsi - example scripts</title>
+
+<script type="text/javascript">
+	if (top==self) top.location="../index.html#"+self.location.pathname;
+</script>
+
+	<link rel=stylesheet type="text/css" href="../main.css">
+    <style>
+    span { padding-left:0px; margin-left:0px; color:#cc0000; }
+    </style>
+</HEAD>
+
+<BODY background="b/hdgr.jpg" bgcolor="#CCCCCC" 
+	  text="#000000" link="#000000" vlink="#000000" alink="#CC0000">
+
+
+
+<h1>vipsi - shell and script language</h1>
+
+<h2>example scripts</h2>
+
+<h3>count words</h3>
+
+<p>the following example shows a script which will count the words in a file which you pass as command line argument and print a list sorted by number of occurance.
+<p>it's an example for using the <tt>@</tt> operator, which takes a <i>text</i> as argument and converts it into a <i>name</i>.
+
+<pre>
+#!/usr/local/bin/vipsi
+
+var argc  = count globals -1
+var zeile = ""
+
+if argc==1
+    zeile = file(globals[1])          // globals[1] is our first command line argument
+    if count zeile==0                 // loading file failed
+        convert globals[1] to quoted
+        log "file ", globals[1], " not found", nl
+    then
+then
+
+if count zeile==0                     // no command line argument given
+    log "use: count_words &lt;filename&gt;",nl
+    log "try again.",nl
+    end
+then
+
+var word_db  = {}
+var word,a,e = 0
+
+do
+    a = e+1
+    do
+        while a&lt;=count zeile
+        while lowerstr(zeile[a]) == upperstr(zeile[a]) // is_letter()
+        a++
+    loop
+
+    until a&gt;count zeile
+
+    e = a+1
+    do
+        while e&lt;=count zeile
+        while lowerstr(zeile[e]) != upperstr(zeile[e])
+        e++
+    loop
+
+    word  = zeile[a to e-1]
+
+    if exists word_db.@word
+        word_db.@word += 1
+    else
+        word_db #= 1
+        rename word_db[count word_db] = word
+    then
+loop
+
+log "words total: ", count word_db, nl
+
+rsort word_db
+
+var i=0
+do
+    while ++i&lt;=count word_db
+    put word_db[i], tab, name(word_db[i]), nl
+loop
+
+end
+&nbsp;
+</pre>
+
+
+<p>now, let's walk through the code while i explain it:
+
+
+<pre>
+&nbsp;
+<span>// start the file with a 'hashbang' and tag it as executable, 
+// so that you can start it from the command line as any other program:</span>
+#!/usr/local/bin/vipsi
+
+<span>// get number of command line arguments which are passed in the list variable <i>globals</i>
+// which stores all global variables. because the definition of variable <i>argc</i> is made before
+// <i>count</i> is evaluated, <i>argc</i> is included in the count and we must subtract it:</span>
+var argc  = count globals -1
+
+<span>// variable <i>zeile</i> will keep the whole file contents:</span>
+var zeile = ""
+
+<span>// if exactly 1 argument is passed, we expect it to be the file name.
+// the first variable in <i>globals</i> has index <i>1</i>.
+// so, let's read the file into variable <i>zeile</i>:</span>
+if argc==1
+    zeile = file(globals[1])
+    if count zeile==0
+        convert globals[1] to quoted
+        log "file ", globals[1], " not found", nl
+    then
+then
+
+<span>// wrong number of arguments passed or reading the file failed:</span>
+if count zeile==0
+    log "use: count_words &lt;filename&gt;",nl
+    log "try again.",nl
+    end
+then   
+ 
+<span>// the list <i>word_db</i> will collect the words. 
+// each item will be named with a word and contain the occurance count of the word:</span>
+var word_db  = {}
+
+<span>// <i>a</i> and <i>e</i> are used to index into the <i>word_db</i>:</span>
+var word,a,e = 0
+
+<span>// ---- loop over all characters in <i>zeile</i>: ----</span>
+do
+    <span>// search start of word:</span>
+    a = e+1
+    do
+        while a&lt;=count zeile 
+        while lowerstr(zeile[a]) == upperstr(zeile[a])
+        a++
+    loop
+
+    <span>// reached end of the text?  =&gt;  exit loop</span>
+    until a&gt;count zeile
+
+    <span>// search end of word:</span>
+    e = a+1
+    do
+        while e&lt;=count zeile 
+        while lowerstr(zeile[e]) != upperstr(zeile[e])
+        e++
+    loop
+
+    <span>// extract word:</span>
+    word  = zeile[a to e-1]
+
+    <span>// test, whether there is already an item named <i>word</i> in <i>word_db</i>:</span>
+    <span>// operator <i>@</i> is used to convert the text variable <i>word</i> into a <i>name</i>.</span>
+    <span>// e.g. if word=="foo" then <i>word_db.@word</i> is effectively <i>word_db.foo</i>.</span>
+    if exists word_db.@word
+        <span>// if it already exists then increment count</span>
+        word_db.@word += 1
+    else
+        <span>// else append a new item with initial value 1 (the count)</span>
+        word_db #= 1
+        <span>// and set it's name to the current word:</span>
+        rename word_db[count word_db] = word
+    then
+loop
+
+log "words total: ", count word_db, nl
+
+<span>// sort the list. i like the most frequent words first, so i use the reverse sort function:</span>
+rsort word_db
+
+<span>// and print the list, showing word and frequency in pairs:</span>
+var i=0
+do
+    while ++i&lt;=count word_db
+    put word_db[i], tab, name(word_db[i]), nl
+loop
+
+end
+</pre>
+
+
+
+
+
+
+
+
+<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;<p>&nbsp;
+</BODY>
+</HTML>

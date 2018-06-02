@@ -1,0 +1,25 @@
+
+
+
+
+
+h2	Numeric functions
+
+p.c	Functions which return numeric or boolean values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

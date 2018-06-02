@@ -1,0 +1,15 @@
+h3	pwd
+p
+	Prints the full path of the current working directory.
+
+pre.out
+	vipsi> <span class=in>pwd</span>
+
+p
+	In a script there is no such instruction and you would probably use:
+
+pre
+	put fullpath(".")
+	/mnt/eden/pub/Develop/projects/vipsi/unix
+
+

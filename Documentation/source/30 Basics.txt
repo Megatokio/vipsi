@@ -1,0 +1,289 @@
+
+
+h1	Vipsi Basics
+
+
+
+// -----------------------------------------------------------------------------
+h2	Getting help
+p
+	Start vipsi with command line argument -h or something similar and it will show it's command line options.
+p
+	Most notably: starting it with no options at all. then it will start in interactive shell mode. the first thing it prints is information on how to get help:
+p.c
+	<img src="b/screenshot_greeting.gif" alt="screenshot shows startup messages of vipsi">
+p
+	Among lot's of other words, it knows the word <tt>words</tt>, which will list all built-in words:
+p.c
+	<img src="b/screenshot_words.gif" alt="screenshot shows list of built-in words">
+p
+	The next most important word is <tt>info</tt>, which takes the name of a word as a parameter and prints information about that word:
+p.c
+	<img src="b/screenshot_info.gif" alt="screenshot shows info for a built-in word">
+
+
+
+// -----------------------------------------------------------------------------
+h2	A smidgen of vipsi code
+p
+	Here are some example dialogs with vipsi, started with no arguments as an interactive shell.
+p
+	If you type in an expression, the expression is executed and the result is automagically printed. this is a convenience behaviour of vipsi when running as shell:
+shell
+	i> 1230.40 * 1.18  o> = 1451.872
+	i> sin(pi/2)  o> = 1
+	i> 46+3*1.1  o> = 49.3
+	i> <>
+p
+	The following shows how to define a variable, how loops look like in general and how intentional printing to the user (to <i>stdout</i>) works:
+shell
+	i> var i=10
+	i> do i--; while i; put i," "; loop  o> 9 8 7 6 5 4 3 2 1
+	i> <>
+p
+	And take a preview on function definition, the possibility of recursion, conditional branches and how to call a function. nothing odd here. Just note, that <tt>then</tt> marks the end of the <tt>if … else … then</tt> construct.
+shell
+	i> proc fak(n) { if n>1 return n*fak(n-1) else return 1 then }
+	i> put "fak(7) = ",fak(7)  o> fak(7) = 5040
+	i> <>
+p
+	Next let's try a simple script. The following sample script uses the built-in function <tt>env</tt> to get the environment variables of the process and prints them. This example requires that vipsi (or a link to vipsi) is already installed in <i>/usr/bin/</i>. Note that most spaces and the brackets around function arguments are optional and used here for readability only.
+pre.src
+	#!/usr/local/bin/vipsi
+
+	var env_vars = env
+	var i=0
+
+	put nl,"current environment variables:",nl
+
+	do
+		while ++i < count( env_vars )
+		put name( env_vars[i] ), " = ", env_vars[i], nl
+	loop
+
+	end
+
+
+
+
+
+// -----------------------------------------------------------------------------
+h2	Vipsi command syntax
+p
+	This is a quick overview over the syntax of the vip script language.
+
+
+h3	Comments
+p
+	There are two types of comments, the single line comment and the block comment. They use the same separators as in C:
+ul
+li	Single-line comments are introduced with <tt>//</tt>
+li	Block comments are enclosed in <tt>/*</tt> and <tt>*/</tt>
+
+
+
+h3	Statements
+p
+	A program consists of a longish sequence of statements. A statement typically starts with an instruction, which is a word which returns no result value. Many instructions require arguments, which are made out of expressions. Also frequently used as a statement are assignments, which actually are expressions which contain an assignment operator.
+p
+	Statements need no separators, except in very rare cases, but you can use semicolons for that purpose if you like:
+pre
+	var a=123; put a; a=a*3; put a;
+    var a=123 put a a=a*3 put a
+
+
+
+h3	Instructions
+p
+	Instructions always mark the beginning of a new statement. This is, because they do not return a result value. They may be followed by arguments if the instruction requires so. Arguments need not be enclosed in brackets, multiple arguments are separated by commas:
+pre
+	put 1, "anton", nl
+
+
+
+h3	Arguments
+p
+	Arguments for instructions, functions or the like are made out of expressions. If an expression returns a value of wrong type, certain effort is taken to correct the case:
+ul
+li	Text is evaluated as number if required, potentially generating an error if this fails.
+li	Numbers are converted to text if required
+li	Numbers and Text are converted to a list if required
+li	Many functions and operators accept lists instead of their expected argument type and perform their operation on all list items instead. Recursively.
+
+
+
+h3	Expressions
+p
+	Arguments are made out of expressions which yield some kind of result value. Expressions are in the simplest case just one number, text or list literal:
+pre
+	put 123.456
+    put "anton"
+    put { 1, 2, 3 }
+p
+	But they may be also variables, sub expressions combined by operators and even more complex things:
+pre
+	put 12.5 + 22*1.4e3
+    put ( int(12.5 + 22*1.4e3)<<(my_flag?2:4) ) | $E000;
+    put my_textlist[ a+3, i+1 to j-2 ]
+
+
+
+h3	Literals
+p
+	Literals are values which are written literally in the source. All data types have a distinct look. They are covered in more details in --> 'Data types'.
+
+h4	Number literals
+h5	Decimal
+pre
+					Integer		Float		Scientific
+	Decimal:		1234		-47.11		123.456e-78
+	Hexadecimal:	$123affe	-$b00.b00f
+	Binary:			%10100101	+%1010.0101
+	Base 256:	    'Äffe'
+
+
+h4	Text literals
+pre
+	"hello"
+    "say \"hello\""
+	«"hello". right?»
+
+
+h4	List literals
+pre
+    { "a", "b", 44 }    three items
+    { 1, {"a","b"} }    two items. the second item is itself a list
+    { x=22, y=33 }      two items, named <i>x</i> and <i>y</i>
+
+
+h4	Procedure literals
+pre
+	proc(a,b){ return a+b }
+
+
+
+h3	Operators
+p
+	Operators combine sub expressions to more complex expressions. Frequently they are processed out of order, due to a hierarchy of operator priorities. The vip script language defines a well thought set of operator precedences. This is covered in full details in chapter --> 'Operators'.
+
+h5	List of operator precedence:
+pre	highest						@
+		item selector, postfix: .  [ … ]  ( … ) ++ --
+		prefix: 				+ - ! ~ ++ --
+		bit shifting:     	  	>>  <<
+		bit masking:        	&  |  ^
+		multiplication:     	*  /  %
+		addition:           	+  -
+		concatenation:      	# ##
+		comparision:        	==  !=  >=  <=  >  <
+		boolean:            	&&  ||
+		triadic selector:   	? … : …
+		assignments:        	= += etc.
+	lowest
+
+p	Assignments return no result.
+
++	includes/note on assignment operators.txt
+
+
+
+h3	Functions
+p
+	Functions are built-in words which take one or more arguments and return a result value.
+p
+	Built-in functions which always take exactly one argument may be called without round brackets around their argument. Then they work similar to prefix operators and have similar high argument binding:
+pre
+	sin a       ==  sin(a)
+    sin 2*pi    ==  sin(2) * pi   !!
+
+
+
+
+h3	Procedures
+p
+	Procedure are created with <tt>proc</tt>:
+pre
+	proc Foo()  { }
+    proc Sin(a) { return sin(a*180/pi) }
+    proc Sum(a,b) { return a+b }
+pre
+	var  Bär = proc()  { return "Bääär" }
+p
+	Calling a procedure works like calling functions:
+pre
+	var a = Sin(270)
+    var s = Sum(47,11)
+p
+	Procedures can be nested (local procedures) and can be called recursively.
+
+
+
+
+h3	Flow control
+p
+	There are some instructions for conditional execution of statements and loops.
+
+h4	if … then
+pre
+	proc fak(a) { if a<=1 return 1; else return a*fak(a-1); then }
+p
+	Note the slight difference in syntax to C which may be familiar to people accustomed to forth. The <tt>else</tt> part is optional. There is no need to put the condition in round brackets as in C, though you can. The end of an expression is evident.
+
+h4	do … loop
+pre
+	proc fak(a) { var r=1; do; while a>1; r=r*a; a=a-1; loop; return r; }
+p
+	Another variant of this common function, now with iteration instead of recursion. <tt>do</tt> and <tt>loop</tt> embrace the loop, the start condition is set before the loop using standard methods, the loop iterator is decremented using standard methods, and the escape from the loop is done with a <tt>while</tt> statement.
+p
+	Loops are always formed with <tt>do</tt> and <tt>loop</tt>. But there are some more control statements:
+pre
+	while <condition>	procede while condition is true; else exit loop
+    until <condition>	similar to while, but with inverted condition
+    exit             	immediately exit the loop
+    next             	jump to start of loop for another go
+
+
+
+
+
+h3	Identifiers (names)
+	identifier, name, idf
+p
+	You need names for your variables and procedures. Also each item in a list may be named.
+p
+	The following restrictions are imposed on source scripts:
+ul
+li  Names must start with a letter or with '_'. this may be any international character.
+li  Subsequent characters must be a letter, '_' or a number digit.
+li  Names must not be a word pre-defined by vipsi.
+
+h5	Legal names:
+pre anton, cäsar, µ, Ωsub, sin21, _, _liste_, Café, Smørebrød, Жизмн.
+
+h5	Illegal names:
+pre	catch 23      contains space
+	sin           pre-defined word
+	6pack         starts with a number
+	big-letters   no '-' allowed
+
+
+
+
+h2	Sequence of evaluation
+p
+	Words are always evaluated and executed from left to right as soon as possible. Operators and procedures are executed as soon as their operands are evaluated. The interpreter has no freedom of choice!
+p
+	Pruning is performed for <tt>? … :</tt> and <tt>&&</tt> and <tt>||</tt>. If the result is sufficiently determined by the first operand, then the second operand is simply skipped and not executed.
+p
+	Pruning for <tt>&&=</tt> and <tt>||=</tt> is not yet implemented (version 0.8.7)
+
+
+
+
+
+
+
+
+
+
+

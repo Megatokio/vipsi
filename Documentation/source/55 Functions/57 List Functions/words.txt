@@ -1,0 +1,21 @@
+h3  words
+
+pre
+	<list> = <b>words</b>
+
+p
+	Return a list of all built-in words. This list contains all tokens, including those only used internally, and with no direct visual name. These are ccalled 'tNUM' or 'tEOF' or the like.
+p
+	This is the list which i currently (version 0.8.8pre) get from function <tt>words</tt>:
+p
+	{ "tNUM", "0", "1", "tSHORT", "tBYTE", "tSTR", "tSTR2", "tIDF", ",", "(", ")", "[", "]", "{", "}", "++", "--", "=", "+=", "-=", "*=", "/=", "%=", "#=", ">>=", "<<=", "&&=", "||=", "^=", "&=", "|=", "##=", "+", "-", "*", "/", "%", "#", "##", ">", "<", ">=", "<=", "==", "!=", "<<", ">>", "&&", "||", "&", "|", "^", ".", "?", ":", "from", "to", "ec", "pi", "nl", "tab", "stdin", "stdout", "stderr", "!", "~", "@", "file", "dir", "link", "pipe", "sock", "mdate", "count", "index", "name", "random", "abs", "sign", "int", "fract", "round", "min", "max", "cos", "sin", "tan", "acos", "asin", "atan", "cosh", "sinh", "tanh", "logn", "log2", "loge", "log10", "exp", "exp2", "expe", "exp10", "square", "sqrt", "istext", "isnumber", "islist", "isproc", "isfile", "isdir", "islink", "exists", "string", "upperstr", "lowerstr", "spacestr", "charstr", "charcode", "hexstr", "binstr", "substr", "midstr", "leftstr", "rightstr", "datestr", "now", "dateval", "find", "rfind", "env", "words", "info", "globals", "locals", "this", "match", "fullpath", "eval", "call", "sys", "include", "require", "split", "convert", "replace", "new", "del", "swap", "var", "freeze", "melt", "put", "log", "get", "edit", "getchar", "write", "read", "ioctl", "wait", "sort", "rsort", "open", "openin", "openout", "close", "rename", ";", "cd", "proc", "return", "end", "do", "then", "if", "else", "elif", "try", "while", "until", "exit", "next", "loop", "tEOF", "//", "/*", "*/", "pwd" }
+p
+	There is also a shell immediate command <tt>words</tt>, which prints a beautified listing of all built-in words, omitting those with no real visual representation. If you type <tt>words</tt> in the vipsi shell you most likely execute this command. You must prevent the vipsi shell from recognizing <tt>words</tt>:
+
+shell
+	i> words            // invokes the shell immediate command
+	i> put words        // print the list of function 'words'
+	i> ;words           // dito. note the ";"
+	i>  words           // dito. note the " "
+
+

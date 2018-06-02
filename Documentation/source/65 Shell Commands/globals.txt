@@ -1,0 +1,25 @@
+
+
+
+
+
+
+
+
+
+
+
+h3	globals
+p
+	This shell immediate instruction prints a beautified listing of all global variables.
+	<i>vipsi version 0.8.7: not too much yet. This is on the todo list.</i>
+shell
+	i> globals
+
+p
+	There is also a function <tt>globals</tt>, which returns a reference to the list variable <tt>globals</tt>, which contains all the global variables:
+shell
+	i> ;globals         // note the ";"
+	i>  globals         // note the " "
+	i> put globals      // just as in a script
+

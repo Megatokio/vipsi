@@ -1,0 +1,35 @@
+
+
+h3  edit
+
+pre
+	<b>edit</b> <variable>
+	<b>edit</b> #<number>, <variable>
+
+p
+	Edit (write and re-read) data in text format.
+p
+	<tt>edit</tt> only works with TTYs. Using <tt>edit</tt> on another kind of stream yields an error.
+p
+	Default stream is <i>stdin</i>. The stream may be changed with #<number>. Default text encoding is UTF-8 unicode. Edit finishes with end of line (return) for each variable.
+p
+	Reading from a tty (terminal) uses the line editor. Input is colorized according to the settings for <i>stdin</i>. Data presentation is the same as for <tt>put</tt>. The tty must emulate a <i>VT100</i> terminal.
+p
+	Currently (version 0.8.8) <tt>edit</tt> converts all variables to text.
+p
+	Text output to a tty is colorized by vipsi to make it unique for stdin, stdout and stderr:
+pre
+	<span class=in>This is text written / echoed to stdin</span>
+	<span class=out>This is text written to stdout</span>
+	<span class=err>This is text written to stderr</span>
+p
+	The color and attributes are choosen to hopefully match the capabilities of your terminal and can be overridden by preferences in <i>~/.vipsi/shell.prefs</i>:
+
+include libs/shell.prefs
+
+
+
+
+
+
+

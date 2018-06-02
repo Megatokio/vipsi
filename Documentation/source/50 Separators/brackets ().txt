@@ -1,0 +1,29 @@
+
+
+
+
+
+
+
+h3	Round brackets "( … )"
+	brackets, parenthesis
+
+p   Round brackets override operator priority in expressions or enclose argument list for procedures.
+p   e.g.:
+
+p	Override operator priority:
+pre
+    put 2*(3+4)
+
+p	Enclose argument list:
+pre
+	put sin ( pi/3 )
+	put median(34,56)
+
+p	Example for both:
+pre
+	proc median(a,b) { return (a+b)/2; }
+
+
+
+

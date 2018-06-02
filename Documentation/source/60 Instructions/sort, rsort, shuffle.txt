@@ -1,0 +1,68 @@
+
+
+
+h3  sort
+
+pre
+	<b>sort</b> <list_var>
+
+p
+	Sort list in ascending order.
+p
+	If items of different data type are encountered, they a sorted solely based on their data type. Expect bad things to happen if one of the items is a <i>NaN</i>.
+p
+	Note on names: currently (version 0.8.8), if the list contains named items then the names are moved along with their data. Thus accessing items by name yields the same data as prior to shuffling, except if multiple items with same name are present in the list. This may be changed. Future version will probably only move the data and no names.
+p
+	e.g.:
+pre
+	sort mylist
+
+
+
+h3  rsort
+
+pre
+	<b>rsort</b> <list_var>
+
+p
+	Sort list in descending order.
+p
+	If items of different data type are encountered, they a sorted solely based on their data type. Expect bad things to happen if one of the items is a <i>NaN</i>.
+p
+	Note on names: currently (version 0.8.8), if the list contains named items then the names are moved along with their data. Thus accessing items by name yields the same data as prior to shuffling, except if multiple items with same name are present in the list. This may be changed. Future version will probably only move the data and no names.
+p
+	e.g.:
+pre
+	rsort mylist
+
+
+
+h3  shuffle
+
+pre
+	<b>shuffle</b> <list_var>
+
+p
+	Shuffle list.
+p
+	List items are shuffled to random order.
+p
+	Note on names: currently (version 0.8.8), if the list contains named items then the names are moved along with their data. Thus accessing items by name yields the same data as prior to shuffling, except if multiple items with same name are present in the list. This may be changed. Future version will probably only move the data and no names.
+p
+	e.g.:
+shell
+	i> var mylist = {1,2,3,4,5,six=6,7,8,9,0}
+	i> shuffle mylist
+	i> mylist  o> = { 1, 7, 4, 5, 0, 3, 9, six=6, 8, 2 }
+	i> shuffle mylist
+	i> mylist  o> = { 1, six=6, 8, 2, 3, 4, 0, 5, 7, 9 }
+	i> <>
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,85 @@
+
+h3	exists
+
+pre
+	<number> = <b>exists</b> <variable>
+	<number> = <b>exists file</b> <path>
+	<number> = <b>exists dir</b> <path>
+	<number> = <b>exists link</b> <path>
+
+p
+	Test whether a variable, file, dir or link exists.
+p
+	Returns a numeric value, which is either 1 (true) or 0 (false).
+p
+	When testing for a variable, the variable path may be completely broken, as long as the overall syntax of the variable expression is ok. The result will probably be 'false' then.
+p
+	When testing for files, directories and links, the path must be a text value and may be a full or partial path or start with "~" for the user's home directory. Symbolic links are followed, except the last path component which is not followed when testing for a link. The path may be entirely broken, not even the first path component is required to exist. The result will probably be 'false' then.
+
+p
+	Return values of <tt>exists file</tt>:
+ul
+li	Path refers to file -> 1
+li	Symbolic link to file -> 1
+ul
+li	Path refers to directory -> 0*
+li	Symbolic link to directory -> 0*
+ul
+li	Path refers to nothing -> 0
+li	Path refers to broken link -> 0*
+
+p
+	Return values of <tt>exists dir</tt>:
+ul
+li	Path refers to file -> 0*
+li	Symbolic link to file -> 0*
+ul
+li	Path refers to directory -> 1
+li	Symbolic link to directory -> 1
+ul
+li	Path refers to nothing -> 0
+li	Path refers to broken link -> 0*
+
+p
+	Return values of <tt>exists link</tt>:
+ul
+li	Path refers to file -> 0*
+li	Symbolic link to file -> 1
+ul
+li	Path refers to directory -> 0*
+li	Symbolic link to directory -> 1
+ul
+li	Path refers to nothing -> 0
+li	Path refers to broken link -> 1
+
+p
+	*) as of version 0.8.7. Will probably be changed, so that <tt>exists</tt> returns 'true' whever at the target position is already an item, which prevents <tt>new</tt> from succeeding. After a 'true' result you can test with <tt>isfile</tt>, <tt>isdir</tt> and <tt>islink</tt> for the actual file type.
+
++ ../../includes/functions with 1 arg.txt
+
+p
+	e.g.:
+shell
+	i> var a={1,2,3};
+	i> exists a[3]  o> = 1
+	i> exists(a[5])  o> = 0
+	i> exists dir "/"  o> 1
+	i> exists file "/etc/fstab"  o>  1
+	i> exists link "~/foobär"  o> 0
+	i> link "zz" = "/"
+	i> exists link "zz"  o> 1
+	i> exists link fullpath "zz"  o> 0
+	i> exists dir fullpath "zz"  o> 1
+	i> <>
+
+
+
+
+
+
+
+
+
+
+
+

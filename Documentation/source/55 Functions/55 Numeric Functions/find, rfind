@@ -1,0 +1,61 @@
+
+
+
+h3 find
+
+pre
+ <number> = <b>find</b> ( <text>, <searchtext> )
+ <number> = <b>find</b> ( <text>, <searchtext>, <startindex> )
+
+p
+	Find first occurance of the <searchtext> in <text>.
+p
+	Returns index of position found or 0.
+p
+	Optionally start search at <startindex>. Search text must be a text value and start index must be a numeric value. The search starts at the start index inclusive.
+p
+	Indexes start at 1.
+p
+	e.g.:
+shell
+	i> find ( "hello world", "l" )  o> = 3
+	i> find ( "hello world", "X" )  o> = 0
+	i> find ( "hello world", "ll" )  o> = 3
+	i> find ( "hello world", "l", 6 )  o> = 10
+	i> find ( "hello world", "l", 4 )  o> = 4
+	i> find ( "hello world", "ll", 4 )  o> = 0
+	i> find ( "hello world", "ll", 3 )  o> = 3
+	i> find ( "hello world", "ll", 2 )  o> = 3
+	i> <>
+
+
+h3 rfind
+
+pre
+ <number> = <b>rfind</b> ( <text>, <searchtext> )
+ <number> = <b>rfind</b> ( <text>, <searchtext>, <startindex> )
+
+
+p
+	Find last occurance of the <searchtext> in <text>.
+p
+	Returns index of position found or 0.
+p
+	Optionally start search at <startindex>. Search text must be a text value and start index must be a numeric value. The search starts at the start index inclusive.
+p
+	Indexes start at 1.
+
+p
+	e.g.:
+pre
+ 	i> rfind ( "hello world", "l" )  o> = 10
+ 	i> rfind ( "hello world", "X" )  o> = 0
+ 	i> rfind ( "hello world", "ll" )  o> = 3
+ 	i> rfind ( "hello world", "l",  6 ) o>  = 4
+ 	i> rfind ( "hello world", "l",  4 ) o>  = 4
+ 	i> rfind ( "hello world", "ll", 4 ) o>  = 3
+ 	i> rfind ( "hello world", "ll", 3 ) o>  = 3
+ 	i> rfind ( "hello world", "ll", 2 ) o>  = 0
+
+
+

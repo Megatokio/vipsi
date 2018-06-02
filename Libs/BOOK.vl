@@ -1,0 +1,1283 @@
+#!/usr/local/bin/vipsi
+
+
+/*	create online book from easy source
+	***TODO*** Tables
+
+	authoritative file:		/pub/Develop/projects/vipsi/libs/BOOK.vl
+*/
+
+
+var Startzeit  = now
+var Statistics = {}
+var LibDir	   = "/usr/local/lib/vipsi/"
+var NumFiles   = 0
+var Seed 	   = 0
+if !exists verbose var verbose=0 then
+
+
+
+/* ----	Defaults ----------------------
+*/
+var SourceFile	  	= "*.toc"		// list of source files, wildcards allowed
+
+var TargetDir 	  	= ""
+var FilenameIndex	= "index.html"
+var	FilenameBook	= "z%%.htm"		// name for target files; %% = sequential number
+
+var SplitFileSize	= 20000	// limit for splitting chapters into multiple files
+var TabWidth   	 	= 4		// used to detab <pre> sections
+var XrefMaxWords	= 4		// max. significant words for automatic cross links generation
+var PageTocMinCount	= 2		// min. number of links in TOC of single file for TOC present; else no TOC
+
+
+
+
+/* ----	Basic Html Templates ----------------------------
+		Template.Page 		für normale Seiten
+		Template.Index		für die Startseite
+		Template.Split		für die TOC-Seite von Kapiteln, die gesplittet wurden
+*/
+var Template.Page =
+«<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<META http-equiv=Content-Type content="text/html; charset=UTF-8">
+<title>%%TITLE%%</title>
+<meta name="keywords" content="%%KEYWORDS%%">
+<style type="text/css">
+  .titel 	{ background:white; text-align:center; }
+  .head  	{ background:white; text-align:center; }
+  .toc		{ background:white; padding:0.25em; margin:1em; }
+  .toc p	{ text-align:center; font-weight:bold; padding:0em; margin:0em; }
+  .L		{}		/* automatic x-ref link */
+  .LL		{ visibility:hidden; position:absolute; z-index:50; padding:0.2em; background:#ffffff; } /* x-ref popup box */
+</style>
+<script type="text/javascript">
+  var o="";
+  function S(n) { H(); document.getElementById(n).style.visibility='visible'; o=n; }
+  function H() { if(o!="") document.getElementById(o).style.visibility='hidden'; o=""; }
+  window.addEventListener('mouseup', function(event){H();});  
+</script>
+</head><body id="A">
+%%HEADLINE0%%%%HEADLINE1%%
+<p align=center><a href="%%PREV%%">[&lt;prev]</a> &nbsp; &nbsp; <a href="%%NEXT%%">[next&gt;]</a></p>
+%%HEADLINE2%%%%HEADLINE3%%%%HEADLINE4%%%%HEADLINE5%%%%HEADLINE6%%
+%%TOC%%%%BODY%%
+</body></html>
+»
+
+// Headlines as they appear at top of a page
+// called for %%HEADLINEx%%
+proc Style.Headline( i /* Buch[i] */ )
+{
+	var Tag   = name Buch[i]
+	var Url   = Buch[i].Filename
+	var Label = Buch[i].Text
+	if Tag=="h0"
+		var r =  «\n<h1 class="titel"><a href="»#Url# «">» #Label# «</a></h1>»
+		try
+			r #= «\n<h1 class="head"><a href="» #Url# «">» #TocTitle# «</a></h1>»
+			del TocTitle
+		then
+		return r
+	else
+		return «\n<»#Tag#« class="head"><a href="»#Url# «">» #Label# «</a></»#Tag#«>»
+	then
+}
+
+
+// Headlines as they appear in a TOC
+// called in preparation for %%TOC%%
+proc Style.TocItem ( i /* Buch[i] */ )
+{
+	var Label = Buch[i].Text
+	var Url   = "#" # Buch[i].Anker
+	try	Url   = Buch[i].Filename # Url then
+
+	return «<p><a href="» #Url# «">» #Label# «</a></p>»
+}
+
+
+// Table of contents:
+// called for %%TOC%%
+proc Style.Toc ( i /* Buch[i] */, TocListe )
+{
+	return exists Buch[i].Split || count TocListe >= PageTocMinCount
+			? «\n<div class="toc">»#TEXT.JoinText(TocListe,nl)#«</div>»
+			: ""
+}
+
+
+// Querverweis-Linklist-Popup:
+// for Xref
+proc Style.Linklist ( Label, Linklist )	// Linklist = { {Url="",Label=""}, ... }
+{
+	var i=0, Links="", id = ++Seed
+	var ID=""  do  ID #= charstr('A'+id%26)  id/=26 while id>=1  loop
+	
+	if count Linklist==1
+
+		return «<a class=L href="» #Linklist[1].Url# «">» #Label# «</a>»
+	
+	else
+		do
+			while ++i <= count Linklist
+			Links #= «<br><a href="» #Linklist[i].Url# «">» #Linklist[i].Label# «</a>»
+			loop
+
+		return «<span class=LL id=»#ID#«>»#Links[5 to]#«</span>\
+				<a class=L href="javascript:S('»#ID#«')">»#Label#«</a>»
+	then
+}
+
+
+
+/* *********************************************************************
+							TAG DEFINITIONS
+********************************************************************* */
+
+proc SkipBlock(i)		// --> next block
+{
+	var Tag = name Buch[i++]
+	do
+		while i <= count Buch && contains_tag(Tag,name Buch[i])
+	// rekursion notwendig, weil manche tags nur indirekt enthalten sein können, z.b. h4>ol>li
+		i = SkipBlock(i)
+	loop
+	return i
+}
+
+proc SizeofBlock(i)
+{
+	var j = SkipBlock(i)
+	var n = 0
+	do
+		n += count string(Buch[i])
+		while ++i < j
+	loop
+	return n
+}
+
+proc ReadContainedTags(i)
+{
+	var Tag = name Buch[i++]
+	do
+		while i <= count Buch
+		var Subtag = name Buch[i]
+		while contains_tag(Tag,Subtag)
+		i = Tags.@Subtag.Read(i)
+	loop
+	return i
+}
+
+proc WriteContainedTags(F,i)
+{
+	var Tag = name Buch[i++]
+	do
+		while i <= count Buch
+		var Subtag = name Buch[i]
+		while contains_tag(Tag,Subtag)
+		i = Tags.@Subtag.Write(F,i)
+	loop
+	return i
+}
+
+proc WriteStartTag(F,i)
+{
+	var id = name Buch[i]
+	try id #= « class=»  # Buch[i].Class       then	// if exists
+	try id #= « style="» # Buch[i].Style # «"» then	// if exists
+	try id #= « id=»     # Buch[i].Anker       then	// if exists
+	put #F, nl, "<" # id # ">"
+}
+
+proc WriteText(F,i)
+{
+	put #F, Buch[i].Text
+}
+
+proc WriteEndTag(F,i)
+{
+	put #F, "</", name Buch[i], ">"
+}
+
+// default read/write handler
+proc r0(i)
+{
+	if verbose put "["#name Buch[i]#"]" then
+	return ReadContainedTags(i)
+}
+proc w0(F,i)
+{
+	WriteStartTag(F,i); WriteText(F,i); WriteEndTag(F,i);
+	return i+1
+}
+
+
+/* ----	Tag Handler -------------------------------------------------------------------------
+
+		Class = PARA		paragraphs: enthalten keine anderen Tags:	z.B. <p>
+				BLOCK		Block-Tags: enthalten andere Tags:			alle Headlines und z.B. <ul> 
+				PRE			Vorformatierter Text. Sonderform des PARA-Tags: White spaces usw. werden erhalten
+				DEF			spezielle Tags: z.B.: toc und # 
+
+		Read  = Lesefunktion:	 Liest via Index i aus Buch[] und gibt den weitergestellten Index zurück.
+								 Die Default-Lesefunktion r0() für viele Tags inkrementiert nur den Index und tut sonst nichts.
+
+		Write = Schreibfunktion: Schreibt in Stream F via Index i aus Buch[] und gibt weitergestellten Index zurück.
+								 Die Default-Schreibfunktion w0() schreibt Start-Tag, Text und End-Tag.
+								 Tag-Name ist der Name des Buch-Eintrags Buch[i]
+								 Text ist Buch[i].Text
+								 Buch[i] kann noch Buch[i].Class, Buch[i].Style und Buch[i].Anker enthalten.
+
+		Where = Liste der Tags, in denen dieses Tag vorkommen kann.
+*/
+
+// p:	plain paragraph, subsequent untagged lines are appended with <br>
+var Tags.p = { Class='PARA', Read=r0, Write=w0, Where=" h0 h1 h2 h3 h4 h5 h6 " }
+
+
+// pre:	preformatted paragraph, monospaced, subsequent untagged lines are appended with \n
+var Tags.pre = { Class='PRE', Read=r0, Write=w0, Where=" h0 h1 h2 h3 h4 h5 h6 " }
+
+
+// li:	list item; subsequent untagged lines are appended with <br>
+var Tags.li = { Class='PARA', Read=r0, Write=w0, Where=" ol ul " }
+
+
+// hr:	horizontal divider line
+proc w(F,i) { WriteStartTag(F,i); return i+1 }
+var Tags.hr = { Class='DEF', Read=r0, Write=w, Where=" h0 h1 h2 h3 h4 " }             // TODO: why not PARA ?!?
+
+
+// #:	provide customized name for anchor
+proc r(i)
+{
+	if verbose put "["#name Buch[i]#"]" then
+	if exists Buch[i-1].Keywords
+		Buch[i-1] ##= { Anker = Buch[i].Text }
+	else
+		log nl, «  Tag "#" (custom anchor name) darf nur nach Überschriften stehen: ignoriert»
+	then
+	del Buch[i];  return i
+}
+var Tags.@"#" = { Class='DEF', Read=r, Write=w0, Where=" h0 h1 h2 h3 h4 h5 h6 " }
+
+
+// toc:	define title for TOC on index page
+proc r(i)
+{
+	if verbose put "["#name Buch[i]#"]" then
+	if exists Style.TocTitle log " toc doppelt! " then
+	convert Buch[i].Text to html
+	Style ##= { TocTitle = Buch[i].Text };
+	del Buch[i]; return i
+}
+var Tags.toc = { Class='DEF', Read=r, Write=w0, Where=" h0 " }
+
+
+// ol, ul:	(un)ordered list; contains only li
+proc w(F,i) { WriteStartTag(F,i); var j=WriteContainedTags(F,i); WriteEndTag(F,i); return j }
+var Tags.ol = { Class='BLOCK', Read=r0, Write=w, Where=" h0 h1 h2 h3 h4 h5 h6 " }
+var Tags.ul = { Class='BLOCK', Read=r0, Write=w, Where=" h0 h1 h2 h3 h4 h5 h6 " }
+
+
+// h0 .. h6: Buchtitel, Headlines
+proc r(i)
+{
+	var j=find("h0h1h2h3h4h5h6",name Buch[i])
+	if verbose
+		put nl, "["#name Buch[i]#"]", "                "[to j], Buch[i].Text
+	else
+		TEXT.SpinWheel()
+	then
+
+	if Buch[i].Text == ""
+		log nl, «  Kapitel ohne Titel: "», name Buch[i], «"», nl, «  aborted.»  end 1
+	then
+
+	if count Buch[i].Keywords==0
+		log «  Keine Schlüsselwörter! »
+	then
+
+	return i+1
+}
+
+proc w(F,i)
+{	// note: only headlines in %%TEXT%% are written using this proc
+	// headlines in page header or toc are written using Style.xx()
+	var Anker = Buch[i].Anker
+	var Titel = Buch[i].Text
+	var Tag   = name Buch[i]
+	WriteStartTag(F,i)
+	put#F, «<a href="#», Anker, «">», Titel, «</a>»
+	WriteEndTag(F,i)
+	return i+1
+}
+
+var Tags.h0 = { Class='BLOCK', Read=r, Write=w, Where=" " }
+var Tags.h1 = { Class='BLOCK', Read=r, Write=w, Where=" h0 " }
+var Tags.h2 = { Class='BLOCK', Read=r, Write=w, Where=" h0 h1 " }
+var Tags.h3 = { Class='BLOCK', Read=r, Write=w, Where=" h0 h1 h2 " }
+var Tags.h4 = { Class='BLOCK', Read=r, Write=w, Where=" h0 h1 h2 h3 " }
+var Tags.h5 = { Class='BLOCK', Read=r, Write=w, Where=" h0 h1 h2 h3 h4 " }
+var Tags.h6 = { Class='BLOCK', Read=r, Write=w, Where=" h0 h1 h2 h3 h4 h5 " }
+
+
+
+
+proc is_valid_tag 	( Tag ) 		{ return exists Tags.@Tag }
+proc is_para_tag   	( Tag ) 		{ return Tags.@Tag.Class=='PARA'  }
+proc is_pre_tag   	( Tag ) 		{ return Tags.@Tag.Class=='PRE'   }
+proc is_block_tag 	( Tag ) 		{ return Tags.@Tag.Class=='BLOCK' }
+proc is_def_tag		( Tag )			{ return Tags.@Tag.Class=='DEF'   }
+proc contains_tag 	( Tag, Subtag ) { return find( Tags.@Subtag.Where, " "#Tag#" " ) != 0 }
+
+
+
+
+
+/* ----	Generated filenames ----------------------------------------------
+		first filename is 'Buch.fname' = 'FilenameIndex' = "index.html"
+		subsequent filenames are named according to 'FilenameBook' = "%%.html"
+*/
+proc FilenameFromIndex(idx)
+{
+	return idx==1 ? FilenameIndex : replace( FilenameBook, "%%", string(idx) );
+}
+
+proc NewFilename()
+{
+	return FilenameFromIndex( ++NumFiles )
+}
+
+proc IndexFromFilename(fname)
+{
+	if fname==FilenameIndex return 1 then
+	var i = find(FilenameBook,"%%")
+	var n = 2 +count fname -count FilenameBook
+	return eval( midstr(fname,i,n ) )
+}
+
+proc NextFilename(fname)
+{
+	var i = IndexFromFilename(fname)
+	return FilenameFromIndex( i%NumFiles +1 )
+}
+
+proc PrevFilename(fname)
+{
+	var i = IndexFromFilename(fname)
+	return FilenameFromIndex( i==1 ? NumFiles : (i-1)%NumFiles )
+}
+
+
+
+
+/* ----	Die Querverweis-Datei -----------------------------------------------
+	Zu jedem Schlüsselwort enthält sie die passenden Links,
+		bestehend aus Beschriftung (Label) und Url,
+		die wiederum aus Dateiname und idR. Anker besteht.
+	Das Label setzt sich aus den hierarchischen Kapitelüberschriften zusammen
+		der besseren Lesbarkeit wegen nur eigene HL + übergeordnetes Kapitel
+*/
+var Xref = {}
+
+proc AddXref ( Keyword, Label, File, Anker )
+{
+	var Url  = File # "#" # Anker
+	var Link = { Label=Label, File=File, Anker=Anker }
+
+	if exists Xref.@Keyword
+	// Link mit bereits existierendem Schlüsselwort
+		if !exists Xref.@Keyword.@Url	// vermeide Dubletten
+			Xref.@Keyword ##= { @Url = Link }
+		else
+			log nl, "  Verweisziel-Dublette: ",Label," "
+		then
+
+	else
+	// Link mit neuem Schlüsselwort
+		Xref ##= { @Keyword = { @Url = Link } }
+	then
+}
+
+proc FindXref ( Keyword )
+{
+	try
+		return Xref.@Keyword
+	else
+		return {}
+	then
+}
+
+
+
+
+/* *********************************************************************
+				INITIALIZE & TEST for QUICK EXIT
+********************************************************************* */
+
+/* ----	flatten var SourceFiles -------------------------------------
+		read all directory informations of source files into var sourcefile
+        var SourceFiles becomes a directory listing, except that fnames are
+        extended to full partial path. ((that is: including subdirectory paths))
+		files are kept in order of appearance in SourceFiles[] list
+		multiple files matching a wildcard pattern are sorted alphabetically
+		duplicate files are removed ((first occurance is kept))
+*/
+var SourceText  = ""
+var SourceMdate = 0
+var SourceFiles = 0
+
+proc QuelltextEinlesen()
+{
+	/*	read source file including all included files
+		return text from files
+		sfile can be:
+			- path/filename
+			- path/
+			- path/pattern
+		if directory contains one *.toc file then only this is included
+			assuming that it will include the rest.
+	*/
+	proc read_source(indent, sfile)
+	{
+		indent += 2
+		if verbose
+			put nl, "          "[to indent], sfile, " "
+		else
+			TEXT.SpinWheel()
+		then
+
+		if isfile sfile
+		// file
+			SourceMdate = max(SourceMdate,mdate sfile)
+			SourceFiles ++
+
+			var sdir = sfile[to rfind(sfile,"/")]
+
+			var result = ""
+			var text = file sfile
+			convert text from utf8
+			
+			// replace combining characters ((TODO: vipsi convert from utf8 überarbeiten))
+			if("ä"=="ä") foo() then	// dann aus alter version wieder reinpasten... ((2014-06-14))
+			var n = count text
+			replace text,"ä","ä" if(verbose && count text<n) put nl,"combining characters für 'ä' ersetzt " n=count text then
+			replace text,"ö","ö" if(verbose && count text<n) put nl,"combining characters für 'ö' ersetzt " n=count text then
+			replace text,"ü","ü" if(verbose && count text<n) put nl,"combining characters für 'ü' ersetzt " n=count text then
+			replace text,"Ä","Ä" if(verbose && count text<n) put nl,"combining characters für 'Ä' ersetzt " n=count text then
+			replace text,"Ö","Ö" if(verbose && count text<n) put nl,"combining characters für 'Ö' ersetzt " n=count text then
+			replace text,"Ü","Ü" if(verbose && count text<n) put nl,"combining characters für 'Ü' ersetzt " n=count text then
+						
+			replace text, "%%DATE%%", datestr(now)
+			replace text, "%%FILE%%", sfile
+
+			do
+				var j = text[1]=="+" ? 0 : find(text,"\n+")
+				while text[j+1]=="+"
+				if text[j+2]>" " result #= text[to j+1] text=text[j+2 to] next then
+				result #= text[to j]
+				sfile = text[j+2 to find(text,nl,j+2)-1]
+				text = text[find(text,nl,j+2)+1 to]
+				sfile = TEXT.CropSpaces(sfile)
+				result #= read_source(indent,sdir#sfile)
+			loop
+			return result # text
+		then
+
+		if isdir sfile
+		// dir
+			var sdir = sfile if rightstr(sdir,1)!="/" sdir#="/" then
+			var d = dir(sdir#"*.toc")
+			if count d == 1
+				return read_source(indent-2,sdir#d[1].fname)
+			then
+			var d = dir sdir
+			if count d == 0 log "empty!" return "" then
+
+		else
+		// dir/pattern
+			var sdir = sfile[to rfind(sfile,"/")]
+			var d    = dir(sfile)
+		then
+
+		sort d
+		var n=0, result = ""
+		var i=0, dot = sfile[count(sdir)+1]=="." ? "" : "."
+		do
+			while ++i <= count d
+			sfile = d[i].fname
+			if find(" alt old backup back-up ",sfile) next then
+			if leftstr (sfile,1)==dot    next then
+			if rightstr(sfile,1)=="~" 	 next then
+			if rightstr(sfile,4)==".bak" next then
+			if rightstr(sfile,4)==".alt" next then
+			if rightstr(sfile,4)==".xxx" next then
+			n++
+			result #= read_source(indent,sdir#sfile)
+		loop
+		if n==0 log "no match!" then
+		return result
+	}
+
+	TEXT.SpinCount=0
+	put nl, "Quelltext einlesen "
+	SourceText = read_source(0,SourceFile)
+	if !verbose
+		put "--> ", TEXT.SpinCount, " Dateien & Ordner"
+	then
+}
+
+
+
+/* ----	ist index.html up-to-date? ------------------------------
+		--> nothing to do
+		--> QUICK EXIT
+*/
+proc ÄnderungsdatumPrüfen()
+{
+	put nl, "Änderungsdatum prüfen "
+
+	try if force==1 return then then		// assumption: command line argument "-f" --> var force=1
+
+	if exists file(TargetDir#FilenameIndex)
+	{
+		if max(mdate(LibDir#"BOOK.vl"),mdate"automate.vs",SourceMdate) <= mdate(TargetDir#FilenameIndex)
+			put "... up to date.", nl, nl
+			end 0
+		then
+	}
+	then
+}
+
+
+
+proc StatisticsAnzeigen()
+{
+	var Laufzeit = string(int((now-Startzeit)*1000))
+		Laufzeit = Laufzeit[to count Laufzeit-3] # "." # rightstr(Laufzeit,3) # " sek."
+		Statistics ##= { Laufzeit = Laufzeit }
+
+	put nl,nl, "Statistics: "
+	var i=0
+	do
+		while ++i <= count Statistics
+		put nl, "  ", name Statistics[i], " = ", Statistics[i]
+	loop
+}
+
+
+
+
+/* ******************************************************************************
+							MAIN PROCEDURES
+****************************************************************************** */
+
+
+/* ----	Lese Buchquellen ein --------------------------------
+
+		Lese SourceFiles und verschmelze alle Dateien zur Liste "Buch"
+
+		Items sind text und mit ihrem Tag benamt
+		Leerzeilen und Kommentare sind entfernt
+		'pre'-Tags sind ausgetabt
+		p_tags sind verschmolzen;  z.B. pre="    a = anton\n    b = berta"
+		list_tags mit folgenden untagged Zeilen sind kombiniert; z.B. ort="Land, Wasser, Wald"
+
+		Blöcke sind rekursiv in Listen gewandelt
+		Die Listen werden letztendlich an die Liste "Buch" angehängt
+*/
+proc TagsAbtrennen()
+{
+	put nl, "Zeilen trennen "
+
+	Buch = split(SourceText)		// split into lines
+
+	Statistics ##= { AnzahlQuelldateien = SourceFiles }
+	Statistics ##= { LetzteÄnderung = datestr(SourceMdate) }
+	Statistics ##= { ZeichenGesamt = count SourceText }
+	Statistics ##= { ZeilenGesamt = count Buch }
+
+	if verbose
+		put nl, "  ", count SourceText, " Zeichen "
+		put nl, "  ", count Buch, " Zeilen "
+	then
+
+
+	put nl, "Tags abtrennen "
+	// "<tag> <text>"        -->  <tag> = { Text="<text>" }
+	// "<tag.class> <text>"  -->  <tag> = { Class="<class>", Text="<text>" }
+	// Crop spaces left and right
+	// Kommentare entfernen
+	// unbekannte Tags löschen
+
+	var keyword
+	var Text, Tag, PreTag
+	var i=0, j, k
+	do
+		while ++i <= count Buch
+
+		Text = Buch[i]
+		if Text[to 2]=="//" del Buch[i--] next then		// Kommentar
+		Buch[i] = {}
+
+	// split tag
+		j=0 do while ++j<=count Text && Text[j]>" " loop
+		Tag  = Text[to j-1]
+		Text = Text[j to]		// preserve separator & remember j for <pre> tag
+
+	// Zeilen mit Tag
+		if Tag!=""
+			TEXT.SpinWheel();
+
+		// split css class
+			k = find(Tag,".")
+			if k
+				Buch[i] ##= { Class = Tag[k+1 to] }			// store Class
+				Tag = Tag[to k-1]
+			j = k				// kio 2015-01-14: sonst ist die 1. Zeile eines PRE-Tags immer zwangs-eingerückt
+			then
+
+		// Store Tag
+			Tag = lowerstr(Tag)
+			rename Buch[i] = Tag
+
+		// ungültige Tags löschen
+			if !is_valid_tag(Tag)
+				log nl, «  Unbekanntes Tag "», Tag, «": übersprungen»
+				del Buch[i--];  next
+			then
+
+		// crop spaces
+		// bei leerem Text die Folgezeile nachziehen
+			do
+			// crop spaces
+				if is_pre_tag(Tag)
+					Text = spacestr(j-1) # Text				// overwrite Tag with spaces
+					convert Text from @("tab"#TabWidth);	// tabs durch spaces ersetzen
+					Text = Text[TabWidth+1 to]
+					Text = TEXT.CropSpaces_R(Text)
+				else
+					Text = TEXT.CropSpaces(Text)
+				then
+
+			// bei leerem Text nächste Zeile nachziehen
+				while Text == ""							// solange Text leer
+				while i<count Buch							// und nicht Buch-Ende
+				while Buch[i+1][1] <= " "					// und nächste Zeile ohne Tag
+				Text = Buch[i+1]
+				del Buch[i+1]
+				j=0
+			loop
+
+		// Text speichern
+			Buch[i] ##= { Text = Text }
+
+		// Keyword für Block-Tag speichern
+			if is_block_tag(Tag)
+				Buch[i] ##= { Keywords = {} }
+				keyword = TEXT.SplitIntoWords(Text) 					// split into words & separators
+				keyword = TEXT.RemoveOddItems(keyword)					// keep words
+				keyword = TEXT.NormalizeName(keyword[to XrefMaxWords])	// normalized joined_words
+				if keyword!="" Buch[i].Keywords ##= keyword then		// store keyword
+			then
+
+	// Zeilen ohne Tag
+	// Text an vorherige Zeile anhängen
+		else
+
+		// vorangehendes Tag bestimmen
+			if i==1
+				Text = TEXT.CropSpaces(Text)
+				if Text!=""  log nl, «  Zeile 1 hat kein Tag: übersprungen»  then
+				del Buch[i--]; next
+			else
+				PreTag = name Buch[i-1]
+			then
+
+		// nach Block-Tag: Zeilen ohne Tag werden als Keyword-Liste interpretiert
+			if is_block_tag(PreTag)
+				split Text,","
+				j=0 do
+					while ++j <= count Text
+					keyword = TEXT.SplitIntoWords(Text[j]) 					// split into words & separators
+					keyword = TEXT.RemoveOddItems(keyword)					// keep words
+					keyword = TEXT.NormalizeName(keyword[to XrefMaxWords])	// normalized_joined_words
+					if keyword!="" Buch[i-1].Keywords ##= keyword then		// store keyword
+				loop
+
+		// <pre> Absatz
+			elif is_pre_tag(PreTag)
+				Text = TEXT.CropSpaces_R(Text)
+				convert Text from @("tab"#TabWidth);	// tabs durch spaces ersetzen
+				Buch[i-1].Text #= nl # Text[TabWidth+1 to]
+
+		// <p> Absatz
+			elif is_para_tag(PreTag)
+				Text = TEXT.CropSpaces(Text)
+				if Text!="" Buch[i-1].Text #= "<br>" # Text then
+
+		// nach Definition Tag
+			elif is_def_tag(PreTag)
+				Text = TEXT.CropSpaces(Text)
+				if Text!="" Buch[i-1].Text #= ", " # Text then
+
+			else
+				log nl, "this cannot happen" end
+			then
+
+		// Zeile wurde an vorherige angehängt => diese Zeile löschen
+			del Buch[i--]
+		then
+	loop
+
+	if verbose
+		put nl, "  ", count Buch, " Tags "
+	else
+		put " "
+	then
+	Statistics ##= { TagsGesamt = count Buch }
+
+	// Leerzeilen am Ende von <pre> tags löschen
+	i=0 do
+		while ++i <= count Buch
+		do
+			while rightstr(Buch[i].Text,1)==nl
+			Buch[i].Text = Buch[i].Text [ to count(Buch[i].Text) -1 ]
+		loop
+	loop
+
+
+	// Hierarchie prüfen:
+	put nl, "Hierarchie prüfen "
+	if name Buch[1] != "h0"
+		log nl, «Buch beginnt nicht mit Tag "h0"»
+		log nl, "aborted.", nl
+		DumpBuch()
+		end 1
+	then
+
+	var n=count Buch
+	do
+		var i = SkipBlock(1)
+		while i<=count Buch
+		log nl, «  Tag "»#name Buch[i]#«" hier nicht erlaubt»
+		del Buch[i]
+	loop
+
+	if n!=count Buch
+		log nl, "aborted.", nl
+		DumpBuch()
+		end 1
+	then
+}
+
+
+
+proc TagsBehandeln()
+{
+	put nl, "Tags behandeln "
+	// Tags, die einen Anker benötigen, müssen hier ihr Keywords-Element erzeugen
+
+	TEXT.SpinCount = 0
+	var i=1
+	do
+		while i <= count Buch
+		i = Tags.@(name Buch[i]).Read(i)
+	loop
+	if !verbose
+		put "--> ", TEXT.SpinCount, " Überschriften"
+	then
+}
+
+
+
+proc BuchAufDateienVerteilen()
+{
+	put nl, "Buch auf mehrere Dateien verteilen "
+	// Kapitel mit mehr als filesplitsize Zeichen splitten
+	// --> Filesplit anmerken mit Buch[i].Split
+	// --> Dateinamen eintragen in Buch[i].Filename
+
+	// UP: Kapitel Buch[i] kommt in eine eigene Datei
+	//	   Testen: noch weiter zerlegen?
+	proc split_block(i)
+	{
+		var Tag = name Buch[i]
+		Buch[i] ##= { Filename = NewFilename() }
+		var j=find("h0h1h2h3h4",Tag)
+		if verbose
+			put nl, "       "[to j+1], Buch[i].Filename, " --> ", Buch[i].Text
+		else
+			TEXT.SpinWheel()
+		then
+
+		if SizeofBlock(i)<SplitFileSize return SkipBlock(i) then
+
+		var n = NumFiles
+
+		var j = i+1
+		do
+			while j<count Buch && contains_tag( Tag, name Buch[j] )
+			if exists Buch[j].Keywords	j = split_block(j)
+			else						j = SkipBlock(j)
+			then
+		loop
+
+		if NumFiles>n Buch[i] ##= { Split=1 } then		// else: Split n.ex.
+
+		return j
+	}
+
+	TEXT.SpinCount=0
+	split_block(1)
+	Statistics ##= { HtmlDateien = NumFiles }
+
+	if verbose
+		if NumFiles == 1
+			put nl, "  Buch besteht aus einer Datei. "
+		else
+			put nl, "  Buch besteht aus ", NumFiles, " Dateien. "
+		then
+	else
+		put "--> ", TEXT.SpinCount, " Dateien"
+	then
+}
+
+
+
+proc AnkerErzeugen()
+{
+	put nl, "Verweisziele zusammentragen "
+
+	var acnt  = 0
+	proc anker_benennen(i,CurrentFile,HeadlineListe)
+	{
+		acnt++
+		if i!=1 HeadlineListe ##= Buch[i].Text then
+		if count HeadlineListe > 2 del HeadlineListe[1] then
+
+		var f = exists Buch[i].Filename
+		if f
+			var a = Seed				// pro Datei wieder mit "A" beginnen
+			Seed = 0					// fast die Frage, ob der Aufwand lohnt
+			CurrentFile = Buch[i].Filename
+		then
+
+		try
+			var Anker = Buch[i].Anker	// falls Ankername vorgegeben wurde
+		else
+			var id = Seed++
+			var Anker = ""  do  Anker #= charstr('A'+id%26)  id/=26 while id>=1  loop
+			Buch[i] ##= { Anker = Anker }
+		then
+
+		var j=0
+		do
+			while ++j <= count Buch[i].Keywords
+			if count HeadlineListe>=2	var hl = TEXT.JoinText(HeadlineListe,": ")
+			elif count HeadlineListe==1	var hl = HTML.B(HeadlineListe[1])
+			else						var hl = HTML.B(Buch[1].Text)	/* Buchtitel */
+			then
+			AddXref( Buch[i].Keywords[j], hl, CurrentFile, Anker )
+		loop
+
+		var Tag = name Buch[i]
+
+		var j = i+1
+		do
+			while j <= count Buch
+			while contains_tag(Tag,name Buch[j])
+			if exists Buch[j].Keywords	j = anker_benennen(j,CurrentFile,HeadlineListe)
+			else						j = SkipBlock(j)
+			then
+		loop
+
+		if f
+			Buch[i] ##= { Seed=Seed }		// --> für IDs der Multilink-Popups
+			Seed = a
+		then
+
+		return j
+	}
+
+	anker_benennen(1,"",{})
+	Statistics ##= { AnzahlAnker=acnt, AnzahlKeywords=count Xref }
+}
+
+
+
+proc QuerverweiseEinfügen()
+{
+	put nl, "Querverweise einfügen "
+
+	/*	UP: Links in eine Zeile einfügen
+			in:	 Zeile liegt als Wortliste {Sep,Wort,...Sep} vor
+				 aktuelle Wortzahl für Keyphrase-Suche
+				 EigeneDatei -> Urls ohne Dateinamen
+			out: Zeile als Wort-Liste
+	*/
+	var xrefs=0
+	var xref={0,0,0,0,0,0,0,0,0,0,0,0}[to XrefMaxWords]
+	proc add_refs ( Wortliste/*Zeile*/, Wortzahl/*Keyphrase*/, EigeneDatei/*wg.Link*/ )
+	{
+	//	put nl, Wortliste
+
+		var Worte = {}	// => Keyphrase
+		var e_worte=0	// Worte <=> Wortliste[ a_worte to e_worte ]
+		var a_worte=2
+
+	// sliding-window such nach Such-Phrasen in Anker-Liste
+		do
+		// erste Suchphrase basteln  /  Suchphrase komplettieren
+			if count Worte < Wortzahl
+				e_worte += 2 
+				if e_worte > count Wortliste return Wortliste then
+
+				if Wortliste[e_worte][1]=="<" && HTML.IsAnyTag(Wortliste[e_worte])
+					Worte = {}		// avoid tag interleaving: <link> .. <tag> .. </link> .. </tag>
+					a_worte = e_worte+2
+					// ***TODO***:  <link> .. <tag> .. </tag> .. </link> is possible for certain tags
+					next
+				then
+
+				Worte ##= Wortliste[e_worte]
+				next
+			then
+
+		// suchen:
+			var Keyphrase  = TEXT.NormalizeName(Worte)
+			var Ankerliste = FindXref(Keyphrase)
+
+			if count Ankerliste == 0		// no match
+				a_worte += 2
+				del Worte[1]
+				next
+			then
+
+			xrefs++
+			xref[Wortzahl]++
+		// Einträge in Ankerliste umschrumpeln:
+		//	<url>={Label=<label>, File=<file>, Anker=<anker>}  -->  { Label=<label>, Url=<url> }
+			var i=0
+			do
+				while ++i <= count Ankerliste
+				rename Ankerliste[i].File = "Url"
+				if Ankerliste[i].Url == EigeneDatei  Ankerliste[i].Url = ""  then
+				Ankerliste[i].Url #= "#" # Ankerliste[i].Anker
+			loop
+
+			if verbose
+				put verbose >=2
+					?  "<"#Keyphrase#":"#count Ankerliste#">"
+					:  Wortzahl#count Ankerliste#" "
+			else
+				TEXT.SpinWheel()
+			then
+
+		// join words => Link darf nicht mehr zerbrochen werden
+			Wortliste[a_worte] = TEXT.JoinText(Wortliste[a_worte to e_worte])
+			do while e_worte>a_worte del Wortliste[e_worte--] loop
+
+		// whole link := one single word!
+			Wortliste[a_worte] = Style.Linklist(Wortliste[a_worte],Ankerliste)
+
+			a_worte += 2
+			Worte = {}
+		loop
+	}
+
+
+
+	/*	Links in alle Textzeilen ((p_tags)) einfügen
+		Blocktags rekursiv abarbeiten.
+	*/
+	proc QuerverweiseEinfügen ( i, CurrentFile )
+	{
+		// neues file => IDs für multiankertags können wieder bei 0 beginnen
+		var f = exists Buch[i].Filename
+		if f
+			var OLDseed = Seed
+			Seed = Buch[i].Seed				// von Anker-Nummerierung gesetzt
+			CurrentFile = Buch[i].Filename
+		then
+
+		var Tag = name Buch[i]
+
+		var j = i+1
+		do
+			while j <= count Buch
+			var Subtag = name Buch[j]
+			while contains_tag(Tag,Subtag)
+
+		// PARA + PRE tags => Querverweise einfügen
+			if is_para_tag(Subtag) || is_pre_tag(Subtag)
+
+				var Zeile = TEXT.SplitIntoWords(Buch[j].Text)	// -> { sep, word, sep, ... sep }
+
+				var Worte = XrefMaxWords
+				do
+					Zeile = add_refs ( Zeile, Worte, CurrentFile )
+					while --Worte
+				loop
+
+				Buch[j++].Text = TEXT.JoinText( Zeile )
+
+			else
+				j = QuerverweiseEinfügen(j,CurrentFile)
+			then
+		loop
+
+		// zurück zum alten file => zurück zum alten Seed
+		if f
+			Buch[i].Seed = Seed
+			Seed = OLDseed
+		then
+
+		return j
+	}
+
+	TEXT.SpinCount=0
+	QuerverweiseEinfügen(1,"")
+	if !verbose
+		put "--> ", TEXT.SpinCount, " Querverweise"
+	then
+	Statistics ##= { AnzahlQuerverweise=xrefs, QuerverweiseNachWortzahl=xref }
+}
+
+
+
+
+
+
+
+/* ********************************************************************
+						SCHREIBE DATEIEN
+******************************************************************** */
+
+
+/* ----	Erstelle alle Dateien für ein Kapitel --------------------
+		Kapitelhierarchie = Buch-Index-Liste der übergeordneten Kapitel
+*/
+proc SchreibeKapitel ( i, Kapitelhierarchie )
+{
+	if verbose
+		put nl,"                "[to 2+2*count Kapitelhierarchie],Buch[i].Text," "
+	else
+		TEXT.SpinWheel()
+	then
+
+	Kapitelhierarchie ##= i
+
+// Template lesen
+	var Split = exists Buch[i].Split
+	if i == 1	var PageData = Template.Index
+	elif Split	var PageData = Template.Split
+	else		var PageData = Template.Page
+	then
+
+// TITLE Tag:
+	var HL = {} var j=0
+	do while ++j <= count Kapitelhierarchie  HL ##= Buch[Kapitelhierarchie[j]].Text  loop
+	replace PageData, "%%TITLE%%", TEXT.JoinText(HL,": ")
+
+// Keywords Meta Tag:
+	replace PageData, "%%KEYWORDS%%", TEXT.JoinText(HL,", ")
+
+// H0 (Buchtitel), H1 .. H6
+	var j = 0
+	do
+		while ++j <= 7
+		replace PageData, "%%HEADLINE"#(j-1)#"%%",
+			j <= count Kapitelhierarchie ? Style.Headline(Kapitelhierarchie[j]) : ""
+	loop
+
+// [<prev] [next>] buttons
+    replace PageData, "%%PREV%%", PrevFilename(Buch[i].Filename)
+    replace PageData, "%%NEXT%%", NextFilename(Buch[i].Filename)
+
+
+
+	var End = SkipBlock(i)
+	var Tag = name Buch[i]
+
+// TOC
+	var TocText = {}
+	var j = i+1
+	do
+		while j < End
+		if exists Buch[j].Keywords
+			TocText ##= Style.TocItem(j)
+		then
+		j = SkipBlock(j)
+	loop
+
+	replace PageData, "%%TOC%%",  Style.Toc(i,TocText)
+
+
+// Preface, Body
+	var F = 3 + count Kapitelhierarchie
+	openout #F, TargetDir#Buch[i].Filename
+	put #F, PageData[to find(PageData,"%%BODY%%")-1]
+
+	var j=i+1
+	do
+		while j < End
+		var Subtag = name Buch[j]
+
+		if exists Buch[j].Filename
+			j = SchreibeKapitel( j, Kapitelhierarchie )
+		else
+			j = Tags.@Subtag.Write(F,j)
+		then
+	loop
+
+	put #F, PageData[find(PageData,"%%BODY%%")+8 to]
+	close #F
+
+	return End
+}
+
+
+
+proc BuchNachHtmlKonvertieren()
+{
+	put nl, "Nach Html konvertieren "
+
+	var i=0
+	do
+		while ++i <= count Buch
+		try
+			TEXT.SpinWheel()
+			Buch[i].Text = HTML.ConvertToHtml(Buch[i].Text)
+		else
+			log nl,"[",name Buch[i],"] ",errorstr
+		then
+	loop
+	put " "		// remove SpinWheel
+}
+
+
+proc AlteDateienLöschen()
+{
+	put nl,"Lösche alte Dateien "
+
+	var i=0
+	do
+		var fname = TargetDir # FilenameFromIndex(++i)
+		while exists file fname
+		if verbose put "*" else TEXT.SpinWheel() then
+		del file fname
+	loop
+	put " "	// remove SpinWheel
+}
+
+
+proc BuchdateienSchreiben()
+{
+	put nl,"Schreibe Buch-Dateien "
+
+	// Template.Index and Template.Split default to Template.Page
+	if !exists Template.Index	Template ##= { Index = Template.Page }  then
+	if !exists Template.Split   Template ##= { Split = Template.Page }  then
+
+	TEXT.SpinCount=0
+	SchreibeKapitel ( 1, {} )
+	if !verbose
+		put "--> ", TEXT.SpinCount, " Dateien"
+	then
+}
+
+
+proc DumpBuch()
+{
+	var B=4
+	openout#B,"Buch.txt"
+	log"%"
+	var z = string(Buch)
+	log"%"
+	replace z,"}, ","},\n"
+	log"%"
+	replace z,«", »,«",\n»
+	log"%"
+	put#B,z,nl
+	log"%"
+	close#B
+}
+
+proc DumpXref()
+{
+	var X=4
+	openout#X,"Xref.txt"
+	var z = string(Xref)
+	replace z,"}, ","},\n"
+	replace z,«", »,«",\n»
+	put#X,z,nl
+	close#X
+}
+
+proc DumpGlobals()
+{
+	var G=4
+	openout#G,"globals.txt"
+	var z = string globals
+	replace z,"}, ","},\n"
+	replace z,«", »,«",\n»
+	put#G, z, nl
+	close#G
+}
+
+
+
+proc Doit()
+{
+	QuelltextEinlesen()
+	ÄnderungsdatumPrüfen()
+	TagsAbtrennen()
+	TagsBehandeln()
+	BuchAufDateienVerteilen()
+	AnkerErzeugen()
+	QuerverweiseEinfügen()
+	BuchNachHtmlKonvertieren()
+	AlteDateienLöschen()
+	BuchdateienSchreiben()
+	StatisticsAnzeigen()
+}
+
+
+include LibDir # "HTML.vl"
+include LibDir # "TEXT.vl"
+
+
+
+
+/* ******************************************************************************
+							MAIN DATA: "DAS BUCH"
+****************************************************************************** */
+
+var Buch = ""
+
+
+
+end 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

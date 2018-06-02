@@ -1,0 +1,39 @@
+
+h3	Curly brackets "{ … }"
+	brackets, braces
+
+p   Curly brackets, or braces, enclose list literals, procedure bodies, and blocks of instructions with a private variable scope.
+
+p
+   List literals:
+pre
+	var a = { 1, 2, 3 }
+	var b = { a, a, {1,2}, "abc", zz=proc(){return 22;} }
+p
+	List <tt>b</tt> contains, among other items, again a list <tt>{1,2}</tt> and a procedure named <tt>zz</tt>.
+
+p
+	Procedure bodies:
+pre
+	proc hello() { put "hello ",env.USER,"!" }
+	var u2 = proc() { put "hello vipsi!" }
+p
+	Line 1 defines a produre variable named <tt>hello</tt>, while line 2 defines a variable <tt>u2</tt> which is immediately assigned an unnamed procedure literal, effectively doing something very similar to line 1. ;-)
+p
+	Procedures can be defined inside other procedures.
+
+
+p
+	Range of instructions with a private variable scope:
+pre
+	var a = 22;
+	{ var a=0; do; while ++a<=10; put a," "; loop; }
+	put a;			// prints 22
+p
+	Local scopes can be nested.
+
+
+
+
+
+

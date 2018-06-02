@@ -1,0 +1,50 @@
+
+
+
+h3  Comparisons > < >= <= != ==
+	compare
+
+pre
+	<number> = <value> <b>></b>  <value>
+	<number> = <value> <b><</b>  <value>
+	<number> = <value> <b>>=</b> <value>
+	<number> = <value> <b><=</b> <value>
+	<number> = <value> <b>==</b> <value>
+	<number> = <value> <b>!=</b> <value>
+
+
+p
+	Compare two values. The results in a <number>: <tt>1</tt> for 'true' or <tt>0</tt> for 'false'.
+p
+	Comparison operators do no type conversion. Compared values must be of same type. Comparing values of different type results in an error.
+p
+	Numbers are compared numerically.
+p
+	Comparing NaNs (not-a-number, e.g. the result of 0.0/0.0) is handled in accordance to IEEE, which in essence means, that if a is NaN then a is not equal to any other number, not even other NaNs, not even to itself. If one side of a comparison is a NaN, then only operator != returns true. (note: might be changed. makes things unsortable.)
+p
+	Text values are compared alphabetically by comparing character for character starting at index 1. The character code is compared, no semi-intelligent character mapping is applied.
+p
+	Lists are compared by comparing matching items starting at index 1. List items may be of different type. Then their character type is compared, just assuring a sortable ordering. No conversion whatsoever applied.
+p
+	Even procedures may be compared though it may not be evident how they are ordered.
+
+p   e.g.:
+pre
+    if (a>55) put "a>55" then
+	if (b>"aaa") put "b>aaa" then
+	if a!=a put "a is not a number (NaN)" then
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

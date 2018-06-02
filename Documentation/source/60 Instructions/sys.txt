@@ -1,0 +1,61 @@
+
+h3		sys
+
+pre
+	<b>sys</b> <progName>
+	<b>sys</b> <progName>, <value> [, ...]
+	<b>sys</b> <progName>, <list>
+p
+	Execute another program.
+p
+	The text written to stderr is immediately written to vipsi's stderr.
+	stdin is also left connected to vipsi's stdin.
+p
+	The text written to stdout is written to vipsi's stdout after the command completes. This is slightly weird, because this way output to stdout and stderr are not kept in order and may be reviewed some time.
+p
+	The program name, a text value, may be given as an absolute or relative path or only as the command name itself, if it can be found traversing the PATH environment variable. In essence this means: you can give the program name as you would type it on the command line.
+p
+	Arguments may be either a virtually unlimited list of arguments or a list as a single argument, then the list items are taken as arguments for the program.
+p
+	Any argument is converted to text before the external program is called, just because only texts can be passed to other programs.
+p
+	Note, that you cannot pass a list as a single argument, because then the list items would be taken on behalf, as said above.
+p
+	Also note, that wildcard patterns are <b>not</b> expanded!
+
+pre
+	sys "ls"
+	sys "ls", "-lR"
+	sys "rm", "anton", "berta"
+	sys "rm", { "anton", "berta" }
+
+
+h5
+	For experts:
+p
+	How to pass a single list.
+pre
+	sys "echo", { { "a", "list" } }
+	sys "echo", string( { "a", "list" } )
+
+
+p
+	There is also a function <tt>sys</tt> which returns the text written to stdout.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

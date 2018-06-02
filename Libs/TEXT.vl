@@ -1,0 +1,278 @@
+
+
+/*
+	authoritative file:		/pub/Develop/projects/vipsi/libs/TEXT.vl
+*/
+
+
+var  TEXT.SpinAgain = 0
+var  TEXT.SpinDelay = 0.1		// animations/sec
+var	 TEXT.SpinIndex = 1
+var  TEXT.SpinCount = 0
+proc TEXT.SpinReset() { SpinCount=0 }
+proc TEXT.SpinWheel()
+{
+	if now>=SpinAgain
+		SpinAgain = now + SpinDelay
+		SpinIndex %= 4
+		SpinIndex += 1
+		put "|/-\\"[SpinIndex],"\b"
+	then
+	return ++SpinCount
+}
+
+
+proc TEXT.CropSpaces_R ( t )
+{
+	var j = count t
+	do while j && t[j]<=" " j-- loop
+	return t[to j]
+}
+
+proc TEXT.CropSpaces_L ( t )
+{
+	var j = 1
+	do while j<=count t && t[j]<=" " j++ loop
+	return t[j to]
+}
+
+proc TEXT.CropSpaces ( t )
+{
+	var a=1, e=count t
+	do while e && t[e]<=" " e-- loop
+	do while a<=e && t[a]<=" " a++ loop
+	return t[a to e]
+}
+
+
+/* ----	Zerlege einen Text in Worte ----------------------------------
+
+		ein:		"Ein Beispielsatz."
+		aus:		{ "","Ein"," ","Beispielsatz","." }		// { gap, word, gap, ... gap }
+
+					first and last gap are always present but may be "".
+					(( => count result is always odd ))
+
+		"***" 	->	{ "***" }
+		""		->	{ "" }
+		"a"		->	{ "","a","" }
+		" a"	->	{ " ","a","" }
+		"a "	->	{ "","a"," " }
+*/
+var TEXT.anf = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ" # "abcdefghijklmnopqrstuvwxyzäöü" # "#<"
+var TEXT.mid = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ" # "abcdefghijklmnopqrstuvwxyzäöü" # "0123456789" # "ß-_"
+var TEXT.fin = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ" # "abcdefghijklmnopqrstuvwxyzäöü" # "0123456789" # "ß_>"
+
+proc TEXT.SplitWordsNoTags ( text )
+{
+ 	var result = {}
+	text = " " # text # " "			// --> simlify loop
+	var wrd = 1, gap = 1			// wort ==  [wrd ... [gap
+	var len = count text
+
+	do
+		// 1. gap:
+		wrd = gap
+		do	// skip gap
+			while ++wrd<=len
+			until find(TEXT.anf,text[wrd])
+		loop
+		// wrd -> word_anfang
+
+		result ##= text[gap to wrd-1]
+
+		while wrd <= len
+
+		// 2. word:
+		gap = wrd
+		do	// skip word
+			while ++gap<=len
+			while find(TEXT.mid,text[gap])
+		loop
+		if !find( TEXT.fin,text[gap-1] ) gap--
+		elif gap<=len && find(TEXT.fin,text[gap]) gap++ then
+		// gap -> gap_anfang
+
+		result ##= text[wrd to gap-1]
+	loop
+
+	var n = count result
+	result[1] = result[1][2 to]
+	result[n] = result[n][to count(result[n])-1 ]
+	return result
+}
+
+
+/* ----	Zerlege einen Text in Worte ----------------------------------
+		html-Tags:	werden als Wort-Separator behandelt
+		Links:		<a>...</a> Links werden als ein einziges Wort behandelt
+					=> Verhindert den Einbau von automatischen Links in den Link!
+
+		ein:		"Ein <b>Beispielsatz</b>."
+		aus:		{ "","Ein"," ","<b>","","Beispielsatz","","</b>","." }		// { sep, word, sep, ... sep }
+*/
+proc TEXT.SplitIntoWords ( text )
+{
+ 	var result = { "" }
+
+//	convert text from html					// &quot; -> " etc.; verändert Textlänge + Textinhalt!
+//	da sollte ggf. die anker/link-Erzeugung _vor_ der html-konvertierung stattfinden!
+
+	proc append_to_result ( text )
+	{
+		var r = count result
+ 		result ##= TEXT.SplitWordsNoTags( text )
+		result[r] #= result[r+1]			// join gaps
+		del result[r+1]
+	}
+
+	do
+ 		var i = find(text,"<")		while i
+ 		var j = find(text,">",i)	while j
+ 		i = rfind(text,"<",j)
+
+		append_to_result( text[to i-1] )	// append text before html tag
+ 		var tag = text[i to j]				// the tag "<xy>"
+ 		text = text[j+1 to]					// text after tag
+
+ 		if j-i >= 160						// unlikely to be really a tag
+			append_to_result( tag )			// "<" and ">" will be handled as sep's
+	 		next
+	 	then
+
+ 		var lctag = lowerstr(tag)
+		var j = 1 + (lctag[2]=="/")
+		do while lctag[++j]>="a" loop
+		var id = lctag[2 to j-1]			// id  :=  "a" or "/a" or "pre" etc.
+
+		if !find(HTML.TagsAny," "#id#" ")	// no html tag
+			append_to_result( tag )			// handle '<' and '>' as sep's
+			next
+		then
+
+		// html tag:
+
+		if id!="a" || !find(lctag,"href=")	// not a <a href=""> tag  ((aka 'link'))
+			result ##= tag ## ""			// preserve entire html tag as word
+			next
+		then
+
+		// <a href=""> ... </a> must be kept as entity:
+
+		i = find(lowerstr(text),"</a>")
+
+		if i
+			tag #= text[to i+3]
+			text = text[i+4 to]
+		else
+			log nl, "'</a>' missing: ", tag, " "
+		then
+
+		result ##= tag ## ""
+	loop
+
+	append_to_result( text )
+	return result
+}
+
+
+proc TEXT.JoinText ( liste, * )		// opt. separator
+{
+	if count locals>1
+		if count liste == 0 return "" then	// dann ex. liste[1] nicht!
+
+		rename locals[2] = "sep"
+		var z = liste[1]
+		liste = sep # liste			// operation on whole list!
+		liste[1] = z
+	then
+
+	var text = ""
+	var i = 0
+	do
+		while ++i <= count liste
+		text #= liste[i]
+	loop
+	return text
+}
+
+
+
+/* ---- Namen normalisieren ---------------
+		ein: separierte Worte wie von TEXT.SplitIntoWords()
+		ein:	{ "ein", "Anker" }
+		aus:	"ein_ank"
+*/
+proc TEXT.NormalizeName ( liste )
+{
+	var result = ""
+	var i = 0
+	do
+		while ++i <= count liste
+		var word = lowerstr(liste[i])
+
+	//	if i!=1 && i!=count(liste) && find(" der die das a the "," "#word#" ")
+	//		next
+	//	then
+
+		if count word>=3 && find( " er en em es ", " "#rightstr(word,2)#" " )
+			word = word[to count word -2]
+		elif count word>=3 && find( "es", rightstr(word,1) )
+			word = word[to count word -1]
+		then
+
+		result #= "_" # word
+	loop
+
+	return result[2 to]
+}
+
+
+
+/* ----	remove odd items from list ---------------------
+		-> removes the separators from a split-into-words list
+		these are items liste[1],[3],[5],…
+*/
+proc TEXT.RemoveOddItems ( liste )
+{
+	var i=0
+	do
+		while ++i <= count liste
+		del liste[i]
+	loop
+	return liste
+}
+
+
+
+/* for vipsi < 0.8.8 */
+/*
+try
+	proc spacestr(len)
+	{
+		var spc = "                   "
+		do while count spc < len spc #= spc[to len-count spc] loop
+		return spc[to len]
+	}
+then
+*/
+
+end 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,96 @@
+
+
+
+
+h3  Boolean Negation "!"
+	boolean not, logical not, negation, not
+
+pre
+	<number> = <b>!</b><number>
+
+p
+	Boolean / logical negation.
+p
+	If the argument number is evaluated as <i>true</i> (non-zero) or <i>false</i> and then this boolean value is negated, resulting in '0' or '1'.
+p
+	If the supplied value is a text, then it is automatically evaluated as a number.
+p
+	e.g.:
+pre
+	if !exists(boo) log "variable boo is missing" then;
+
+
+
+
+h3  Boolean And "&&"
+	logical and, and
+
+pre
+	<number> = <number> <b>&&</b> <number>
+
+p
+	Boolean / logical 'and'.
+p
+	Determine boolean 'and' of two numeric values. Numbers are considered 'true' if they are non-zero, 'false' otherwise.
+p
+    Pruning: if the result is sufficiently determined by the left-side operand, that is, if it is <i>0</i> and therefore the result must be <i>0</i>, then the right-side operand is simply skipped and not executed at all.
+p
+	If any of both arguments is a text, then it is evaluated as number.
+p
+	List expansion is not yet implemented. (Version 0.8.7)
+p
+   e.g.:
+pre
+	if (a==0 && a!=0) log "this can not happen" then;
+
+
+
+
+
+h3  Boolean Or "||"
+	logical or, or
+
+pre
+	<number> = <number> <b>||</b> <number>
+
+p
+	Boolean / logical 'or'.
+p
+	Determine boolean 'or' of two numeric values. Numbers are considered 'true' if they are non-zero, 'false' otherwise.
+p
+    Pruning: if the result is sufficiently determined by the left-side operand, that is, if it is <i>1</i> and therefore the result must be <i>1</i>, then the right-side operand is simply skipped and not executed at all.
+p
+	If any of both arguments is a text, then it is evaluated as number.
+p
+	List expansion is not yet implemented. (Version 0.8.7)
+p
+   e.g.:
+pre
+	if (a==0||a!=0) log "this is always true" then;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

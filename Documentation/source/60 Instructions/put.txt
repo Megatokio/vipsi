@@ -1,0 +1,36 @@
+
+
+h3 put
+
+pre
+	<b>put</b> <value>
+	<b>put</b> #<number>, <value>
+
+p   Write data in text format.
+	The default stream is stdout. The stream may be changed with <tt>#<number></tt>.
+	Default text encoding is UTF-8 unicode.
+
+p
+	Text is written as converted with function <tt>string</tt>. That is:
+ul
+li	Text is written as is. Character set and end-of-line conversion applied.
+li	Numbers are written in readable decimal format; e.g. 22, 22.5, +123.456e-78.
+li	Lists are enclosed in braces; e.g.: { x=123, y=456, "anton", {} }.
+li	Procedures are disassembled.
+
+p
+	Text output to a tty is colorized by vipsi to make it unique for stdin, stdout and stderr:
+pre
+	<span class=in>This is text written / echoed to stdin</span>
+	<span class=out>This is text written to stdout</span>
+	<span class=err>This is text written to stderr</span>
+p
+	The color and attributes are choosen to hopefully match the capabilities of your terminal and can be overridden by preferences in <i>~/.vipsi/shell.prefs</i>:
+
+include libs/shell.prefs
+
+
+
+
+
+

@@ -1,0 +1,34 @@
+
+
+
+h3  getchar
+
+pre
+	<b>getchar</b> <variable>
+	<b>getchar</b> #<number>, <variable>
+
+p
+	Read single character in text format.
+p
+	Default stream is <i>stdin</i>. The stream may be changed with #<number>. Default text encoding is UTF-8 unicode. Returns empty string if no input available. Reads from a tty (terminal) without visible echo.
+p
+	<tt>getchar</tt> does not read bytes but whole characters. This is important for encodings like UTF-8, where a character can be represented by more than 1 byte.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

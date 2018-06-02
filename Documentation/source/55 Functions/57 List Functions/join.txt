@@ -1,0 +1,18 @@
+
+
+
+h3  join
+pre
+	<text> = <b>join</b>( <list_var>, <separator> )
+
+p	Insert the separator between all texts and concatenate all texts from the list variable to one text. Any item which is not a text is converted to text prior.
+p
+	There is also an instruction <tt>join</tt> which stores back the joined text into the original variable.
+pre
+	var mytext = file "foobär"
+	mytext = split(mytext)			// into lines
+	mytext = join(mytext,nl)		// rejoin them, inserting unix nl's
+
+
+
+

@@ -1,0 +1,77 @@
+
+
+
+h1	Shell Immediate Commands
+
+p
+	When you start vipsi in interactive shell mode (by just typing vipsi without a script to execute), then vipsi interprets some instructions slightly different and offers some more. These are purely intended for beautified display and ease-of-use and are not part of the vip script language.
+p
+	Shell immediate commands are only recognized as shell immediate commands, if they are written at the very beginning of the command line. This is intended, as they are just a quirk. I even consider them more as a kludge. B-)
+
+
+
+h3	Auto-magical printing of results
+
+p
+	Additionally may be noted here, that the vipsi shell prints results as they ocure, e.g. you can display the contents of variable <tt>foo</tt> by just typing:
+pre.out
+	vipsi> <span class=in>foo</span>  "bar"
+p
+	This will print it's result, regardless whether it's numeric, text, a list or even a procedure.
+p
+	From within a script there is no such magic as provided by the vipsi shell, and any expression which happens to yield a result which no instruction is interesting in is just discarded. If you want to print the contents of a variable <tt>foo</tt>, from within a script, you must use:
+
+pre.src
+	put foo
+
+p
+	Or even more sophisticated:
+
+pre.src
+	if istext(foo)
+		put convert(foo to quoted)
+	else
+		put foo
+	then
+
+p
+	Because <tt>put foo</tt> will not quote and escape texts, but print them 'as is'.
+p
+	In the shell you'd probably inspect the variable type with one instruction and simply use the appropriate version in the next command, without the look-ahead thinking <tt>if</tt> .. <tt>then</tt>:
+
+pre.out
+	vipsi> <span class=in>istext foo</span>  0
+	vipsi> <span class=in>put foo</span>  4711
+	vipsi> <span class=crsr> </span>
+
+
+p
+	Note: though the assignment operator returns a result (the new value of the variable) this result is not automagically printed in interactive shell mode. this is done because assignments do not start with a special instruction which "eats" the result and so the result would be printed every time you make an assignment. You probably know which value you have just assigned.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

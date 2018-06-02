@@ -1,0 +1,91 @@
+
+
+h2		Libraries
+
+
+// --------------------------------------------------
+h3		HTML: Html Utilities
+p
+		The html library contains tools to easily enclose text in html tags or url-encode links and html encode source text with a lot of intelligence added.
+
+h4		Download link
+p.c		This file is included in every distribution.
+p.c		<a href="libs/HTML.vl">HTML.vl</a>
+
+h4		Listing of HTML.vl
+include	libs/HTML.vl
+
+
+
+
+// --------------------------------------------------
+h3		TEXT: Text Utilities
+p
+		This library contains some text utilities, like white space clipping or splitting of text into words.
+
+h4		Download link
+p		This file is included in every distribution.
+p.c		<a href="libs/TEXT.vl">TEXT.vl</a>
+
+h4		Listing of TEXT.vl
+include	libs/TEXT.vl
+
+
+
+
+// --------------------------------------------------
+h3		DIR: File system utilities
+p
+		This library contains some file system tools, like traversing a whole directory tree. It's not much yet. (as of version 0.8.7)
+
+h4		Download link
+p.c		This file is included in every distribution.
+p.c		<a href="libs/DIR.vl">DIR.vl</a>
+
+h4		Listing of DIR.vl
+include	libs/DIR.vl
+
+
+
+
+// --------------------------------------------------
+h3		BOOK: Create Online Books
+p
+		Based on the <i>TEXT.vl</i> and <i>HTML.vl</i> library this library serves 95% of all required to create an online documentation as this one. For each documentation you need your documentation sources, and a script which wraps it all, which i happen to call <i>automate.vs</i>. I'll add the very script used for this documentation after the <i>BOOK.vl</i> listing.
+p
+		The wrapper script includes <i>BOOK.vl</i>, then adjusts some of the settings, adds some individual handlers and then calls <tt>Doit()</tt> which should do it. ;-)
+p
+		For that you can get a thought of how the documentation sources look like, i'll finally include the source for this chapter.
+
+h4		Download link
+p.c		This file is included in every distribution.
+p.c		<a href="libs/BOOK.vl">BOOK.vl</a>
+		<a href="source/automate.vs">automate.vs</a>
+
+h4		Listing of BOOK.vl
+include	libs/BOOK.vl
+
+h4		Listing of automate.vs
+include	automate.vs
+
+h4		Source text for this chapter
+include	scripts/source_example.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

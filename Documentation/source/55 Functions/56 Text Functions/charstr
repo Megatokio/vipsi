@@ -1,0 +1,16 @@
+
+h3  charstr
+
+pre
+    <text> = <b>charstr</b> <number>
+    <text> = <b>charstr</b> ( <number> )
+p
+   convert <number> to <text>. <number> is a unicode character code and the returned <text> is a string containing that character.
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+
+p   e.g.:
+pre
+	charstr 8364 = "€"
+
+

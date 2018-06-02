@@ -1,0 +1,23 @@
+
+
+h3  string
+	to string, tostring, to text, totext
+
+pre
+	<text> = <b>string</b> ( <value> )
+	<text> = <b>string</b> <value>
+
+
+p
+	Converts the <value> to <text> text representation. If <value> is already a text, then the result is just that text. Procedures, lists and numbers are converted to their literal representation: procedures are disassembled, lists are converted to printable text and numbers are converted to integer, floating point or scientific decimal notation as required. The conversion guarantees that the number, when re-interpreted, will yield the exact same number as before.
+p
+	As with all functions which take exactly one argument, the parenthesis may be omitted, if the argument is a simple value and no expression with operators.
+
+p   e.g.:
+pre
+    string 33              = "33"
+	string(47+11)          = "58"
+	string(proc(a){put a}) = "proc ( a ) { put a } "
+	string({a=1,b=2,"x"})  = "{ a=1, b=2, \"x\" }"
+	string("anton")        = "anton"
+
