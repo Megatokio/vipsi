@@ -2505,7 +2505,9 @@ void Compiler::Assemble()
 	uint destsize = (qe-qa)*4;
 	uchar* destbu = new uchar[destsize];
 	uptr dp		  = destbu;
+	#if defined(DEBUG)
 	uptr destend  = destbu+destsize;
+	#endif
 	ulong* xrefbu = new ulong[destsize]; int xrefi = 0; ulong xrefx = 0;
 
 	for(qp=qa;qp<qe;qp++)

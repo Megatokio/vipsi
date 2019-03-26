@@ -61,7 +61,7 @@ ulong	opcodeTupels[256][256];
 
 const 	Double d_ln10 = log(10.0);
 const 	Double d_ln2  = log( 2.0);
-const 	Double d_ln16 = log(16.0);
+//const	Double d_ln16 = log(16.0);
 
 sigset_t allsigs;	/* filled */
 sigset_t nosigs;	/* cleared */
@@ -3236,9 +3236,11 @@ ERR_TOPNOPARENT:	SetError( topnoparent,
 
 ERR_NIMP:			errno = notyetimplemented;				ERROR;
 
+#if defined(DEBUG)
 ERR_STACKOVERFLOW:	SetError("stack overflow"); 				ERROR;
 ERR_VSTACKUNDERFLOW:SetError("variables stack underflow"); 		ERROR;
 ERR_RSTACKUNDERFLOW:SetError("return stack underflow"); 		ERROR;
+#endif
 ERR_VSTACKBOGUS:	SetError("variable stack bogus"); 			ERROR;
 
 ASSERT_ISTEMP:		SetError("assertion failed: IsTemp()"); 	ERROR;

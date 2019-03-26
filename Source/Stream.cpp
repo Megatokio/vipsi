@@ -183,7 +183,7 @@ inline void Stream::putback_or_lseek ( cptr p, long n )
 bool Stream::GetCharAvail()
 {
 	if(putback_string.Len()) return true;
-	fd_set fd = { 1<<0/*stdin*/ };		// bitmask of fd numbers to test
+	fd_set fd = { {1<<0}/*stdin*/ };  	// bitmask of fd numbers to test
 	timeval t={0,0};					// tv_sec, tv_usec
 	int rc = select(1/*num_fds*/, &fd/*fd4in?*/, NULL/*fd4out?*/, NULL/*fd4error?*/, &t/*timeout*/ );
 	//if(rc==-1) state=errno;
