@@ -535,8 +535,8 @@ str speakingNumberStr ( double n )
 
 /* ----	convert string ------------------------------
 */
-static const char cc[] = "\\\"\e\a\b\f\n\r\t\v";	// control codes
-static const char ec[] = "\\\"eabfnrtv";			// escape characters
+static const char ec[] = "\\\"'?abfnrtv";			// escape character
+static const char cc[] = "\\\"'\?\a\b\f\n\r\t\v";	// result
 
 static const char* StrComp(cstr a, cstr b)
 {	char c,d;

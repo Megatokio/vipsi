@@ -23,15 +23,15 @@ del globals.y
 /*	alle Daten für den Editor werden in root.shell angelegt.
 	dadurch sind sie normalerweise unsichtbar.
 	außerdem wird die thread-variable 'error' vor und nach dem Ausführen
-	eines Eingabekommandos mit root.shell.err geswappt. Dies hat nur den Vorteil, 
+	eines Eingabekommandos mit root.shell.err geswappt. Dies hat nur den Vorteil,
 	dass der User nach einem Fehler noch ein bischen in 'error' rumpeeken kann.
 */
-root.shell ##= 
-{ 
+root.shell ##=
+{
 	cmd="", col=0, z=0,
 	err=
-	{	number = 0, 
-		message= "", 
+	{	number = 0,
+		message= "",
 		stack  = {},
 		Print  = proc()
 		{
@@ -41,7 +41,7 @@ root.shell ##=
 			var ns=0,nc=0,nr=0,i=0
 			do while ++i<=count stack; ns = max(ns,count stack[i].info); nc = max(nc,stack[i].col); nr = max(nr,stack[i].row); loop
 			nc=count string nc; nr=count string nr;
-			i=count stack; 
+			i=count stack;
 			do
 				while i
 				var e = stack[i]
@@ -52,7 +52,7 @@ root.shell ##=
 				then
 				log " at "
 				if(e.row!=1) log "row=",e.row,", ",spacestr(nr-count string e.row) then
-				log "col=",e.col,spacestr(nc-count string e.col) 
+				log "col=",e.col,spacestr(nc-count string e.col)
 				if(e.row==1) log spacestr(nr+4+2) then
 				if(e.file!="") log " in file ", convert(e.file to quoted) then
 				i--
@@ -67,18 +67,18 @@ do
 // ====	input command line =================================================================
 
 	if(count root.shell.cmd)									// cmd line is not cleared => error happened
-		root.shell.col = root.shell.err.stack[2].col  
+		root.shell.col = root.shell.err.stack[2].col
 		root.shell.err.Print()
-		putback spacestr( count root.shell.cmd - (root.shell.col-1), "\e[D" )	// n * cursor_left
+		putback spacestr( count root.shell.cmd - (root.shell.col-1), "\033[D" )	// n * cursor_left
 	then
 	put nl,"vipsi> "
-	edit root.shell.cmd		
+	edit root.shell.cmd
 
 
 // ====	test for shell-only commands =====================================================
 
-	until root.shell.cmd=="exit" 
-	until root.shell.cmd=="quit" 
+	until root.shell.cmd=="exit"
+	until root.shell.cmd=="quit"
 	until root.shell.cmd=="end"
 
 	if root.shell.cmd=="pwd"
@@ -114,7 +114,7 @@ do
 		next
 
 	elif root.shell.cmd[to 5]=="info "
-	{	
+	{
 		var z = root.shell.cmd[6 to]
 		var i = count z
 		do while i && z[i]==" " z=z[to i-1] i-=1 loop
@@ -127,7 +127,7 @@ do
 		else
 			root.shell.cmd = «info "» # z # «"»
 		then
-	}	
+	}
 	then
 
 

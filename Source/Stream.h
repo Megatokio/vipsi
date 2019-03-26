@@ -76,20 +76,20 @@ extern cstr			vt100_setbgcolor	( VT_Color );					// internal use only!
 extern cstr			vt100_setattr		( VT_Color fg, VT_Color bg );	// internal use only!
 
 #define	vt100_request_position			"\033[6n"						// --> Terminal responds
-#define	vt100_set_position(row,col)		usingstr("\033[%u;%uH",(uint)row,(uint)col)	// top,left = 1,1
+#define	vt100_set_position(row,col)		usingstr("\033[%u;%uH", uint(row), uint(col))	// top,left = 1,1
 #define	vt100_save_position				"\033""7"						// esc+'7'
 #define	vt100_restore_position			"\033""8"						// esc+'8'
 #define vt100_locate(row,col)			vt100_set_position(row,col)		// top,left = 1,1
-#define	vt100_hlocate(col)				usingstr("\033[%uG",(uint)col)		// top,left = 1,1
-#define	vt100_vlocate(row)				usingstr("\033[%ud",(uint)row)		// top,left = 1,1
+#define	vt100_hlocate(col)				usingstr("\033[%uG", uint(col))		// top,left = 1,1
+#define	vt100_vlocate(row)				usingstr("\033[%ud", uint(row))		// top,left = 1,1
 #define	vt100_cursor_left_1				"\033[D"
 #define	vt100_cursor_right_1			"\033[C"
 #define vt100_cursor_up_1				"\033[A"						// no scroll
 #define vt100_cursor_down_1				"\033[B"						// no scroll
-#define	vt100_cursor_left(n)			usingstr("\033[%uD",(uint)n)
-#define	vt100_cursor_right(n)			usingstr("\033[%uC",(uint)n)
-#define vt100_cursor_up(n)				usingstr("\033[%uA",(uint)n)		// no scroll
-#define vt100_cursor_down(n)			usingstr("\033[%uB",(uint)n)		// no scroll
+#define	vt100_cursor_left(n)			usingstr("\033[%uD",uint(n))
+#define	vt100_cursor_right(n)			usingstr("\033[%uC",uint(n))
+#define vt100_cursor_up(n)				usingstr("\033[%uA",uint(n))		// no scroll
+#define vt100_cursor_down(n)			usingstr("\033[%uB",uint(n))		// no scroll
 
 #define	vt100_bell						"\007"
 #define vt100_bs						"\010"
@@ -296,7 +296,7 @@ public:
 	void			PutbackChar			( UCS4Char& c )			{ PutbackString(String(c)); }
 
 // file and block devices:
-	off_t			GetFileLength		( ) const				{ return file_size(fd);			}				// returns -1 on error
+	off_t			GetFileLength		( ) const				{ return file_size(fd);				}				// returns -1 on error
 	off_t			GetFilePosition		( ) const				{ return lseek(fd,0,SEEK_CUR);		}				// ""
 	off_t			SetFilePosition		( off_t d )				{ return lseek( fd, d, SEEK_SET );	}				// ""
 	bool			SetFileLength		( off_t d )				{ return ftruncate( fd, d ); /*0=ok,1=error*/	}	// must be openout
@@ -308,19 +308,19 @@ public:
 	int				TTYGetWindowRows	( )						{ return TerminalRows(fd);			}
 	void			TTYSetWindowSize	( int rows, int cols )	{ SetTerminalSize(fd,rows,cols);	}
 
-	void			TTYRequestPosition	( )						{ Write("\e[6n",4);					}	// --> Terminal responds
+	void			TTYRequestPosition	( )						{ Write("\033[6n",4);				}	// --> Terminal responds
 	void			TTYReceivePosition	( int& row, int& col, ResumeCode );								// top,left = 1,1
 	void			TTYSetPosition		( int row, int col )	{ Write(vt100_locate(row,col));		}	// top,left = 1,1
-	void 			TTYSavePosition		( )						{ Write("\e7",2);		/*esc+'7'*/	}
-	void 			TTYRestorePosition	( )						{ Write("\e8",2);		/*esc+'8'*/	}
+	void 			TTYSavePosition		( )						{ Write("\0337",2);		/*esc+'7'*/	}
+	void 			TTYRestorePosition	( )						{ Write("\0338",2);		/*esc+'8'*/	}
 
 	void 			TTYLocate 			( int row, int col )	{ TTYSetPosition(row,col);			}	// top,left = 1,1
 	void 			TTYHLocate			( int col  )			{ Write(vt100_hlocate(col));		}	// top,left = 1,1
 	void 			TTYVLocate			( int row  )			{ Write(vt100_vlocate(row));		}	// top,left = 1,1
-	void 			TTYCursorLeft 		( )						{ Write("\e[D",3);					}
-	void 			TTYCursorRight		( )						{ Write("\e[C",3);					}
-	void 			TTYCursorUp 		( )						{ Write("\e[A",3);					}	// no scroll
-	void 			TTYCursorDown 		( )						{ Write("\e[B",3);					}	// no scroll
+	void 			TTYCursorLeft 		( )						{ Write("\033[D",3);				}
+	void 			TTYCursorRight		( )						{ Write("\033[C",3);				}
+	void 			TTYCursorUp 		( )						{ Write("\033[A",3);				}	// no scroll
+	void 			TTYCursorDown 		( )						{ Write("\033[B",3);				}	// no scroll
 	void 			TTYCursorLeft 		( int n )				{ Write(vt100_cursor_left(n));		}
 	void 			TTYCursorRight		( int n )				{ Write(vt100_cursor_right(n));		}
 	void 			TTYCursorUp 		( int n )				{ Write(vt100_cursor_up(n));		}	// no scroll
@@ -328,13 +328,13 @@ public:
 	void 			TTYBell 			( )						{ Write("\007",1);					}
 	void 			TTYTab				( )						{ Write("\t",1);					}
 	void 			TTYNL 				( )						{ Write("\n\r",2);					}
-	void			TTYClearRight		( )						{ Write("\e[0K",4);					}	// incl. crsr loc.
-	void			TTYClearLeft		( )						{ Write("\e[1K",4);					}	// incl. crsr loc.
-	void			TTYClearLine		( )						{ Write("\e[2K",4);					}
-	void			TTYClearDown		( )						{ Write("\e[0J",4);					}	// incl. crsr loc.
-	void			TTYClearUp			( )						{ Write("\e[1J",4);					}	// incl. crsr loc.
-	void			TTYClearScreen		( )						{ Write("\e[2J",4);					}
-	void 			TTYCls				( )						{ Write("\e[H\033[J",6);			}	// clear scrn & home crsr
+	void			TTYClearRight		( )						{ Write("\033[0K",4);				}	// incl. crsr loc.
+	void			TTYClearLeft		( )						{ Write("\033[1K",4);				}	// incl. crsr loc.
+	void			TTYClearLine		( )						{ Write("\033[2K",4);				}
+	void			TTYClearDown		( )						{ Write("\033[0J",4);				}	// incl. crsr loc.
+	void			TTYClearUp			( )						{ Write("\033[1J",4);				}	// incl. crsr loc.
+	void			TTYClearScreen		( )						{ Write("\033[2J",4);				}
+	void 			TTYCls				( )						{ Write("\033[H\033[J",6);			}	// clear scrn & home crsr
 
 	void			TTYClearAttr		( )						{ Write( vt100_clearattr,4 );		}
 	void			TTYSetBold			( bool f = on )			{ Write( vt100_bold[f],5-f );		}
