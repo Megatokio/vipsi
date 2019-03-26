@@ -81,6 +81,57 @@ HEADERS += \
     Libraries/Unicode/Unicode.h \
     Libraries/Unicode/UTF-8.h \
     Libraries/unix/os_utilities.h \
+    Libraries/kio/standard_types.h \
+    Libraries/kio/errors.h \
+    Libraries/Unicode/Includes/Blocks.h \
+    Libraries/Unicode/Includes/CanonicalCombiningClass.h \
+    Libraries/Unicode/Includes/CanonicalCombiningClassUCS4.h \
+    Libraries/Unicode/Includes/CodePointRanges.h \
+    Libraries/Unicode/Includes/CodePointRanges_UCS4.h \
+    Libraries/Unicode/Includes/EastAsianWidth.h \
+    Libraries/Unicode/Includes/EastAsianWidth_UCS4.h \
+    Libraries/Unicode/Includes/GeneralCategory.h \
+    Libraries/Unicode/Includes/GeneralCategory_UCS4.h \
+    Libraries/Unicode/Includes/GlobalConstants.h \
+    Libraries/Unicode/Includes/Names.h \
+    Libraries/Unicode/Includes/NumericValue.h \
+    Libraries/Unicode/Includes/NumericValue_UCS4.h \
+    Libraries/Unicode/Includes/Property_Enum.h \
+    Libraries/Unicode/Includes/Property_Groups.h \
+    Libraries/Unicode/Includes/Property_LongNames.h \
+    Libraries/Unicode/Includes/Property_ShortNames.h \
+    Libraries/Unicode/Includes/PropertyGroup_Enum.h \
+    Libraries/Unicode/Includes/PropertyGroup_Names.h \
+    Libraries/Unicode/Includes/PropertyValue_Enum.h \
+    Libraries/Unicode/Includes/PropertyValue_LongNames.h \
+    Libraries/Unicode/Includes/PropertyValue_ShortNames.h \
+    Libraries/Unicode/Includes/Scripts.h \
+    Libraries/Unicode/Includes/Scripts_UCS4.h \
+    Libraries/Unicode/Includes/SimpleLowercase_Even.h \
+    Libraries/Unicode/Includes/SimpleLowercase_Odd.h \
+    Libraries/Unicode/Includes/SimpleLowercase_UCS4.h \
+    Libraries/Unicode/Includes/SimpleTitlecase.h \
+    Libraries/Unicode/Includes/SimpleUppercase_Even.h \
+    Libraries/Unicode/Includes/SimpleUppercase_Odd.h \
+    Libraries/Unicode/Includes/SimpleUppercase_UCS4.h \
+    Libraries/Unicode/Includes/SpecialCasing.h \
+    Libraries/Unicode/Includes/UnicodeData_Index.h \
+    Libraries/Unicode/Includes/UnicodeData_Names.h \
+    Libraries/Unicode/Headers/8859-1.h \
+    Libraries/Unicode/Headers/8859-2.h \
+    Libraries/Unicode/Headers/ascii_ger.h \
+    Libraries/Unicode/Headers/ascii_us.h \
+    Libraries/Unicode/Headers/atari_st.h \
+    Libraries/Unicode/Headers/cp_437.h \
+    Libraries/Unicode/Headers/html.h \
+    Libraries/Unicode/Headers/mac_roman.h \
+    Libraries/Unicode/Headers/rtos.h \
+    Libraries/Templates/Stack.h \
+    Libraries/Templates/sort.h \
+    Libraries/Templates/Array.h \
+    Libraries/unix/s_type.h \
+    Libraries/unix/FD.h \
+    Libraries/unix/files.h
 
 DISTFILES += \
     ../Libs/test_suite/brokenNames.tar.gz \
