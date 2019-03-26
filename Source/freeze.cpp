@@ -165,14 +165,14 @@
 		sort of a hash function
 */
 #if RTBITS==16
-	inline ushort rootidx ( const uchar* p )
+	inline uint16 rootidx ( const uchar* p )
 	{
-		return *(ushort*)p ^ *(ushort*)(p+1)*13;
+		return *(uint16*)p ^ *(uint16*)(p+1)*13;
 	}
 #else
-	inline ulong rootidx ( const uchar* p )
+	inline uint32 rootidx ( const uchar* p )
 	{
-		return (((ulong)*(ushort*)p)<<(RTBITS-16)) ^ (*(ushort*)(p+1));		// kio 2002-04-02
+		return (((uint32)*(uint16*)p)<<(RTBITS-16)) ^ (*(uint16*)(p+1));		// kio 2002-04-02
 	}
 #endif
 
@@ -184,7 +184,7 @@
 inline int compare ( const uchar* p, const uchar* q, const uchar* e )
 {	e--;
 	const uchar* p0 = p;
-	while (p<e && *(short*)p == *(short*)q) { p+=2; q+=2; }
+	while (p<e && *(int16*)p == *(int16*)q) { p+=2; q+=2; }
 	return p-p0 +(p<=e && *p==*q);
 }
 
@@ -299,7 +299,7 @@ size_t Freeze ( const uchar* sp, size_t ssz, uchar* dp, size_t dsz )
 			size_t	myratio;		// my compression ratio *12
 			const uchar* p;			// temp
 			int f=LINKLIMIT;
-			for ( p=root[rootidx(sp)]; (myoffset=sp-p)<=LTSIZE&&--f; p=link[(long)p&LTMASK] )
+			for ( p=root[rootidx(sp)]; (myoffset=sp-p)<=LTSIZE&&--f; p=link[(size_t)p&LTMASK] )
 			{
 				assert(p >= se-ssz);
 				assert(p < sp);
@@ -343,12 +343,12 @@ size_t Freeze ( const uchar* sp, size_t ssz, uchar* dp, size_t dsz )
 		// compressed size = 1; ratio = 2 *12
 			if (ratio < 2*12)
 			{
-				for ( p=r2[*sp]; sp-p<=L2SIZE; p=l2[(long)p&L2MASK] )
+				for ( p=r2[*sp]; sp-p<=L2SIZE; p=l2[(size_t)p&L2MASK] )
 				{
 					assert(p >= se-ssz);
 					assert(p < sp);
 
-					if (*(short*)sp != *(short*)p) continue;
+					if (*(int16*)sp != *(int16*)p) continue;
 
 					ratio  = 2*12;
 					bytes  = 2;
@@ -367,14 +367,14 @@ size_t Freeze ( const uchar* sp, size_t ssz, uchar* dp, size_t dsz )
 				for ( p=sp; p<e; p++ )
 				{
 					int n = rootidx(p);
-					link[(long)p&LTMASK] = root[n];
+					link[(size_t)p&LTMASK] = root[n];
 					root[n] = p;
 				}
 
 			// update r2[] and l2[]
 				for ( p=sp; p<e; p++ )
 				{
-					l2[(long)p&L2MASK] = r2[*p];
+					l2[(size_t)p&L2MASK] = r2[*p];
 					r2[*p] = p;
 				}
 			}
@@ -478,7 +478,7 @@ x:	delete[] link;
 
 // ----	shift memory to higher address ---------------------------------
 //		if overlapping, the just copied data is taken as source
-inline void shift ( uchar* z, const uchar* q, long n )
+inline void shift ( uchar* z, const uchar* q, int32 n )
 {	uchar* e = z + n;
 
 	switch ( z-q )
@@ -493,17 +493,17 @@ inline void shift ( uchar* z, const uchar* q, long n )
 
 	case 2:
 	{	if (n&1)	{ *(char* )z = *(char*)q; z+=1; q+=1; }		// 2005-06-09: gcc4.0 meckerte neuerdings => geändert. mumpfl.
-		short s  =    *(short*)q;								//
-		while (z<e)	{ *(short*)z = s; z+=2; }					// 2005-06-09: gcc4.0 meckerte neuerdings
+		int16 s  =    *(int16*)q;								//
+		while (z<e)	{ *(int16*)z = s; z+=2; }					// 2005-06-09: gcc4.0 meckerte neuerdings
 	}	return;
 
 	case 3:
 	{	if (n>3)
 		{
-			long l = *(long*)q;
+			int32 l = *(int32*)q;
 			while (z<e-3)
 			{
-				*(long*)z = l;
+				*(int32*)z = l;
 				z += 3;
 			}
 		}
@@ -512,11 +512,11 @@ inline void shift ( uchar* z, const uchar* q, long n )
 
 	default:
 	{	if (n&1)	{ *(char* )z = *(char *)q; z+=1; q+=1; }	// 2005-06-09: gcc4.0 meckerte neuerdings
-		if (n&2)	{ *(short*)z = *(short*)q; z+=2; q+=2; }	// 2005-06-09: gcc4.0 meckerte neuerdings
-		if (n&4)	{ *(long* )z = *(long *)q; z+=4; q+=4; }	// 2005-06-09: gcc4.0 meckerte neuerdings
+		if (n&2)	{ *(int16*)z = *(int16*)q; z+=2; q+=2; }	// 2005-06-09: gcc4.0 meckerte neuerdings
+		if (n&4)	{ *(int32* )z = *(int32 *)q; z+=4; q+=4; }	// 2005-06-09: gcc4.0 meckerte neuerdings
 		while (z<e)
-		{	((long*)z)[0] = ((long*)q)[0];
-			((long*)z)[1] = ((long*)q)[1];
+		{	((int32*)z)[0] = ((int32*)q)[0];
+			((int32*)z)[1] = ((int32*)q)[1];
 			q += 8;												// 2005-06-09: gcc4.0 meckerte neuerdings
 			z += 2;												// 2005-06-09: gcc4.0 meckerte neuerdings
 		}
@@ -542,8 +542,8 @@ size_t Melt ( const uchar* sp, size_t ssz, uchar* dp, size_t dsz )
 	while (sp<se)
 	{
 		uchar c1 = *sp++;
-		ulong n;
-		ulong a;
+		uint32 n;
+		uint32 a;
 
 		switch(c1>>5)
 		{
@@ -644,7 +644,7 @@ size_t MeltSize ( const uchar* sp, size_t ssz )
 {
 	const uchar* se = sp+ssz;
 	size_t dp = 0;
-	ulong n;
+	uint32 n;
 	uchar c1;
 
 	while (sp<se)

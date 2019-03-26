@@ -51,7 +51,7 @@ class Sema : private BPObj
 friend class Var;
 public:
 
-		long		flag; 		// >0 blocked; <=0 free
+		int32		flag; 		// >0 blocked; <=0 free
 		Tid			wait;		// linked list of waiting threads
 		Tid			owner;		// Tid of blocking thread
 
@@ -72,7 +72,7 @@ public:
 
 		bool		IsFree		( ) const		{ return flag<=0; }
 		bool		IsBlocked	( ) const		{ return flag>0;  }
-		long		BlockCount	( ) const		{ return flag; }
+		int32		BlockCount	( ) const		{ return flag; }
 		bool		IsAvailable	( ) const		{ return IsFree()    || owner==MyTid(); }
 		bool		IsNotAvailable()const		{ return IsBlocked() && owner!=MyTid(); }
 		bool		IsMine		( ) const		{ return IsBlocked() && owner==MyTid(); }

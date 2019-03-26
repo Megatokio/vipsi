@@ -43,8 +43,8 @@ class Prefs;
 enum rt { rt_none, rt_shell, rt_script, rt_cgi };
 
 #ifdef OPCODE_PROFILING
-extern ulong		opcodeProfile[256];
-extern ulong		opcodeTupels[256][256];
+extern uint32		opcodeProfile[256];
+extern uint32		opcodeTupels[256][256];
 #endif
 
 

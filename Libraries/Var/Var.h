@@ -243,11 +243,11 @@ friend struct InitVar;
 friend class BPObj;
 
 // data members:
-	ulong			type_and_lock;						// variable type & security
+	uint32			type_and_lock;						// variable type & security
 	Var*			parent;								// parent list or nullptr
 	uint			index;								// own index in parent's list
 	NameHandle		name;								// variable's name
-	long			data[sizeof(String)/sizeof(long)];	// variable data
+	int32			data[sizeof(String)/sizeof(int32)];	// variable data
 
 static Var**		pool;
 static Var*			grow_pool		( );
@@ -261,11 +261,11 @@ static void			delete_var		( Var* v )			{ XXXXLog("-"); *pool++ = v; }
 	void		init_type_and_lock	( )					{ type_and_lock  = isNumber; }
 	void		init_type_and_lock	( vtype type )		{ type_and_lock  = type; }
 
-	ulong		decr_lock			( )					{ return type_and_lock -= var_lock_base; }
+	uint32		decr_lock			( )					{ return type_and_lock -= var_lock_base; }
 	void		incr_lock			( )					{ 		 type_and_lock += var_lock_base; }
 
-static bool		is_locked			( ulong lock )		{ return lock          >= var_lock_base; }
-static bool		is_unlocked			( ulong lock )		{ return lock          <  var_lock_base; }
+static bool		is_locked			( uint32 lock )		{ return lock          >= var_lock_base; }
+static bool		is_unlocked			( uint32 lock )		{ return lock          <  var_lock_base; }
 	int			lock_count			( ) const			{ return type_and_lock>>var_lock_bit0;   }
 	bool		is_locked			( )	const			{ return type_and_lock >= var_lock_base*1; }
 	bool		is_double_locked	( )	const			{ return type_and_lock >= var_lock_base*2; }
@@ -281,8 +281,8 @@ static bool		is_unlocked			( ulong lock )		{ return lock          <  var_lock_ba
 	void		unlock_data			( )					{ type_and_lock &= ~data_lock_mask; }
 	void		lock_type			( )					{ type_and_lock |=  type_lock_mask; }
 	void		unlock_type			( )					{ type_and_lock &= ~type_lock_mask; }
-	void		setmask				( ulong mask );
-	void		resmask				( ulong mask );
+	void		setmask				( uint32 mask );
+	void		resmask				( uint32 mask );
 
 	bool		data_is_locked		( )	const			{ return   type_and_lock  &  data_lock_mask;				 }
 	bool		data_is_unlocked	( )	const			{ return (~type_and_lock) &  data_lock_mask;				 }
@@ -571,7 +571,7 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 
 	cDouble&	Value			( )	const				{ XXASSERT(IsNumber()); return value(); }
 	Double&		Value			( )						{ XXASSERT(IsNumber()); return value(); }
-	long		LongValue		( )	const				{ return (long)Value(); }
+	int32		LongValue		( )	const				{ return (int32)Value(); }
 	llong		LLongValue		( )	const				{ return (llong)Value(); }
 
 	String&		Text			( )						{ XXASSERT(IsText());   return text(); }
@@ -618,8 +618,8 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	Var*		FindItem		( cString& name ) const;
 	Var*		FindItem		( cstr name ) const;
 
-	long		Find			( cVar& v, long startidx= 0 ) const;
-	long		RFind			( cVar& v, long startidx= 0x7fffffff ) const;
+	int32		Find			( cVar& v, int32 startidx= 0 ) const;
+	int32		RFind			( cVar& v, int32 startidx= 0x7fffffff ) const;
 
 	void 		ResizeList		( uint n );
 	void		InsertItems		( uint idx, uint n );	// füge leere Variablen in List ein

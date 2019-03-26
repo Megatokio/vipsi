@@ -249,7 +249,7 @@ public:
 	void		ReadFromFile	( cstr cpath,    off_t max_sz = 1 MB );
 	void		ReadFromFile	( cString& path, off_t max_sz = 1 MB );
 
-	ulong 		CalcHash 		( ) const;
+	uint32 		CalcHash 		( ) const;
 
 	void		Check			( cstr filename, uint line_no ) const;
 
@@ -275,14 +275,14 @@ inline String	CharString	( UCS4Char c )					{ return String(c); }
 inline String	SpaceString	( int32 n, UCS4Char c=' ' )		{ return String(n,c); }
 
 extern String  	NumString	( double n );
-extern String  	NumString	( long n );
-extern String  	NumString	( ulong n );
-inline String  	NumString	( int n )						{ return NumString((long)n); }
-inline String  	NumString	( uint n )						{ return NumString((ulong)n); }
-extern String  	HexString	( ulong n, int digits=0 );
+extern String  	NumString	( int32 n );
+extern String  	NumString	( uint32 n );
+//inline String  	NumString	( int n )						{ return NumString((int32)n); }
+//inline String  	NumString	( uint n )						{ return NumString((uint32)n); }
+extern String  	HexString	( uint32 n, int digits=0 );
 extern String	HexString	( double d, int digits=0 );
 extern String	BinString	( double d, int digits=0 );
-inline String	HexString	( uint n, int digits=0 )		{ return HexString(ulong(n),digits); }
+//inline String	HexString	( uint n, int digits=0 )		{ return HexString(uint32(n),digits); }
 
 inline String	SubString	( cString& s, int32 a, int32 e)	{ return s.SubString(a,e); }
 inline String	MidString	( cString& s, int32 a, int32 n)	{ return s.MidString(a,n); }

@@ -500,7 +500,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		LogLine("\nopcode singles:");
 		for (int i=0; i<40; i++)
 		{
-			ulong m=0;
+			uint32 m=0;
 			for (uint j=0;j<tokens;j++)
 			{
 				if (opcodeProfile[j]>opcodeProfile[m]) m=j;
@@ -514,7 +514,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		LogLine("\nopcode tupels:");
 		for (int i=0; i<40; i++)
 		{
-			ulong m=0,n=0;
+			uint32 m=0,n=0;
 			for (uint j=0;j<tokens;j++)
 			for (uint k=0;k<tokens;k++)
 			{

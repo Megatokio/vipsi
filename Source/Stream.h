@@ -122,7 +122,7 @@ extern String		VT_Attr				( cString& s, VT_Color fg, VT_Color bg=VT_normal );
 struct output_data
 {
 	OSErr			state;				// stream state, error code from signal handler
-	long			io_cnt;				// idx-- remaining io count
+	int32			io_cnt;				// idx-- remaining io count
 	ptr				io_ptr;				// ptr++ io buffer ptr
 	String			string;				// persistent io buffer
 	Irpt			irpt;				// interrupt triggered when async io finished
@@ -133,14 +133,14 @@ struct output_data
 
 struct input_data : output_data
 {
-	ulong			io_stopctls;		// stop ctls in use for async io
+	uint32			io_stopctls;		// stop ctls in use for async io
 	String			io_buffer;			// binary putback buffer for overread bytes after stopctl for serial devices
 
 	union { char bu[6]; UCS1Char c1; UCS2Char c2; UCS4Char c4; }
 					getchar;			// persistent input buffer for GetChar()
 
-	ulong			getstring_stopctls;	// GetString():		setting: mask of ctl codes which stop input
-	long			getstring_maxsize;	// GetString():		setting: max. input size when no stopctl found
+	uint32			getstring_stopctls;	// GetString():		setting: mask of ctl codes which stop input
+	int32			getstring_maxsize;	// GetString():		setting: max. input size when no stopctl found
 
 	int				edid;				// GetString(tty):	editor resume id
 	int				cols;				// GetString(tty):	terminal width
@@ -195,9 +195,9 @@ friend class VScript;
 	void			kill				( );
 	void			poll_output			( );
 	void			poll_input			( );
-	cptr			find_stop_ctl		( cptr, cptr, ulong );
+	cptr			find_stop_ctl		( cptr, cptr, uint32 );
 	void			putback_or_lseek	( cString& );
-	void			putback_or_lseek	( cptr, long );
+	void			putback_or_lseek	( cptr, int32 );
 
 // prohibit:
 					Stream				( const Stream& );				// prohibit
@@ -251,10 +251,10 @@ public:
 	void			ClearOutputError	( )				{ if( output.state!=EAGAIN && output.state!=outputnotpossible ) output.state=ok; }
 
 // async i/o data:
-	long			InputBytesRemaining	( )	const		{ return input.io_cnt; }
-	long			OutputBytesRemaining( )	const		{ return output.io_cnt; }
-	long			InputBytes			( )	const		{ return input.string.Len() - input.io_cnt; }
-	long			OutputBytes			( )	const		{ return output.string.Len() - output.io_cnt; }
+	int32			InputBytesRemaining	( )	const		{ return input.io_cnt; }
+	int32			OutputBytesRemaining( )	const		{ return output.io_cnt; }
+	int32			InputBytes			( )	const		{ return input.string.Len() - input.io_cnt; }
+	int32			OutputBytes			( )	const		{ return output.string.Len() - output.io_cnt; }
 	ptr&			InputPtr			( )				{ return input.io_ptr; }
 	ptr&			OutputPtr			( )				{ return output.io_ptr; }
 	double&			LastInput			( )				{ return input.last_io; }
@@ -268,8 +268,8 @@ public:
 
 // binary read/write:
 // note: read/write must not be called while async i/o pending.
-	long			Write				( cptr bu, long cnt );					// EAGAIN -> lock buffer & wait for async i/o finished!
-	long			Read				( ptr bu, long cnt, ulong stopctls=0 );	// EAGAIN -> lock buffer & wait for async i/o finished!
+	int32			Write				( cptr bu, int32 cnt );					// EAGAIN -> lock buffer & wait for async i/o finished!
+	int32			Read				( ptr bu, int32 cnt, uint32 stopctls=0 );	// EAGAIN -> lock buffer & wait for async i/o finished!
 
 	inline void		Write				( cString& );							// EAGAIN -> wait for async i/o finished!
 	void			Write				( cstr );								// EAGAIN -> wait for async i/o finished!
@@ -287,8 +287,8 @@ public:
 	CharEncoding&	InputEncoding		( )						{ return input.encoding; }
 	CharEncoding&	OutputEncoding		( )						{ return output.encoding; }
 
-	long&			GetStringMaxSize	( )						{ return input.getstring_maxsize; }
-	ulong&			GetStringStopCtls	( )						{ return input.getstring_stopctls; }
+	int32&			GetStringMaxSize	( )						{ return input.getstring_maxsize; }
+	uint32&			GetStringStopCtls	( )						{ return input.getstring_stopctls; }
 
 // putback buffer:
 	void			ClearPutbackBuffer	( )						{ putback_string.Clear(); }
@@ -368,7 +368,7 @@ inline void Stream::Read ( String& s, ResumeCode r )
 	if( r==start_io )
 	{
 		if( s.NotWritable() || s.Csz()!=csz1 ) s = String( s.Len(), csz1 );	// uncleared
-		long n = Read( s.Text(), s.Len(), stopctls_none );
+		int32 n = Read( s.Text(), s.Len(), stopctls_none );
 		assert( n==s.Len() || errno!=ok );
 		if( errno==ok ) return;
 		if( errno==EAGAIN ) input.string = s;		// EAGAIN -> input still in progress -> lock buffer

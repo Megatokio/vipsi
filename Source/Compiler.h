@@ -41,11 +41,11 @@ typedef struct Token Token;
 // "at [row 123,] col 456: "
 extern cstr 	RowColStr		( uint row, uint col );
 extern String 	RowColString 	( uint row, uint col );
-extern String 	RowColString 	( ulong rowcol );
+extern String 	RowColString 	( uint32 rowcol );
 extern int	 	GetEncodingFromName ( String conv_name );
-inline uint  	Row 			( ulong rowcol ) 		{ return rowcol>>12; }
-inline uint  	Col 			( ulong rowcol ) 		{ return rowcol&RMASK(12); }
-inline ulong 	RowCol 			( uint row, uint col ) 	{ return (row<<12) + col; }
+inline uint  	Row 			( uint32 rowcol ) 		{ return rowcol>>12; }
+inline uint  	Col 			( uint32 rowcol ) 		{ return rowcol&RMASK(12); }
+inline uint32 	RowCol 			( uint row, uint col ) 	{ return (row<<12) + col; }
 
 enum ResultClass
 {
@@ -71,7 +71,7 @@ class Compiler
 	Token*		zbu;		// destination token array
 	uint		zi;			//	current pointer
 	uint		zlen;		//	end of array
-	ulong		rowcol;
+	uint32		rowcol;
 	uint		lfdnr;
 
 	int			v_now;			// stack depth
@@ -102,11 +102,11 @@ class Compiler
 	bool 		expect		( uchar  );
 	void 		store_token	( Token const* );
 	void 		store_token	( Token const& );
-	void		store_token	( ulong, uchar );
-	void		store_token	( ulong, uchar, long );
-	void		store_token	( ulong, uchar, int );
-	void		store_token	( ulong, uchar, short,short );
-	void		store_token	( ulong, uchar, NameHandle );
+	void		store_token	( uint32, uchar );
+	void		store_token	( uint32, uchar, int32 );
+	//void		store_token	( uint32, uchar, int );
+	void		store_token	( uint32, uchar, int16,int16 );
+	void		store_token	( uint32, uchar, NameHandle );
 	Token* 		set_offset 	( Token*, bool );
 	void		convert		( );
 	void		execute		( );

@@ -421,9 +421,9 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 		String multipart_boundary = String("--") + (content_type+9);
 
 		String fieldname,filename,fielddata;
-		ulong a=0,e;
+		uint32 a=0,e;
 
-		while( a<(ulong)data.Len() )
+		while( a<(uint32)data.Len() )
 		{
 			if( data.MidString(a,multipart_boundary.Len())==multipart_boundary )
 			{
@@ -465,8 +465,8 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 			if( data.MidString(a,6)=="name=\"" )
 			{
 				a += 6;
-				e = min( (ulong)data.Find("\"; ",a), (ulong)data.Find("\"\x0d\x0a",a) );
-				if (e==(ulong)-1) return;	// bogus
+				e = min( (uint32)data.Find("\"; ",a), (uint32)data.Find("\"\x0d\x0a",a) );
+				if (e==(uint32)-1) return;	// bogus
 				fieldname = data.SubString(a,e);
 				a = e+3; continue;
 			}
@@ -474,8 +474,8 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 			if( data.MidString(a,10)=="filename=\"" )
 			{
 				a += 10;
-				e = min( (ulong)data.Find("\"; ",a), (ulong)data.Find("\"\x0d\x0a",a) );
-				if (e==(ulong)-1) return;	// bogus
+				e = min( (uint32)data.Find("\"; ",a), (uint32)data.Find("\"\x0d\x0a",a) );
+				if (e==(uint32)-1) return;	// bogus
 				filename = data.SubString(a,e);
 				a = e+3; continue;
 			}
@@ -483,15 +483,15 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 			if( data.MidString(a,2)=="\x0d\x0a" )
 			{
 				e = data.Find(multipart_boundary,a);
-				if (e==(ulong)-1) return;	// bogus
+				if (e==(uint32)-1) return;	// bogus
 				fielddata = data.SubString(a+2,e-2);
 				a = e; continue;
 			}
 
 			SetError( "vipsi: CGI: unknown field in multipart_data");
 			// => skip field
-	sf:		a = min( (ulong)data.Find("; ",a), (ulong)data.Find("\x0d\x0a",a) );
-			if (a==(ulong)-1) return;	// bogus
+	sf:		a = min( (uint32)data.Find("; ",a), (uint32)data.Find("\x0d\x0a",a) );
+			if (a==(uint32)-1) return;	// bogus
 			a+=2; continue;
 		}
 	}

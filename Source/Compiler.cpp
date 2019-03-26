@@ -96,10 +96,10 @@ String DisassString ( cVar& /*q*/ )
 		switch(*p)
 		{
 		case tNUM:		s += NumString( read_double(p+1) );			break;
-		case tBYTE:		s += NumString( (int)(signed char)p[1] );	break;
-		case tSHORT:	s += NumString( (int)(signed short)p[1] );	break;
+		case tBYTE:		s += NumString( (int)(int8)p[1] );	break;
+		case tSHORT:	s += NumString( (int)(int16)p[1] );	break;
 		case tSTR:		s += String((ptr)p+3,p[2],CharSize(p[1])).ToQuoted(); break;
-		case tSTR2:		s += String((ptr)p+4,*(ushort*)(p+2),CharSize(p[1])).ToQuoted();   break;
+		case tSTR2:		s += String((ptr)p+4,*(uint16*)(p+2),CharSize(p[1])).ToQuoted();   break;
 		case tIDF:		s += GetNameForHandle(*(NameHandle*)(p+1)).ToEscaped(); break;
 		case tEOF:		s += TokenName(tEOF);						goto x;
 		default:		s += TokenName(*p);							break;
@@ -154,16 +154,16 @@ enum { arg_void, arg_double, arg_namehandle, arg_long, arg_destination, arg_two_
 
 struct Token
 {
-	ulong	rowcol;			// col + (1<<12) * row
+	uint32	rowcol;			// col + (1<<12) * row
 	uchar	token;			// the token
 	uchar	argument_type;
 	union					// immediate argument
-	{		long		index;			// number or text literal, constant
+	{		int32		index;			// number or text literal, constant
 			NameHandle	namehandle;		// identifiers
-			ulong		destination;	// target rowcol for branch offset: if, else, loop, etc.
-			long		arguments;		// for tokens with varying amount of arguments
-			long		type;
-			struct{short n,m;};
+			uint32		destination;	// target rowcol for branch offset: if, else, loop, etc.
+			int32		arguments;		// for tokens with varying amount of arguments
+			int32		type;
+			struct{int16 n,m;};
 	}		argument;
 
 			Token		( );
@@ -171,11 +171,11 @@ struct Token
 			Token		( const Token& q );
 	Token&	operator=	( const Token& q );
 
-			Token		( ulong rowcol, uchar t );
-			Token		( ulong rowcol, uchar t, NameHandle nh );
-			Token		( ulong rowcol, uchar t, int args );
-			Token		( ulong rowcol, uchar t, long args );
-			Token		( ulong rowcol, uchar t, short, short );
+			Token		( uint32 rowcol, uchar t );
+			Token		( uint32 rowcol, uchar t, NameHandle nh );
+			//Token		( uint32 rowcol, uchar t, int args );
+			Token		( uint32 rowcol, uchar t, int32 args );
+			Token		( uint32 rowcol, uchar t, int16, int16 );
 };
 
 
@@ -185,7 +185,7 @@ cstr RowColStr(uint row, uint col)
 	else	return usingstr("at col %u: ",col+1);
 }
 String RowColString (uint row, uint col){ return RowColStr(row,col); }
-String RowColString ( ulong rowcol )	{ return RowColStr(Row(rowcol),Col(rowcol)); }
+String RowColString ( uint32 rowcol )	{ return RowColStr(Row(rowcol),Col(rowcol)); }
 String RowColString ( Token* token )	{ return RowColString(token->rowcol); }
 void SyntaxError 	( cstr s )			{ SetError(syntaxerror,s); }
 void SyntaxError 	( cString& s )		{ SetError(syntaxerror,s); }
@@ -226,14 +226,14 @@ Token& Token::operator= ( const Token& q )
 	return *this;
 }
 
-inline Token::Token ( ulong row_col, uchar t )
+inline Token::Token ( uint32 row_col, uchar t )
 {
 	rowcol			= row_col;
 	token			= t;
 	argument_type 	= arg_void;
 }
 
-Token::Token ( ulong row_col, uchar t, NameHandle nh )
+Token::Token ( uint32 row_col, uchar t, NameHandle nh )
 {
 	rowcol				= row_col;
 	token				= t;
@@ -242,15 +242,15 @@ Token::Token ( ulong row_col, uchar t, NameHandle nh )
 	LockNameHandle(nh);
 }
 
-Token::Token ( ulong row_col, uchar t, int type )
+/*Token::Token ( uint32 row_col, uchar t, int type )
 {
 	rowcol			= row_col;
 	token			= t;
 	argument_type 	= arg_long;
 	argument.type 	= type;
-}
+}*/
 
-Token::Token ( ulong row_col, uchar t, long args )
+Token::Token ( uint32 row_col, uchar t, int32 args )
 {
 	rowcol			= row_col;
 	token			= t;
@@ -258,7 +258,7 @@ Token::Token ( ulong row_col, uchar t, long args )
 	argument.type 	= args;
 }
 
-Token::Token ( ulong row_col, uchar t, short n, short m )
+Token::Token ( uint32 row_col, uchar t, int16 n, int16 m )
 {
 	rowcol			= row_col;
 	token			= t;
@@ -291,7 +291,7 @@ void Compiler::store_token ( Token const& q )
 	v_delta(vstacksaldo[q.token]);
 }
 
-void Compiler::store_token ( ulong rowcol, uchar token )
+void Compiler::store_token ( uint32 rowcol, uchar token )
 {
 	if(zi==zlen) resize_zbu();
 	zbu[zi++] = Token(rowcol,token);
@@ -299,7 +299,7 @@ void Compiler::store_token ( ulong rowcol, uchar token )
 	v_delta(vstacksaldo[token]);
 }
 
-void Compiler::store_token ( ulong rowcol, uchar token, long n )
+void Compiler::store_token ( uint32 rowcol, uchar token, int32 n )
 {
 	if(zi==zlen) resize_zbu();
 	zbu[zi++] = Token(rowcol,token,n);
@@ -307,15 +307,15 @@ void Compiler::store_token ( ulong rowcol, uchar token, long n )
 	v_delta(vstacksaldo[token]);
 }
 
-void Compiler::store_token ( ulong rowcol, uchar token, int n )
+/*void Compiler::store_token ( uint32 rowcol, uchar token, int n )
 {
 	if(zi==zlen) resize_zbu();
 	zbu[zi++] = Token(rowcol,token,n);
 	xxlog(" %s",tostr(zbu+zi-1));
 	v_delta(vstacksaldo[token]);
-}
+}*/
 
-void Compiler::store_token ( ulong rowcol, uchar token, short n, short m )
+void Compiler::store_token ( uint32 rowcol, uchar token, int16 n, int16 m )
 {
 	if(zi==zlen) resize_zbu();
 	zbu[zi++] = Token(rowcol,token,n,m);
@@ -323,7 +323,7 @@ void Compiler::store_token ( ulong rowcol, uchar token, short n, short m )
 	v_delta(vstacksaldo[token]);
 }
 
-void Compiler::store_token ( ulong rowcol, uchar token, NameHandle n )
+void Compiler::store_token ( uint32 rowcol, uchar token, NameHandle n )
 {
 	if(zi==zlen) resize_zbu();
 	zbu[zi++] = Token(rowcol,token,n);
@@ -451,7 +451,7 @@ void Compiler::Tokenize ( )
 		}
 	}
 
-	long		qlen= source.Len() -1;
+	int32		qlen= source.Len() -1;
 	cUCS4Char*	qa	= source.UCS4Text();
 	cUCS4Char*	qe	= qa + qlen;
 	cUCS4Char*	qp	= qa;
@@ -476,7 +476,7 @@ void Compiler::Tokenize ( )
 
 
 // skip line 1: "#!/usr/local/bin/vipsi" or the like
-	if ( qa[0]=='#' && qa[1]=='!' ) { long n=source.Find('\n'); qp = n<0 ? qe : qa+n+1; }
+	if ( qa[0]=='#' && qa[1]=='!' ) { int32 n=source.Find('\n'); qp = n<0 ? qe : qa+n+1; }
 
 // tokenize
 	while( errno==ok )
@@ -1232,7 +1232,7 @@ void Compiler::execute( )
 		uint   z0;
 		Token* qp0 = qp++;
 		uchar  tok = qp0->token;
-		long n;
+		int32 n;
 		ResultClass rc;
 
 		xxlog("  | ");
@@ -1905,7 +1905,7 @@ ResultClass Compiler::value ( int prio )
 	uint   z0;
 	Token* qp0 = qp++;
 	uchar tok = qp0->token;
-	long n;
+	int32 n;
 	ResultClass rc = rc_unknown;
 
 	switch(tok)
@@ -2478,8 +2478,8 @@ ERR_VARREQ:	errno = varreq; xxlog(" error}"); return rc_unknown;
 */
 struct xref
 {	uptr 	pointer;
-	ulong 	ID;
-			xref(uptr p, ulong n)	{ pointer=p; ID=n; }
+	uint32 	ID;
+			xref(uptr p, uint32 n)	{ pointer=p; ID=n; }
 			xref()					{}	// for Sorter
 };
 
@@ -2508,7 +2508,7 @@ void Compiler::Assemble()
 	#if defined(DEBUG)
 	uptr destend  = destbu+destsize;
 	#endif
-	ulong* xrefbu = new ulong[destsize]; int xrefi = 0; ulong xrefx = 0;
+	uint32* xrefbu = new uint32[destsize]; int xrefi = 0; uint32 xrefx = 0;
 
 	for(qp=qa;qp<qe;qp++)
 	{
@@ -2614,7 +2614,7 @@ void Compiler::Assemble()
 			xxlog(" s=%lu==%i.%i ",dp-destbu,Row(qp->argument.destination),Col(qp->argument.destination));
 			assert(qp->argument_type==arg_long);
 			dp += sizeof(displacement);
-			long n;
+			int32 n;
 			qp++; *dp++ = n = qp->argument.arguments;		assert(qp->argument_type==arg_long);	 // n
 			qp++; *dp++ =     qp->argument.arguments;		assert(qp->argument_type==arg_long);	 // m
 			while(n--)
@@ -2719,7 +2719,7 @@ void Compiler::Assemble()
 		{
 			xref& z = source_stack.Pop();
 			uptr dp = z.pointer;			// hier eintragen
-			ulong ID = z.ID;				// ziel
+			uint32 ID = z.ID;				// ziel
 
 			xref* a=target_stack.get_start();
 			xref* e=target_stack.get_end();

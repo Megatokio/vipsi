@@ -381,7 +381,7 @@ void Var::Vanish()
 
 /* ----	recursively lock variable type or data ---------------------------------
 */
-void Var::setmask ( ulong mask )
+void Var::setmask ( uint32 mask )
 {
 	XXXASSERT(IsList());
 
@@ -400,7 +400,7 @@ void Var::setmask ( ulong mask )
 
 /* ----	recursively unlock variable type or data ---------------------------------
 */
-void Var::resmask ( ulong mask )
+void Var::resmask ( uint32 mask )
 {
 	XXXASSERT(IsList());
 
@@ -1287,7 +1287,7 @@ Var* Var::FindItem ( cstr name ) const
 		search for Item in List
 		return index of item found or -1 if not found
 */
-long Var::Find ( cVar& v, long startidx ) const
+int32 Var::Find ( cVar& v, int32 startidx ) const
 {
 	XXXLogIn("Var::Find(Var)");
 
@@ -1298,7 +1298,7 @@ long Var::Find ( cVar& v, long startidx ) const
 	{
 		bool visnull = v.IsNumber()&&v.value()==0.0;
 		if (startidx<0) startidx=0;
-		long endidx  = list().used;
+		int32 endidx  = list().used;
 
 		while(startidx<endidx)
 		{
@@ -1314,7 +1314,7 @@ long Var::Find ( cVar& v, long startidx ) const
 	return -1;
 }
 
-long Var::RFind ( cVar& v, long startidx ) const
+int32 Var::RFind ( cVar& v, int32 startidx ) const
 {
 	XXXLogIn("Var::RFind(Var)");
 
@@ -1324,7 +1324,7 @@ long Var::RFind ( cVar& v, long startidx ) const
 	if (IsList())
 	{
 		bool visnull = v.IsNumber()&&v.value()==0.0;
-		if (startidx>=(long)list().used) startidx=list().used-1;
+		if (startidx>=(int32)list().used) startidx=list().used-1;
 
 		while(startidx>=0)
 		{
@@ -2026,7 +2026,7 @@ void Var::JoinLines( cString& sep )
 	}
 	else
 	{
-		long len = (list().used-1)*sep.Len();
+		int32 len = (list().used-1)*sep.Len();
 		CharSize csz=sep.Csz();
 
 		for(uint i=0;i<list().used;i++)
@@ -2088,8 +2088,8 @@ void Var::SplitLines ( cString& sep )
 
 		String s = text();
 
-		long sep_len = sep.Len();
-		long qi = 0;
+		int32 sep_len = sep.Len();
+		int32 qi = 0;
 		uint li = 0;
 
 		SetList(s.Len()/(39+sep_len));
@@ -2101,7 +2101,7 @@ void Var::SplitLines ( cString& sep )
 		case 1:
 			for( UCS4Char c=sep[0];; )
 			{
-				long ni = s.Find(c,qi); if(ni<0) break;
+				int32 ni = s.Find(c,qi); if(ni<0) break;
 				new Var( this,li++, s.SubString(qi,ni) );
 				qi = ni + 1;
 			}
@@ -2109,7 +2109,7 @@ void Var::SplitLines ( cString& sep )
 		default:
 			for( ;; )
 			{
-				long ni = s.Find(sep,qi); if(ni<0) break;
+				int32 ni = s.Find(sep,qi); if(ni<0) break;
 				new Var( this,li++, s.SubString(qi,ni) );
 				qi = ni + sep_len;
 			}
@@ -2146,12 +2146,12 @@ void Var::SplitLines ( )
 		if (data_is_locked()) { set_error_locked(); break; }
 
 		String s = text();
-	//	long slen = s.Len();	Log(" s.len=%li ",slen);
+	//	int32 slen = s.Len();	Log(" s.len=%li ",slen);
 		SetList(s.Len()/40);
-		long qi=0;
+		int32 qi=0;
 		uint li=0;
 
-		for ( long i=0; i<s.Len(); )
+		for ( int32 i=0; i<s.Len(); )
 		{
 	//		TRAP(s.Len()!=slen);
 			UCS4Char c = s[i++];
@@ -2227,14 +2227,14 @@ Var& Var::operator%= ( Double q )
 
 Var& Var::operator>>= ( Double q )
 {
-	if (IsNumber()) { if (data_is_locked()) goto e; a: value() = ldexp(value(),-int(floor(0.5+q))); /* ulong(value())>>int(q); */ return *this; }
+	if (IsNumber()) { if (data_is_locked()) goto e; a: value() = ldexp(value(),-int(floor(0.5+q))); /* uint32(value())>>int(q); */ return *this; }
 	if (IsNoList()) { if (type_or_data_locked()) e: set_error_locked(); else { ConvertToNumber(); goto a; } }
 	return list_op( &Var::operator>>=, q );
 }
 
 Var& Var::operator<<= ( Double q )
 {
-	if (IsNumber()) { if (data_is_locked()) goto e; a: value() = ldexp(value(),int(floor(0.5+q))); /* ulong(value())<<int(q); */ return *this; }
+	if (IsNumber()) { if (data_is_locked()) goto e; a: value() = ldexp(value(),int(floor(0.5+q))); /* uint32(value())<<int(q); */ return *this; }
 	if (IsNoList()) { if (type_or_data_locked()) e: set_error_locked(); else { ConvertToNumber(); goto a; } }
 	return list_op( &Var::operator<<=, q );
 }

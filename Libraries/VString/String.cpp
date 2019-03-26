@@ -126,38 +126,38 @@ static UCS1Char spc[] =
 
 // char -> digit value: ['0'..'9'] ---> [0..9]; non-digits ---> [10..255]
 inline	uchar	_digit_val(UCS1Char c)	 	{ return uchar (c-'0'); }
-inline	ushort	_digit_val(UCS2Char c)	 	{ return ushort(c-'0'); }
-inline	ulong	_digit_val(UCS4Char c)	 	{ return ulong (c-'0'); }
+inline	uint16	_digit_val(UCS2Char c)	 	{ return uint16(c-'0'); }
+inline	uint32	_digit_val(UCS4Char c)	 	{ return uint32 (c-'0'); }
 
 // char -> digit value: ['0'..'9']['A'..'Z']['a'..'z'] ---> [0...35]; non-digits ---> [36..233]
 inline	uchar	_digit_value(UCS1Char c)	{ return c<='9' ? uchar (c-'0') : uchar ((c|0x20)-'a')+10; }
-inline	ushort	_digit_value(UCS2Char c)	{ return c<='9' ? ushort(c-'0') : ushort((c|0x20)-'a')+10; }
-inline	ulong	_digit_value(UCS4Char c)	{ return c<='9' ? ulong (c-'0') : ulong ((c|0x20)-'a')+10; }
+inline	uint16	_digit_value(UCS2Char c)	{ return c<='9' ? uint16(c-'0') : uint16((c|0x20)-'a')+10; }
+inline	uint32	_digit_value(UCS4Char c)	{ return c<='9' ? uint32 (c-'0') : uint32 ((c|0x20)-'a')+10; }
 
 
 
 
-inline void ucs4_from_ucs1 ( void* z, const void* q, long n )
+inline void ucs4_from_ucs1 ( void* z, const void* q, int32 n )
 {
 	while (--n>=0) { ((UCS4Char*)z)[n] = ((cUCS1Char*)q)[n]; }
 }
 
-inline void ucs4_from_ucs2 ( void* z, const void* q, long n )
+inline void ucs4_from_ucs2 ( void* z, const void* q, int32 n )
 {
 	while (--n>=0) { ((UCS4Char*)z)[n] = ((cUCS2Char*)q)[n]; }
 }
 
-inline void ucs4_from_ucs4 ( void* z, const void* q, long n )
+inline void ucs4_from_ucs4 ( void* z, const void* q, int32 n )
 {
 	while (--n>=0) { ((UCS4Char*)z)[n] = ((cUCS4Char*)q)[n]; }
 }
 
-inline void ucs2_from_ucs1 ( void* z, const void* q, long n )
+inline void ucs2_from_ucs1 ( void* z, const void* q, int32 n )
 {
 	while (--n>=0) { ((UCS2Char*)z)[n] = ((cUCS1Char*)q)[n]; }
 }
 
-inline void ucs2_from_ucs2 ( void* z, const void* q, long n )
+inline void ucs2_from_ucs2 ( void* z, const void* q, int32 n )
 {
 #if _ALIGNMENT_REQUIRED
 	while (--n>=0) { ((UCS2Char*)z)[n] = ((cUCS2Char*)q)[n]; }
@@ -167,12 +167,12 @@ inline void ucs2_from_ucs2 ( void* z, const void* q, long n )
 #endif
 }
 
-inline void ucs2_from_ucs4 ( void* z, const void* q, long n )
+inline void ucs2_from_ucs4 ( void* z, const void* q, int32 n )
 {
 	while (--n>=0) { ((UCS2Char*)z)[n] = ((cUCS4Char*)q)[n]; }
 }
 
-inline void ucs1_from_ucs1 ( void* z, const void* q, long n )
+inline void ucs1_from_ucs1 ( void* z, const void* q, int32 n )
 {
 #if _ALIGNMENT_REQUIRED
 	while (--n>=0) { ((UCS1Char*)z)[n] = ((cUCS1Char*)q)[n]; }
@@ -182,18 +182,18 @@ inline void ucs1_from_ucs1 ( void* z, const void* q, long n )
 #endif
 }
 
-inline void ucs1_from_ucs2 ( void* z, const void* q, long n )
+inline void ucs1_from_ucs2 ( void* z, const void* q, int32 n )
 {
 	while (--n>=0) { ((UCS1Char*)z)[n] = ((cUCS2Char*)q)[n]; }
 }
 
-inline void ucs1_from_ucs4 ( void* z, const void* q, long n )
+inline void ucs1_from_ucs4 ( void* z, const void* q, int32 n )
 {
 	while (--n>=0) { ((UCS1Char*)z)[n] = ((cUCS4Char*)q)[n]; }
 }
 
 #define ucs_from_ucs UCSCopy
-//static void ucs_from_ucs ( int zcsz, void* z, int qcsz, const void* q, long n )
+//static void ucs_from_ucs ( int zcsz, void* z, int qcsz, const void* q, int32 n )
 
 void UCSCopy ( CharSize zcsz, void* z, CharSize qcsz, const void* q, int32 n )
 {
@@ -212,7 +212,7 @@ void UCSCopy ( CharSize zcsz, void* z, CharSize qcsz, const void* q, int32 n )
 	}
 }
 
-static void ucs_copy ( int csz, void* z, const void* q, long n )
+static void ucs_copy ( int csz, void* z, const void* q, int32 n )
 {
 #if _ALIGNMENT_REQUIRED
 	if (csz==1) ucs1_from_ucs1(z,q,n); else
@@ -226,13 +226,13 @@ static void ucs_copy ( int csz, void* z, const void* q, long n )
 }
 
 
-inline void ucs4_clear ( UCS4Char* z, long n, UCS4Char filler )
+inline void ucs4_clear ( UCS4Char* z, int32 n, UCS4Char filler )
 {
 	UCS4Char* e = z+n;
 	while (z<e) *z++ = filler;
 }
 
-inline void ucs2_clear ( UCS2Char* z, long n, UCS2Char filler )
+inline void ucs2_clear ( UCS2Char* z, int32 n, UCS2Char filler )
 {
 #if _ALIGNMENT_REQUIRED
 	UCS2Char* e = z+n;
@@ -243,7 +243,7 @@ inline void ucs2_clear ( UCS2Char* z, long n, UCS2Char filler )
 #endif
 }
 
-inline void ucs1_clear ( UCS1Char* z, long n, UCS1Char filler )
+inline void ucs1_clear ( UCS1Char* z, int32 n, UCS1Char filler )
 {
 #if _ALIGNMENT_REQUIRED
 	UCS1Char* e = z+n;
@@ -254,7 +254,7 @@ inline void ucs1_clear ( UCS1Char* z, long n, UCS1Char filler )
 #endif
 }
 
-static void ucs_clear ( int csz, void* z, long n, UCS4Char filler )
+static void ucs_clear ( int csz, void* z, int32 n, UCS4Char filler )
 {
 #if _ALIGNMENT_REQUIRED
 	if (csz==1)	ucs1_clear((UCS1Char*)z,n,filler); else
@@ -325,9 +325,9 @@ inline CharSize req_charsize ( UCS2Char n )
 
 /* ----	count characters in UTF-8 string ----------------------------
 */
-static long utf8_charcount ( cptr a, cptr e )
+static int32 utf8_charcount ( cptr a, cptr e )
 {
-	long n = e-a;
+	int32 n = e-a;
 	while (a<e) n -= utf8_is_fup(*a++);
 	return n;
 }
@@ -357,9 +357,9 @@ static UCS2Char* ucs2_from_utf8 ( UCS2Char* z, cUTF8CharPtr a, cUTF8CharPtr e, b
 		if( utf8_is_7bit(c1=*a++) )		{ *z++=c1; continue; }	// 7-bit ascii
 		if( utf8_is_fup(c1) )			{ continue; }			// unexpected fup
 		if( a>=e||utf8_no_fup(c2=*a) )	{ goto x; }
-		a++; c2 &= 0x3f; if (c1<0xe0)	{ *z++ = (ushort(c1&0x1f)<<6) + c2; continue; }
+		a++; c2 &= 0x3f; if (c1<0xe0)	{ *z++ = (uint16(c1&0x1f)<<6) + c2; continue; }
 		if( a>=e||utf8_no_fup(c3=*a) )	{ goto x; }
-		a++; c3 &= 0x3f; if (c1<0xf0)	{ *z++ = ((ushort)c1<<12) + ((ushort)c2<<6) + c3; continue; }
+		a++; c3 &= 0x3f; if (c1<0xf0)	{ *z++ = ((uint16)c1<<12) + ((uint16)c2<<6) + c3; continue; }
 x:		*z++ = latin_1 ? c1 : '?';
 	}
 	return z;
@@ -410,21 +410,21 @@ static UCS4Char* ucs4_from_utf8 ( UCS4Char*z, cUTF8CharPtr a, cUTF8CharPtr e, bo
 
 /*	calculate byte-size for utf-8 string
 */
-static long utf8_bytecount ( cUCS1Char* p, long n )
+static int32 utf8_bytecount ( cUCS1Char* p, int32 n )
 {
 	cUCS1Char* e = p + n;
 	while(p<e) { n += *p++>>7; }
 	return n;
 }
 
-static long utf8_bytecount ( cUCS2Char* p, long n )
+static int32 utf8_bytecount ( cUCS2Char* p, int32 n )
 {
 	cUCS2Char* e = p + n;
 	while(p<e) { UCS2Char c = *p++; if(c>>7) { n += c>>11 ? 2 : 1; } }
 	return n;
 }
 
-static long utf8_bytecount ( cUCS4Char* p, long n )			// 2005-06-09 kio	support for full 32 bit added
+static int32 utf8_bytecount ( cUCS4Char* p, int32 n )			// 2005-06-09 kio	support for full 32 bit added
 {
 	cUCS4Char* e = p + n;
 	while (p<e)
@@ -442,7 +442,7 @@ static long utf8_bytecount ( cUCS4Char* p, long n )			// 2005-06-09 kio	support 
 
 /* create utf-8 string from UCS-1, UCS-2, or UCS-4
 */
-static ptr utf8_from_ucs1 ( ptr z, cUCS1Char* q, long n )
+static ptr utf8_from_ucs1 ( ptr z, cUCS1Char* q, int32 n )
 {
 	cUCS1Char* e = q + n;
 	while (q<e)
@@ -454,7 +454,7 @@ static ptr utf8_from_ucs1 ( ptr z, cUCS1Char* q, long n )
 	return z;
 }
 
-static ptr utf8_from_ucs2 ( ptr z, cUCS2Char* q, long n )
+static ptr utf8_from_ucs2 ( ptr z, cUCS2Char* q, int32 n )
 {
 	cUCS2Char* e = q+n;
 	while (q<e)
@@ -467,7 +467,7 @@ static ptr utf8_from_ucs2 ( ptr z, cUCS2Char* q, long n )
 	return z;
 }
 
-static ptr utf8_from_ucs4 ( ptr z, cUCS4Char* q, long n )		// 2005-06-09: support for full 32 bit added
+static ptr utf8_from_ucs4 ( ptr z, cUCS4Char* q, int32 n )		// 2005-06-09: support for full 32 bit added
 {
 	cUCS4Char* e = q + n;
 	while (q<e)
@@ -477,7 +477,7 @@ static ptr utf8_from_ucs4 ( ptr z, cUCS4Char* q, long n )		// 2005-06-09: suppor
 		if( !(c>>11) )	{ *z++ = utf8_starter_c2(c); *z++ = utf8_fup(c); }	// 2 byte code
 		else																// 3…6 byte codes
 		{																	// num fups = i =	15/6=2	20/6=3	25/6=4	30/6=5	35/6=5
-			int i = 15; for( ulong m = c>>16; m; m>>=5 ) { i+=5; } i = i/6;	// num bits in fups = i*6
+			int i = 15; for( uint32 m = c>>16; m; m>>=5 ) { i+=5; } i = i/6;	// num bits in fups = i*6
 			*z++ = (char(0x80)>>i) | (c>>(i*6));							// starter
 			while(i--) *z++ = utf8_fup(c>>(i*6));							// fups
 		}
@@ -537,7 +537,7 @@ void String::Check ( cstr filename, uint line ) const
 	{
 		if( text < Data() )
 		{
-			Log(" count=%li, text=$%08lx, data=$%08lx ",(long)count,(long)text,(long)Data());
+			Log(" count=%i, text=$%08lx, data=$%08lx ",(int)count,(long)text,(long)Data());
 			abort("String::Check(): text<data in file %s line %u",filename,line);
 		}
 		char c = text[0];
@@ -608,9 +608,9 @@ void String::_move ( String& q )
 		<0	this <  q
 */
 int32 String::compare ( cString& s ) const
-{	long d;
-	long n = min(count,s.count);
-	long i = -1;
+{	int32 d;
+	int32 n = min(count,s.count);
+	int32 i = -1;
 
 	CharSize csz1 =   Csz();
 	CharSize csz2 = s.Csz();
@@ -932,7 +932,7 @@ String::String ( int32 n, UCS4Char c )
 		Ucs1() = nullptr;
 		SetDataAndCsz(nullptr,csz1);
 	}
-	else if (c==' ' && (ulong)n<NELEM(spc) )
+	else if (c==' ' && (uint32)n<NELEM(spc) )
 	{
 		Ucs1() = spc;
 		SetDataAndCsz(nullptr,csz1);
@@ -1222,7 +1222,7 @@ void String::Resize ( int32 newlen, UCS4Char padding )
 UCS4Char String::operator[] ( int32 i ) const
 {
 	XXXCHECK(*this);
-	XXASSERT((ulong)i < (ulong)count);
+	XXASSERT((uint32)i < (uint32)count);
 
 	switch(Csz())
 	{
@@ -1240,7 +1240,7 @@ UCS4Char String::LastChar ( ) const
 {
 	XXXCHECK(*this);
 
-	long i = count -1;
+	int32 i = count -1;
 	if (i>=0)
 	{
 		switch(Csz())
@@ -1329,7 +1329,7 @@ String String::operator* ( int32 n ) const
 	XXASSERT( double(n)*csz*count == ((n*csz*count)&0x7fffffff) );
 
 	String s ( n*count, csz );
-	long l = count * csz;
+	int32 l = count * csz;
 	cptr q = text;
 	ptr  z = s.text;
 	while(n--) { memcpy(z,q,l); z+=l; }
@@ -1351,7 +1351,7 @@ str String::CString ( ) const
 	{
 	case csz1:
 	{
-		long n = utf8_bytecount( Ucs1(), Len() );
+		int32 n = utf8_bytecount( Ucs1(), Len() );
 		str s = tempstr(n);
 		ptr p = utf8_from_ucs1( s, Ucs1(), Len() );
 		XXXASSERT(p==s+n);
@@ -1359,7 +1359,7 @@ str String::CString ( ) const
 	}
 	case csz2:
 	{
-		long n = utf8_bytecount( Ucs2(), Len() );
+		int32 n = utf8_bytecount( Ucs2(), Len() );
 		str s = tempstr(n);
 		ptr p = utf8_from_ucs2( s, Ucs2(), Len() );
 		XXXASSERT(p==s+n);
@@ -1367,7 +1367,7 @@ str String::CString ( ) const
 	}
 	case csz4:
 	{
-		long n = utf8_bytecount( Ucs4(), Len() );
+		int32 n = utf8_bytecount( Ucs4(), Len() );
 		str s = tempstr(n);
 		ptr p = utf8_from_ucs4( s, Ucs4(), Len() );
 		XXXASSERT(p==s+n);
@@ -1382,8 +1382,8 @@ str String::CString ( ) const
 double String::NumVal ( int32* idx_io ) const
 {	cuptr  q, qe, a;
 	uchar  c, bu[41];
-	long   idx = idx_io ? *idx_io : 0;
-	int    n   = min((long)NELEM(bu)-1,count-idx);
+	int32   idx = idx_io ? *idx_io : 0;
+	int    n   = min((int32)NELEM(bu)-1,count-idx);
 	double f   = 0.0;
 	bool   neg;
 
@@ -1499,8 +1499,8 @@ x:	errno = notanumber;
 String String::StrVal ( int32* idx_io ) const
 {
 	XXXCHECK(*this);
-	long idx = idx_io ? *idx_io : 0;	// loop index
-	long end = count;					// source end index
+	int32 idx = idx_io ? *idx_io : 0;	// loop index
+	int32 end = count;					// source end index
 
 	while( idx<end && operator[](idx)<=' ' ) { idx++; }
 	if( end-idx<2 ) { errno = notastring; return emptyString; }
@@ -1514,7 +1514,7 @@ String String::StrVal ( int32* idx_io ) const
 		else { errno = notastring; return emptyString; }
 	}
 
-	long anf = ++idx;					// string start index
+	int32 anf = ++idx;					// string start index
 	bool esc = no;						// escaped characters present flag
 
 	while(idx<end)
@@ -1602,9 +1602,9 @@ int32 String::Find ( cString& s, int32 idx ) const
 {
 	XXXCHECK(*this);
 	XXXCHECK(s);
-	long qn = count;
-	long sn = s.count;
-	long n  = qn - sn;
+	int32 qn = count;
+	int32 sn = s.count;
+	int32 n  = qn - sn;
 
 	if (idx<0) idx=0;
 	if (idx>n) return -1;
@@ -1625,9 +1625,9 @@ int32 String::RFind ( cString& s, int32 idx ) const
 {
 	XXXCHECK(*this);
 	XXXCHECK(s);
-	long qn = count;
-	long sn = s.count;
-	long n  = qn - sn;
+	int32 qn = count;
+	int32 sn = s.count;
+	int32 n  = qn - sn;
 
 	if (idx>n) idx=n;
 	if (idx<0) return -1;
@@ -1708,7 +1708,7 @@ void String::Replace ( cString& o, cString& n )
 
 	if(o.Len()==0) return;
 
-	for ( long i=0; (i=Find(o,i))>=0; i+=n.Len() )
+	for ( int32 i=0; (i=Find(o,i))>=0; i+=n.Len() )
 	{
 		*this = LeftString(i) + n + MidString(i+o.Len());
 	}
@@ -1901,11 +1901,11 @@ String String::ToLower ( ) const
 			  this would render non-Latin text unreadable.
 */
 String String::ToHtml ( ) const
-{	cptr t; long i;
+{	cptr t; int32 i;
 
 	XXXCHECK(*this);
 	if ( count==0 ) return emptyString;
-	long	 n   = 20;						// spare characters: string may grow!
+	int32	 n   = 20;						// spare characters: string may grow!
 	String   s   = String(count+n,Csz());
 
 	switch ( Csz() )
@@ -2258,7 +2258,7 @@ String String::ToEscaped ( UCS4Char leftquote ) const
 
 				if (qe-q > ze-z)
 				{
-					long i = z - s.Ucs1();
+					int32 i = z - s.Ucs1();
 					s._resize(s.count+(n*=2));
 					z  =  s.Ucs1() +i;
 					ze =  s.Ucs1() +s.count-4;
@@ -2302,7 +2302,7 @@ String String::ToEscaped ( UCS4Char leftquote ) const
 
 				if (qe-q > ze-z)
 				{
-					long i = z - s.Ucs2();
+					int32 i = z - s.Ucs2();
 					s._resize(s.count+(n*=2));
 					z  =  s.Ucs2() +i;
 					ze =  s.Ucs2() +s.count-4;
@@ -2347,7 +2347,7 @@ String String::ToEscaped ( UCS4Char leftquote ) const
 
 				if (qe-q > ze-z)
 				{
-					long i = z - s.Ucs4();
+					int32 i = z - s.Ucs4();
 					s._resize(s.count+(n*=2));
 					z  =  s.Ucs4() +i;
 					ze =  s.Ucs4() +s.count-4;
@@ -2625,7 +2625,7 @@ String String::ToUTF8 ( ) const
 	{
 	case csz1:
 	  {
-		long n = utf8_bytecount( Ucs1(), Len() );
+		int32 n = utf8_bytecount( Ucs1(), Len() );
 		if (n==Len()) return *this;
 		String s(n,csz1);
 		ptr p = utf8_from_ucs1( s.Text(), Ucs1(), Len() );
@@ -2634,7 +2634,7 @@ String String::ToUTF8 ( ) const
 	  }
 	case csz2:
 	  {
-		long n = utf8_bytecount( Ucs2(), Len() );
+		int32 n = utf8_bytecount( Ucs2(), Len() );
 		String s(n,csz1);
 		ptr p = utf8_from_ucs2( s.Text(), Ucs2(), Len() );
 		XXXASSERT(p == s.Text()+s.Len());
@@ -2642,7 +2642,7 @@ String String::ToUTF8 ( ) const
 	  }
 	case csz4:
 	  {
-		long n = utf8_bytecount( Ucs4(), Len() );
+		int32 n = utf8_bytecount( Ucs4(), Len() );
 		String s(n,csz1);
 		ptr p = utf8_from_ucs4( s.Text(), Ucs4(), Len() );
 		XXXASSERT(p == s.Text()+s.Len());
@@ -2896,10 +2896,10 @@ String String::ToTab( int tabstops ) const
 	XXASSERT( tabstops>=1 && tabstops<=99 );
 
 	String zstr(Len(),Csz());
-	long q0 = 0;
-	long q  = 0;
-	long z  = 0;
-	long qe = Len();
+	int32 q0 = 0;
+	int32 q  = 0;
+	int32 z  = 0;
+	int32 qe = Len();
 
 	switch(Csz())
 	{
@@ -2973,7 +2973,7 @@ String String::ToTab( int tabstops ) const
 		to fill up to next multiple of 'tabstops'
 		tabstops are re-synced at line breaks
 
-		***TODO***	very slow for long texts with many tabs
+		***TODO***	very slow for int32 texts with many tabs
 					maybe calc. required zstr.Len() first
 					or use a higher/increasing multiple of 'tabstops' than 4
 */
@@ -2985,10 +2985,10 @@ String String::FromTab( int tabstops ) const
 
 	String zstr( Len()+tabstops*4, Csz() );
 
-	long q  = 0;
-	long qe = Len();
-	long z0 = 0;
-	long z  = 0;
+	int32 q  = 0;
+	int32 qe = Len();
+	int32 z0 = 0;
+	int32 z  = 0;
 
 	switch(Csz())
 	{
@@ -3073,7 +3073,7 @@ String String::ConvertedTo ( CharEncoding e ) const
 		{	String s = ConvertedTo(ucs1);
 			s.MakeWritable();
 			UCS1CharPtr z = s.Ucs1();
-			for (long i=0;i<s.Len();i++) if (z[i]>>7) z[i] ='?';
+			for (int32 i=0;i<s.Len();i++) if (z[i]>>7) z[i] ='?';
 			XXXCHECK(s);
 			return s;
 		}
@@ -3088,9 +3088,9 @@ b8:		{
 			UCS1CharPtr z = s.Ucs1();
 			switch(Csz())
 			{
-			case csz1: { cUCS1CharPtr q = Ucs1(); for(long i=0;i<Len();i++) z[i] = UCS4CharTo8Bit(q[i],ctable); } break;
-			case csz2: { cUCS2CharPtr q = Ucs2(); for(long i=0;i<Len();i++) z[i] = UCS4CharTo8Bit(q[i],ctable); } break;
-			case csz4: { cUCS4CharPtr q = Ucs4(); for(long i=0;i<Len();i++) z[i] = UCS4CharTo8Bit(q[i],ctable); } break;
+			case csz1: { cUCS1CharPtr q = Ucs1(); for(int32 i=0;i<Len();i++) z[i] = UCS4CharTo8Bit(q[i],ctable); } break;
+			case csz2: { cUCS2CharPtr q = Ucs2(); for(int32 i=0;i<Len();i++) z[i] = UCS4CharTo8Bit(q[i],ctable); } break;
+			case csz4: { cUCS4CharPtr q = Ucs4(); for(int32 i=0;i<Len();i++) z[i] = UCS4CharTo8Bit(q[i],ctable); } break;
 			}
 			XXXCHECK(s);
 			return s;
@@ -3134,7 +3134,7 @@ String String::ConvertedFrom ( CharEncoding e ) const
 			s.ResizeCsz(csz1);
 			s.MakeWritable();
 			UCS1CharPtr z = s.Ucs1();
-			for (long i=0;i<s.Len();i++) if(z[i]>>7) z[i]&=0x7F;
+			for (int32 i=0;i<s.Len();i++) if(z[i]>>7) z[i]&=0x7F;
 			XXXCHECK(s);
 			return s;
 		}
@@ -3149,7 +3149,7 @@ b8:		{
 			s.ResizeCsz(csz1);
 			s.MakeWritable();
 			UCS1CharPtr z = s.Ucs1();
-			long i=0;
+			int32 i=0;
 			for (;i<s.Len();i++) { UCS2Char c = UCS2CharFrom8Bit(z[i],ctable); if(c>255) goto b16; z[i]=c; }
 			return s;
 b16:		s.ResizeCsz(csz2);
@@ -3195,7 +3195,7 @@ String CharString ( UCS4Char c )
 
 
 /*
-String SpaceString ( long n, UCS4Char c )
+String SpaceString ( int32 n, UCS4Char c )
 {
 	XXXTRAP( spaceString!=String(spaceString.Len(),' ') );
 	return c==' '&&n<=spaceString.Len() ? spaceString.LeftString(n) : String(n,c);
@@ -3252,25 +3252,25 @@ String NumString ( double n )
 	return z;
 }
 
-String NumString ( long n )
+String NumString (int32 n )
 {
 // max. 12 chars
 	String z(12,csz1);
-	z.Truncate( sprintf(z.Text(),"%li",n) );
+	z.Truncate( sprintf(z.Text(),"%i",n) );
 	XXXCHECK(z);
 	return z;
 }
 
-String NumString ( ulong n )
+String NumString ( uint32 n )
 {
 // max. 11 chars
 	String z(12,csz1);
-	z.Truncate( sprintf(z.Text(),"%lu",n) );
+	z.Truncate( sprintf(z.Text(),"%u",n) );
 	XXXCHECK(z);
 	return z;
 }
 
-String HexString ( ulong n, int digits )
+String HexString ( uint32 n, int digits )
 {
 	if(!digits) { digits = n>>16 ? 8 : n>>8 ? 4 : 2; }
 
@@ -3323,7 +3323,7 @@ void String::ReadFromFile( cString& path, off_t max_sz )
 
 /* ----	32-Bit-Primzahlen -----------------------------------------------------------------
 */
-ulong prim[] =
+uint32 prim[] =
 {
 	4082442179u, 3134562593u, 2883627547u, 2567654303u, 3311094179u, 2660468347u, 3352679063u, 2179288373u,
 	2219291651u, 3264466963u, 2267587997u, 3759131197u, 3484443481u, 2157055477u, 3623644897u, 3408306677u,
@@ -3377,11 +3377,11 @@ proc NewPrime(bits)
 	Das Shiften bedeutet quasi, dass der bisherige Hash nocheinmal mit einer Zahl multipliziert wird,
 	und das entspricht dem Effekt, als wären alle bisherigen Primes mit dieser Zahl multipliziert gewesen.
 */
-ulong String::CalcHash ( ) const
+uint32 String::CalcHash ( ) const
 {
 	XXXLogIn("String::CalcHash()");
 
-	ulong hash = 0;
+	uint32 hash = 0;
 	int a,e,i,n;
 
 	for( e=0; e<Len(); )

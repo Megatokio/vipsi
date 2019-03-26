@@ -42,11 +42,11 @@ static_assert(1,"");
 static const float NAN (0.0/0.0);
 #endif
 
-struct	UCS2_Short { UCS2Char Code; short Value; };
-struct	UCS4_Short { UCS4Char Code; short Value; };
+struct	UCS2_Short { UCS2Char Code; int16 Value; };
+struct	UCS4_Short { UCS4Char Code; int16 Value; };
 
-struct	UCS2Range_Short { UCS2Char StartCode; UCS2Char EndCode; short Value; };
-struct	UCS4Range_Short { UCS4Char StartCode; UCS4Char EndCode; short Value; };
+struct	UCS2Range_Short { UCS2Char StartCode; UCS2Char EndCode; int16 Value; };
+struct	UCS4Range_Short { UCS4Char StartCode; UCS4Char EndCode; int16 Value; };
 
 
 /*	UP: retrieve PropertyValue from UCS2 Character Table
@@ -328,14 +328,14 @@ inline UCS4Char ucs4_simple_uc ( UCS4Char n )
 #if U_SUC_UCS4 != 3
 {	return n + UCS4_GetPropertyValue( n, UCS4_SUC_Table, U_SUC_UCS4 ); }
 #else
-{	return ulong(n-U_SUC_UCS4_START) < ulong(U_SUC_UCS4_END-U_SUC_UCS4_START) ? n-40 : n; }
+{	return uint32(n-U_SUC_UCS4_START) < uint32(U_SUC_UCS4_END-U_SUC_UCS4_START) ? n-40 : n; }
 #endif
 
 inline UCS4Char ucs4_simple_lc ( UCS4Char n )
 #if U_SLC_UCS4 != 3
 {	return n + UCS4_GetPropertyValue( n, UCS4_SLC_Table, U_SLC_UCS4 ); }
 #else
-{	return ulong(n-U_SLC_UCS4_START) < ulong(U_SLC_UCS4_END-U_SLC_UCS4_START) ? n+40 : n; }
+{	return uint32(n-U_SLC_UCS4_START) < uint32(U_SLC_UCS4_END-U_SLC_UCS4_START) ? n+40 : n; }
 #endif
 
 
@@ -347,7 +347,7 @@ UCS4Char ucs4_simple_lowercase ( UCS4Char n )	{ return n>>16 ? ucs4_simple_lc(n)
 UCS2Char ucs2_simple_titlecase ( UCS2Char n )
 {
 #if U_STC_UCS2 == 12	//	01C4/5/6 -> 01C5, 01C7/8/9 -> 01C8, 01CA/B/C -> 01CB, 01F1/2/3 -> 01F2
-	return ushort(n-0x01C4) >= ushort(0x01F4-0x01C4) || ushort(n-0x01cd) < ushort(0x01f1-0x01cd)
+	return uint16(n-0x01C4) >= uint16(0x01F4-0x01C4) || uint16(n-0x01cd) < uint16(0x01f1-0x01cd)
 			? ucs2_simple_uc(n) : 0x01c5 + (n-0x01c4)/3;
 #else
 	if n>=U_STC_UCS2_START && n<U_STC_UCS2_END
@@ -375,8 +375,8 @@ UCS4Char ucs4_simple_titlecase ( UCS4Char n )
 	Count>1								->	Value[i] = (BBBBBBBB+i) * 10eEEEE / DDDD
 */
 
-struct UCS2_NumVal { UCS2Char StartCode; uchar GeneralCategory; uchar Count; signed short CodedValue; };
-struct UCS4_NumVal { UCS4Char StartCode; uchar GeneralCategory; uchar Count; signed short CodedValue; };
+struct UCS2_NumVal { UCS2Char StartCode; uchar GeneralCategory; uchar Count; int16 CodedValue; };
+struct UCS4_NumVal { UCS4Char StartCode; uchar GeneralCategory; uchar Count; int16 CodedValue; };
 
 static UCS2_NumVal const UCS2_NumVal_Table[U_NUMERIC_UCS2] =
 #include "Includes/NumericValue.h"

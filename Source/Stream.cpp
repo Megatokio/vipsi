@@ -117,27 +117,27 @@ static VT_Color last_tty_attr = VT_normal;			// for automatic text coloring on t
 			diese Bytes sehr wohl schon im Buffer stehen,
 			und für e wird angenommen, dass die fehlenden Bytes noch nicht gelesen wurden.
 */
-inline bool is_stopctl( UCS4Char c, ulong stopctls )
+inline bool is_stopctl( UCS4Char c, uint32 stopctls )
 {
 	return c<' ' && (stopctls&(1<<c));
 }
-inline cUCS1Char* find_stop_ctl ( cUCS1Char* a, cUCS1Char* e, ulong stopctls )
+inline cUCS1Char* find_stop_ctl ( cUCS1Char* a, cUCS1Char* e, uint32 stopctls )
 {
 	while( a<e ) { UCS1Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
 	return nullptr;
 }
-inline cUCS2Char* find_stop_ctl ( cUCS2Char* a, cUCS2Char* e, ulong stopctls )
+inline cUCS2Char* find_stop_ctl ( cUCS2Char* a, cUCS2Char* e, uint32 stopctls )
 {
 	while( a<e ) { UCS2Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
 	return nullptr;
 }
-inline cUCS4Char* find_stop_ctl ( cUCS4Char* a, cUCS4Char* e, ulong stopctls )
+inline cUCS4Char* find_stop_ctl ( cUCS4Char* a, cUCS4Char* e, uint32 stopctls )
 {
 	while( a<e ) { UCS4Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
 	return nullptr;
 }
 
-cptr Stream::find_stop_ctl ( cptr a, cptr e, ulong stopctls )
+cptr Stream::find_stop_ctl ( cptr a, cptr e, uint32 stopctls )
 {
 	switch( input.encoding )
 	{
@@ -150,9 +150,9 @@ cptr Stream::find_stop_ctl ( cptr a, cptr e, ulong stopctls )
 
 /* ----	count characters in UTF-8 string ----------------------------
 */
-inline long utf8_charcount ( cptr a, cptr e )
+inline int32 utf8_charcount ( cptr a, cptr e )
 {
-	long n = 0; while (a<e) n += utf8_no_fup(*a++); return n;
+	int32 n = 0; while (a<e) n += utf8_no_fup(*a++); return n;
 }
 
 
@@ -169,7 +169,7 @@ inline void Stream::putback_or_lseek ( cString& s )
 	}
 }
 
-inline void Stream::putback_or_lseek ( cptr p, long n )
+inline void Stream::putback_or_lseek ( cptr p, int32 n )
 {
 	if( n ) if( NoFileOrBlockDevice() || lseek(fd,-n,SEEK_CUR)==-1 )
 	{
@@ -401,12 +401,12 @@ void Stream::poll_output()
 	assert( output.state == EAGAIN );
 	assert( output.io_cnt >= 0 );
 
-	long n	= output.io_cnt;
+	int32 n	= output.io_cnt;
 	ptr  p	= output.io_ptr;
-	long n0	= n;
+	int32 n0	= n;
 	int	 state;
 
-a:	long m = write( fd, p, n );
+a:	int32 m = write( fd, p, n );
 	if (m==-1) { state=errno; if(state==EINTR) goto a; goto x; /*EAGAIN or real error*/ }
 	assert(m!=0 || n==0);
 	n-=m; p+=m; if(n>0) goto a;
@@ -433,12 +433,12 @@ void Stream::poll_input()
 	assert( input.io_cnt >= 0 );
 
 	ptr  p	= input.io_ptr;
-	long n	= input.io_cnt;
-	long n0	= n;
+	int32 n	= input.io_cnt;
+	int32 n0	= n;
 	int  state;
 	cptr e;
 
-a:	long m = read( fd, p, n );
+a:	int32 m = read( fd, p, n );
 	if (m==-1) { state=errno; if(state==EINTR) goto a; else goto x; /*EAGAIN or real error*/ }
 	assert(m!=0 || n==0);							// <-- nur files/block devs dürfen 0 at endoffile liefern
 	if( input.io_stopctls && (e = find_stop_ctl(p,p+m,input.io_stopctls)) )
@@ -516,9 +516,9 @@ void Stream::PollPendingOutput ( )
 						nothing was written. wait for interrupt & try again.
 				other:	error. partial data may be written.
 */
-long Stream::Write ( cptr p, long n )
+int32 Stream::Write ( cptr p, int32 n )
 {
-	long m, io = 0;
+	int32 m, io = 0;
 	OSErr state = output.state;
 
 	if( state!=ok )	goto oe;	// fp==-1, !openout, EAGAIN (async i/o pending) oder real error
@@ -562,8 +562,8 @@ ok:	errno = ok;							// errno = ok
 */
 void Stream::Write ( cstr s )
 {
-	long n = strlen(s);
-	long m = Write(s,n);
+	int32 n = strlen(s);
+	int32 m = Write(s,n);
 	if( errno==EAGAIN )									// async i/o pending
 	{
 		output.string = String((UCS1Char*)s+m,n-m);		// make a durable copy of the data (assuming cstr in qstring pool)
@@ -605,11 +605,11 @@ void Stream::PutString ( cString& s )
 				asynciopending: Read() was called while async i/o in progress: wait & try again.
 				other:	error, e.g. endoffile. partial data up to error position read.
 */
-long Stream::Read ( ptr p, long n, ulong stopctls )
+int32 Stream::Read ( ptr p, int32 n, uint32 stopctls )
 {
-	long m, io = 0;
+	int32 m, io = 0;
 	cptr q,e;
-	long state = input.state;
+	int32 state = input.state;
 
 	if( state!=ok )	goto ie;			// fp==-1, !openin, EAGAIN (async i/o pending) oder i/o error
 	if( n<=0 )		goto ok;			// ok
@@ -629,7 +629,7 @@ long Stream::Read ( ptr p, long n, ulong stopctls )
 
 // read directly from device:
 
-a:	m = read( fd, p, stopctls ? min(n,128l) : n );
+a:	m = read( fd, p, stopctls ? min(n,128) : n );
 	if (m==-1) { state=errno; if(state==EINTR) goto a; if(state==EAGAIN) goto ea; else goto x; }
 	if (m==0)  { assert(IsFileOrBlockDevice()); errno = state = endoffile; goto x; }
 	if( stopctls && (e = find_stop_ctl( p, p+m, stopctls )) )
@@ -692,13 +692,13 @@ ie:	errno = state==EAGAIN ? asynciopending : state;
 */
 bool Stream::GetChar ( UCS4Char& z, ResumeCode resume )
 {
-	long io,mx;
+	int32 io,mx;
 	ptr const p  = input.getchar.bu;		// <-- union input.getchar is used as persistent buffer
 
 	if( resume==resume_io )
 	{
-		io = input.io_ptr-p;	assert( ulong(io) <= 6 );			// <-- GetChar(c,resume_io) probably called without GetChar(c,start_io)
-		mx = io+input.io_cnt;	assert( ulong(io) <= ulong(mx) );	// <-- GetChar(c,resume_io) probably called without GetChar(c,start_io)
+		io = input.io_ptr-p;	assert( uint32(io) <= 6 );			// <-- GetChar(c,resume_io) probably called without GetChar(c,start_io)
+		mx = io+input.io_cnt;	assert( uint32(io) <= uint32(mx) );	// <-- GetChar(c,resume_io) probably called without GetChar(c,start_io)
 		errno = input.state;
 	}
 	else	// first call: start_io or test_io
@@ -817,7 +817,7 @@ void Stream::GetString ( String& s, ResumeCode resume )
 {
 	if( NoTTY() || output.state==outputnotpossible || resume==test_io || input.getstring_stopctls==0 )
 	{
-		long io,mx; ptr p;
+		int32 io,mx; ptr p;
 		String& z = input.string;	// buffer
 
 		if( resume==resume_io )
@@ -837,10 +837,10 @@ void Stream::GetString ( String& s, ResumeCode resume )
 
 		// get data from user putback buffer:
 
-			long m = putback_string.Len();
+			int32 m = putback_string.Len();
 			if(m)
 			{
-				long sz = putback_string.Csz();
+				int32 sz = putback_string.Csz();
 				cptr q = putback_string.Text();
 				cptr e = find_stop_ctl( q, q+m*sz, input.getstring_stopctls );
 				if(e)
@@ -861,7 +861,7 @@ void Stream::GetString ( String& s, ResumeCode resume )
 		}
 
 		assert( errno == input.state );
-		assert ( ulong(io) <= ulong(mx) );			// <-- GetChar(c,true) probably called without GetChar(c,false)
+		assert ( uint32(io) <= uint32(mx) );			// <-- GetChar(c,true) probably called without GetChar(c,false)
 		assert( z.Csz() == csz1 );
 
 		if( input.state==EAGAIN )					// async i/o still pending

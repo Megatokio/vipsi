@@ -153,7 +153,7 @@ UTF8Char UTF8CharFromUCS4 ( UCS4Char n )		/*TODO*/
 	if ( n<(1u<<11) ) { str s=tempstr(2); s[0]=0xC0+(n>>6); s[1]=0x80+(n&0x3f); return s; }
 
 // multi-byte codes 3 to 6 bytes:
-	uint i = 21; for( ushort m = n>>16; m; m>>=5 ) { i+=5; } i = i/6;		// utf-8 character size
+	uint i = 21; for( uint16 m = n>>16; m; m>>=5 ) { i+=5; } i = i/6;		// utf-8 character size
 	str s = tempstr(i);
 	char c0 = 0x80;
 	while (--i>0) { c0 >>= 1; s[i] = 0x80+(n&0x3f); n >>= 6; }
@@ -168,7 +168,7 @@ void UCS4CharToUTF8 ( UCS4Char n, UTF8CharPtr& z )		/*TODO*/
 	if ( n<(1<<11) ) { *z++ = 0xC0+(n>>6); *z++ = 0x80+(n&0x3f); return; }	// 2 byte code
 // 3…6 byte codes
 // note the trick to make 32 bits a 6 byte code too:					// i = num fups =	15/6=2	20/6=3	25/6=4	30/6=5	35/6=5
-	int i = 15; for( ushort m = n>>16; m; m>>=5 ) { i+=5; } i = i/6;	// i = num fups; num bits stored in fups = i*6
+	int i = 15; for( uint16 m = n>>16; m; m>>=5 ) { i+=5; } i = i/6;	// i = num fups; num bits stored in fups = i*6
 	*z++ = (char(0x80)>>i) + (n>>(i*6));								// starter (non_fup)
 	while(i--) { *z++ = 0x80 + ((n>>(i*6))&0x3f); }						// fups
 }

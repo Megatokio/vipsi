@@ -51,8 +51,8 @@ INIT_MSG
 
 
 #ifdef OPCODE_PROFILING
-ulong	opcodeProfile[256];
-ulong	opcodeTupels[256][256];
+uint32	opcodeProfile[256];
+uint32	opcodeTupels[256][256];
 #endif
 
 #if defined(SIGIO) && defined(SIGPOLL)
@@ -83,8 +83,8 @@ void StartRTimer ( double d )
 		struct itimerval itv;
 		itv.it_interval.tv_sec	= 0;	// don't repeat
 		itv.it_interval.tv_usec	= 0;
-		itv.it_value.tv_sec		= (long)d;
-		itv.it_value.tv_usec	= (long)(((d-(long)d)*1000000));
+		itv.it_value.tv_sec		= (int32)d;
+		itv.it_value.tv_usec	= (int32)(((d-(int32)d)*1000000));
 		if( setitimer(ITIMER_REAL, &itv, nullptr) == 0 ) return;
 		Log("StartRTimer() failed.");
 		errno=ok;
@@ -326,7 +326,7 @@ void FreezeString ( String& v )
 		v = emptyString;
 		v = String((zlen+d)/csz,csz);
 		assert(v.Csz() == csz);
-		*(long*)(v.Text()) = 0xCFCFCFCF;			// 4x %11001111
+		*(int32*)(v.Text()) = 0xCFCFCFCF;			// 4x %11001111
 		memcpy(v.Text()+d,zptr,zlen);
 	}
 
@@ -723,7 +723,7 @@ sleep:
 test_disp:
 	if(disp_flag)
 	{
-		long d = disp_flag; disp_flag &= ~d;
+		int32 d = disp_flag; disp_flag &= ~d;
 
 	// countdown timer expired
 		if(d&timeshed)
@@ -892,7 +892,7 @@ exe6:
 		QUICK;
 
 	case tNUM2:			// 	tNUM2.nn -- <const>
-		Push(constants[(ushort)peek2(ip)]); ip+=2;
+		Push(constants[(uint16)peek2(ip)]); ip+=2;
 		QUICK;
 
 	case tPOSTINCR:		// <var> tPOSTINCR -- <temp>
@@ -1624,7 +1624,7 @@ top_n:	if(TopIsNoTemp())
 		}
 
 	case tFIND:			// <value> <value> [<value>] tFIND -- <temp>
-	{	long n = 0;
+	{	int32 n = 0;
 		if(*ip++==1)
 		{
 			Assert3Args();
@@ -1652,7 +1652,7 @@ top_n:	if(TopIsNoTemp())
 	}
 
 	case tRFIND:			// <value> <value> [<value>] tRFIND -- <temp>
-	{	long n = 0x7FFFFFFF;
+	{	int32 n = 0x7FFFFFFF;
 		if(*ip++==1)
 		{
 			Assert3Args();
@@ -2217,7 +2217,7 @@ texifile:	Assert1Arg();
 		{
 			xxlog(" d=");
 			PeekDist();
-			xxlog("%li ",(long)d);
+			xxlog("%li ",(int32)d);
 			ip += d;
 		}
 		DROP;
@@ -2510,7 +2510,7 @@ txp:	argc = *ip++;				// anz. args
 
 	{	xlog("(*resize stack*)");
 
-		long  nl = (vp+1-va) + (re-rp) +ip[-1]; IFNDEBUG( nl += nl/2; )
+		int32  nl = (vp+1-va) + (re-rp) +ip[-1]; IFNDEBUG( nl += nl/2; )
 		StackData* vn = new StackData[nl];
 
 		memcpy( vn,            va, (vp+1-va)*sizeof(Var*)    );
@@ -2740,7 +2740,7 @@ xp0:	Push(zero);
 		TopReqNumber();
 		Arg2AssertVar();	// wg. DropPush(r)		TODO: das sollte jetzt überflüssig sein
 		if(Arg2.IsNoList()) goto xd2p0;
-		{	ulong n = Top.LongValue() -1;
+		{	uint32 n = Top.LongValue() -1;
 			if( n>=Arg2.ListSize() ) goto xd2p0;
 			r = &Arg2[n];
 		}
@@ -2878,7 +2878,7 @@ tdoti:	r = Top.FindItem(nh);
 		Arg2ReqVar();
 	//	Arg2ReqList();
 		if(Arg2.IsNoList()) Arg2.SetList(); if(errno) ERROR;
-		ulong n = Top.LongValue() -1;
+		uint32 n = Top.LongValue() -1;
 		if( n>=Arg2.ListSize() )
 		{ 	if(n>>26) goto ERR_IDXOORANGE;
 			Arg2.ResizeList(n+1);
@@ -2895,7 +2895,7 @@ tdoti:	r = Top.FindItem(nh);
 		Arg2ReqVar();
 	//	Arg2ReqList();
 		if(Arg2.IsNoList()) Arg2.SetList(); if(errno) ERROR;
-		ulong n = Top.LongValue() -1;
+		uint32 n = Top.LongValue() -1;
 		if( n<Arg2.ListSize() ) goto ERR_VAREXISTS;
 		if(n>>26) goto ERR_IDXOORANGE;
 		Arg2.ResizeList(n+1);
@@ -2908,7 +2908,7 @@ tdoti:	r = Top.FindItem(nh);
 	{					//	<char> = <text>[idx]
 		Assert2Args();
 		TopReqNumber();
-		long n = Top.LongValue() -1;
+		int32 n = Top.LongValue() -1;
 		if(n>>26) goto ERR_IDXOORANGE;
 
 		if(Arg2.IsList())
@@ -2928,7 +2928,7 @@ tdoti:	r = Top.FindItem(nh);
 		else goto ERR_STRORLISTREQ;
 	}
 
-	{	long a,e;
+	{	int32 a,e;
 
 	case tTO_IDX:		//	<value> <value> tTO_IDX -- <temp>
 		Assert2Args();
@@ -2954,7 +2954,7 @@ toto:
 		{
 			Var*v=new Var(isList);
 			if(a<0) a=0;
-			if(e>(long)Arg2.ListSize()) e=Arg2.ListSize();
+			if(e>(int32)Arg2.ListSize()) e=Arg2.ListSize();
 			for(;a<e;a++)
 			{
 				Var* z = new Var(Arg2[a]); z->SetName(Arg2[a].name);
@@ -2971,7 +2971,7 @@ toto:
 		}
 		else goto ERR_STRORLISTREQ;
 
-	}	// long a,e
+	}	// int32 a,e
 
 
 
@@ -3400,7 +3400,7 @@ void VScript::AddToThreadError ( int row, int col, cString& file, cString& info 
 void VScript::AddToThreadError ( uptr ip, cString& msg )
 {
 	Var*  myproc = MyTid()->proc;
-	ulong rowcol = myproc->ProcXrefBase()[ ip-1 - myproc->ProcCoreBase() ];
+	uint32 rowcol = myproc->ProcXrefBase()[ ip-1 - myproc->ProcCoreBase() ];
 	bool  ex     = myproc->ProcBundle()->ListSize() > bundle_sourcefile;
 	AddToThreadError( Row(rowcol)+1, Col(rowcol)+1, ex ? myproc->ProcSourcefile() : emptyString, msg );
 }

@@ -37,8 +37,8 @@
 #include "Unicode/Includes/GlobalConstants.h"
 
 
-#define ulong_in_range(A,N,E)	(ulong((N)-(A))<=ulong((E)-(A)))
-#define ushort_in_range(A,N,E)	(ushort((N)-(A))<=ushort((E)-(A)))
+#define ulong_in_range(A,N,E)	(uint32((N)-(A))<=uint32((E)-(A)))
+#define ushort_in_range(A,N,E)	(uint16((N)-(A))<=uint16((E)-(A)))
 #define uchar_in_range(A,N,E)	(uchar((N)-(A))<=uchar((E)-(A)))
 
 

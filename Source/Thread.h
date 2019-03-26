@@ -46,7 +46,7 @@ class					Thread;
 typedef	Thread *		Tid;			// thread identifier
 
 
-extern long volatile	disp_flag;		// the central dispatcher flags
+extern int32 volatile	disp_flag;		// the central dispatcher flags
 
 extern Tid				t_running;		// linked list of all running threads sorted by priority
 extern Tid				t_timeshed;		// linked list of all time sheduled threads sorted by alarm time
@@ -54,7 +54,7 @@ extern Tid				t_suspended;	// linked list of all threads not running and not tim
 extern Tid				t_root;			// main application thread
 extern Tid				t_zombie;		// thread to dispose of
 
-//extern ulong			sysLoad[33];	// systerm load sorted by log(2) of prio
+//extern uint32			sysLoad[33];	// systerm load sorted by log(2) of prio
 
 #define	MyTid() 		t_running
 #define SystemTime()	now()
@@ -109,7 +109,7 @@ friend class Irpt;
 friend class Sema;
 
 // dispatcher data:
-	long		state;				// running, suspended, irptshed, semashed, timeshed
+	int32		state;				// running, suspended, irptshed, semashed, timeshed
 	float		prio;				// thread priority: lower is better
 	float		prio_org;			// nominal priority (most times same as prio)
 	Sema*		blocked_sems;		// linked list of Semas blocked by this thread
@@ -122,7 +122,7 @@ friend class Sema;
 		Irpt  *	irpt;		// Irpt for which thread is sheduled
 	};
 	double		time;				// alarm time for which thread is sheduled
-	ulong		ptime;				// accumulated process time
+	uint32		ptime;				// accumulated process time
 
 // interpreter data:
 	Var*		proc;				// current proc -> bundle, constants, core
@@ -166,10 +166,10 @@ public:
 	// initial thread:
 				Thread				( Var* proc, Var* globals, float prio );
 	// spawned thread: starts operation in parent's context at parent's ip
-				Thread				( Thread* parent, float prio, uptr ip, ulong minstacksize );
+				Thread				( Thread* parent, float prio, uptr ip, uint32 minstacksize );
 
 	double&		Timeout				( )			{ return time; }
-	ulong&		Ptime				( )			{ return ptime;}
+	uint32&		Ptime				( )			{ return ptime;}
 
 	float		GetPrio				( )			{ return prio_org; }
 

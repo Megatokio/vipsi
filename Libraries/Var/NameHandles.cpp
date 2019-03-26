@@ -58,14 +58,14 @@ INIT_MSG
 const uint	handlebits		= sizeof(NameHandle)*8;		// size of NameHandle		((32))
 
 const uint	hr_bits 		= NH_HASHRING_BITS;			// size of HashRing[]		((12))
-const ulong	hr_size			= 1<<hr_bits;
+const uint32	hr_size			= 1<<hr_bits;
 
 const uint	hr_shift		= handlebits-hr_bits;		// shift for Handle <--> HashRingIndex
-//const ulong hr_lo_mask  	= hr_size-1;				// mask if shifted right (index position)
-//const ulong hr_hi_mask  	= hr_lo_mask << hr_shift;	// mask if shifted left  (handle position)
+//const uint32 hr_lo_mask  	= hr_size-1;				// mask if shifted right (index position)
+//const uint32 hr_hi_mask  	= hr_lo_mask << hr_shift;	// mask if shifted left  (handle position)
 
 const uint	hd_bits			= handlebits - hr_bits;		// max.size of HashData[] in HashRing[].data[]		((20))
-const ulong	hd_mask			= (1ul<<hd_bits)-1;
+const uint32	hd_mask			= (1ul<<hd_bits)-1;
 
 
 
@@ -74,7 +74,7 @@ const ulong	hd_mask			= (1ul<<hd_bits)-1;
 struct HashData
 {
 	uint		usage;	// usage count
-	ulong		hash;
+	uint32		hash;
 	String		name;
 
 	HashData ( ) : usage(0) { };	// creator
@@ -186,8 +186,8 @@ NameHandle FindNameHandle ( cString& s )
 {
 	if (s.Len()==0) return 0;
 
-	ulong   hash = s.CalcHash();
-	ulong    idx = hash >> hr_shift;
+	uint32   hash = s.CalcHash();
+	uint32    idx = hash >> hr_shift;
 	uint      sz = HashRing[idx].size;  if (sz==0) return 0;		// not found
 	HashData* hd = HashRing[idx].data;
 
@@ -214,8 +214,8 @@ NameHandle NewNameHandle ( cString& s )
 	NameHandleCheck();
 #endif
 
-	ulong   hash = s.CalcHash();
-	ulong     idx = hash >> hr_shift;
+	uint32   hash = s.CalcHash();
+	uint32     idx = hash >> hr_shift;
 	uint      sz = HashRing[idx].size;
 	HashData* hd;
 	uint	   i;

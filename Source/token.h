@@ -123,9 +123,9 @@
 		p[7] = ((uchar*)&f)[7];
 	#else
 		#if	defined(_POWERPC)						// G3/G4 can access misaligned
-			XXXTRAP(sizeof(double)!=2*sizeof(long));// but this takes very long: ~2000 cycles!
-			((long*)p)[0] = ((long*)&f)[0];			// <-- this fails for _I386 -O2
-			((long*)p)[1] = ((long*)&f)[1];			// <-- ""
+			XXXTRAP(sizeof(double)!=2*sizeof(int32));// but this takes very int32: ~2000 cycles!
+			((int32*)p)[0] = ((int32*)&f)[0];			// <-- this fails for _I386 -O2
+			((int32*)p)[1] = ((int32*)&f)[1];			// <-- ""
 		#else
 			*(double*)p = f;
 		#endif
@@ -148,9 +148,9 @@
 		return f;
 	#else
 		#if	defined(_POWERPC)						// G3/G4 can access misaligned
-			double f;								// but this takes very long: ~2000 cycles!
-			((long*)&f)[0] = ((long*)p)[0];			// <-- this fails for _I386 -O2
-			((long*)&f)[1] = ((long*)p)[1];			// <-- probably due to optimization
+			double f;								// but this takes very int32: ~2000 cycles!
+			((int32*)&f)[0] = ((int32*)p)[0];			// <-- this fails for _I386 -O2
+			((int32*)&f)[1] = ((int32*)p)[1];			// <-- probably due to optimization
 			return f;								// <-- f is not yet written when returning here!
 		#else
 			return *(double*)p;
@@ -848,7 +848,7 @@ TOKEN(tTOLOWER,	procOneArg,		+0,		"lowerstr",	"t=lowerstr t",
 TOKEN(tSPACESTR, procWithArg,	+0,		"spacestr",	"t=spacestr(n[,t])",
 "Return a text filled with <number> spaces.\n"
 "Optionally accepts a fill pattern. if this pattern is longer than 1 character,\n"
-"then the resulting text will be <number> * count(<text>) characters long.\n"
+"then the resulting text will be <number> * count(<text>) characters int32.\n"
 "If the fill pattern is an empty text, then the result is an empty text too.\n"
 "e.g. var spc=spacestr(12), foo=spacestr(99,\"\"), mupl=spacestr(5,\"hello!\");" ),
 

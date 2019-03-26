@@ -333,19 +333,19 @@ static cstr Latin1 ( cstr filename )
 	z = file;
 	for (;;)
 	{
-		ulong c0 = uchar(*z++);
+		uint32 c0 = uchar(*z++);
 		if ((char)c0>0) continue;					// ascii
 		if (c0==0) return nullptr;						// end of filename reached without invalid utf-8
 		if ((char)c0 < (char)0xc0) return file;		// unexpected fups
 		if (c0>=0xfe) return file;					// ill. codes
 
 	// parse multi-byte character:
-		ulong n = 0;		// UCS-4 char code akku
+		uint32 n = 0;		// UCS-4 char code akku
 		uint  i = 0;		// UTF-8 character size
 
 		while( c0 & (0x80u>>(++i)) )
 		{
-			ulong c1 = uchar(*z++);
+			uint32 c1 = uchar(*z++);
 			if ((char)c1 >= (char)0xc0) return file;// no fup: truncated char (end of text or non-fup)
 			n = (n<<6) + (c1&0x3F);
 		}
@@ -570,44 +570,44 @@ int NewTempFile ( )
 int TerminalSize ( int tty, int& rows, int& cols )
 {
 	struct winsize data;
-	data.ws_row = (short)-1;
-	data.ws_col = (short)-1;
+	data.ws_row = (int16)-1;
+	data.ws_col = (int16)-1;
 	int r = ioctl ( tty, TIOCGWINSZ, &data );
-	rows = (short)data.ws_row;
-	cols = (short)data.ws_col;
+	rows = (int16)data.ws_row;
+	cols = (int16)data.ws_col;
 	return r;
 }
 
 int TerminalRows ( int tty )
 {
 	struct winsize data;
-	data.ws_row = (short)-1;
+	data.ws_row = (int16)-1;
 	ioctl ( tty, TIOCGWINSZ, &data );
-	return (short)data.ws_row;
+	return (int16)data.ws_row;
 }
 
 int TerminalCols ( int tty )
 {
 	struct winsize data;
-	data.ws_col = (short)-1;
+	data.ws_col = (int16)-1;
 	ioctl ( tty, TIOCGWINSZ, &data );
-	return (short)data.ws_col;
+	return (int16)data.ws_col;
 }
 
 int TerminalWidth ( int tty )
 {
 	struct winsize data;
-	data.ws_xpixel = (short)-1;
+	data.ws_xpixel = (int16)-1;
 	ioctl ( tty, TIOCGWINSZ, &data );
-	return (short)data.ws_xpixel;
+	return (int16)data.ws_xpixel;
 }
 
 int TerminalHeight ( int tty )
 {
 	struct winsize data;
-	data.ws_ypixel = (short)-1;
+	data.ws_ypixel = (int16)-1;
 	ioctl ( tty, TIOCGWINSZ, &data );
-	return (short)data.ws_ypixel;
+	return (int16)data.ws_ypixel;
 }
 
 
@@ -666,11 +666,11 @@ int open_file ( nothrow_t, cstr path, int flags, int mode ) throw()
 //int open_file_n ( nothrow_t, cstr path, int mode )	throw()	{ return open_file(nothrow, path,O_WRONLY|O_CREAT|O_EXCL,mode); }
 //
 
-ulong read_bytes ( nothrow_t, int fd, ptr p, ulong bytes ) throw()
+uint32 read_bytes ( nothrow_t, int fd, ptr p, uint32 bytes ) throw()
 {
 	errno=ok;							// clear errno and custom_error
-	ulong m = bytes;
-r:	ulong n = read( fd, p, m );
+	uint32 m = bytes;
+r:	uint32 n = read( fd, p, m );
 	if (n==m)	{ errno=noerror;   return bytes;   }
 	if (n==0)	{ errno=endoffile; return bytes-m; }
 	if (n<m)	{ p+=n; m-=n; goto r; }		// n<m  <=>  n!=-1
@@ -679,11 +679,11 @@ r:	ulong n = read( fd, p, m );
 	return bytes-m;
 }
 
-off_t write_bytes ( nothrow_t, int fd, cptr p, ulong bytes ) throw()
+off_t write_bytes ( nothrow_t, int fd, cptr p, uint32 bytes ) throw()
 {
 	errno=ok;							// clear errno and custom_error
-	ulong m = bytes;
-w:	ulong n = write( fd, p, m );
+	uint32 m = bytes;
+w:	uint32 n = write( fd, p, m );
 	if (n==m)	{ errno=noerror; return bytes; }
 	if (n<m)	{ p+=n; m-=n; goto w; }		// n<m  <=>  n!=-1
 	if (errno==EINTR) goto w;				// slow device only
@@ -808,11 +808,11 @@ off_t seek_fpos( int fd, off_t fpos, int whence ) throw(file_error)
 }
 
 
-ulong read_bytes ( int fd, ptr p, ulong bytes ) throw(file_error)
+uint32 read_bytes ( int fd, ptr p, uint32 bytes ) throw(file_error)
 {
 	errno=ok;							// clear errno and custom_error
-	ulong m = bytes;
-r:	ulong n = read( fd, p, m );
+	uint32 m = bytes;
+r:	uint32 n = read( fd, p, m );
 	if (n==m)	{ errno=noerror; return bytes; }
 	if (n==0)	{ errno=endoffile; } else
 	if (n<m)	{ p+=n; m-=n; goto r; }		// n<m  <=>  n!=-1
@@ -822,11 +822,11 @@ r:	ulong n = read( fd, p, m );
 }
 
 
-ulong write_bytes ( int fd, cptr p, ulong bytes ) throw(file_error)
+uint32 write_bytes ( int fd, cptr p, uint32 bytes ) throw(file_error)
 {
 	errno=ok;							// clear errno and custom_error
-	ulong m = bytes;
-w:	ulong n = write( fd, p, m );
+	uint32 m = bytes;
+w:	uint32 n = write( fd, p, m );
 	if (n==m)	{ errno=noerror; return bytes; }
 	if (n<m)	{ p+=n; m-=n; goto w; }		// n<m  <=>  n!=-1
 	if (errno==EINTR) goto w;				// slow device only
@@ -839,25 +839,25 @@ w:	ulong n = write( fd, p, m );
 
 /*	read array of short ints in Intel/Z80 byte order
 	note: for little endian cpus (intel/z80) this is straight forward
-		  and defined inline as read_data(fd,short*,cnt)
+		  and defined inline as read_data(fd,int16*,cnt)
 */
-ulong read_short_data_z( int fd, int16* bu, ulong items ) throw(file_error)
+uint32 read_short_data_z( int fd, int16* bu, uint32 items ) throw(file_error)
 {
 	read_data( fd, bu, items );				// throw file_error
-	for( ulong i=0; i<items; i++ ) { bu[i] = Peek2Z(bu+i); }
+	for( uint32 i=0; i<items; i++ ) { bu[i] = Peek2Z(bu+i); }
 	return items;
 }
 
 /*	write array of short ints in Intel/Z80 byte order
 	note: for little endian cpus (intel/z80) this is straight forward
-		  and defined inline as write_data(fd,short*,cnt)
+		  and defined inline as write_data(fd,int16*,cnt)
 */
-ulong write_short_data_z( int fd, int16 const* bu, ulong items ) throw(file_error)
+uint32 write_short_data_z( int fd, int16 const* bu, uint32 items ) throw(file_error)
 {
 	if( items<=4*1024 ) try
 	{
-		short zbu[items];				// throw bad_alloc
-		for( ulong i=0; i<items; i++ ) { Poke2Z( zbu+i, bu[i]); }
+		int16 zbu[items];				// throw bad_alloc
+		for( uint32 i=0; i<items; i++ ) { Poke2Z( zbu+i, bu[i]); }
 		write_data( fd, zbu, items );	// throw file_error
 		return items;
 	}
@@ -874,25 +874,25 @@ ulong write_short_data_z( int fd, int16 const* bu, ulong items ) throw(file_erro
 
 /*	read array of short ints in internet/ppc/68k byte order
 	note: for big endian cpus (ppc/68k) this is straight forward
-		  and defined inline as read_data(fd,short*,cnt)
+		  and defined inline as read_data(fd,int16*,cnt)
 */
-ulong read_short_data_x( int fd, int16* bu, ulong items ) throw(file_error)
+uint32 read_short_data_x( int fd, int16* bu, uint32 items ) throw(file_error)
 {
 	read_data( fd, bu, items );				// throw file_error
-	for( ulong i=0; i<items; i++ ) { bu[i] = peek2X(bu+i); }
+	for( uint32 i=0; i<items; i++ ) { bu[i] = peek2X(bu+i); }
 	return items;
 }
 
 /*	write array of short ints in internet/ppc/68k byte order
 	note: for big endian cpus (ppc/68k) this is straight forward
-		  and defined inline as write_data(fd,short*,cnt)
+		  and defined inline as write_data(fd,int16*,cnt)
 */
-ulong write_short_data_x( int fd, int16 const* bu, ulong items ) throw(file_error)
+uint32 write_short_data_x( int fd, int16 const* bu, uint32 items ) throw(file_error)
 {
 	if( items<=4*1024 ) try
 	{
-		short zbu[items];				// throw bad_alloc
-		for( ulong i=0; i<items; i++ ) { poke2X( zbu+i, bu[i]); }
+		int16 zbu[items];				// throw bad_alloc
+		for( uint32 i=0; i<items; i++ ) { poke2X( zbu+i, bu[i]); }
 		write_data( fd, zbu, items );	// throw file_error
 		return items;
 	}

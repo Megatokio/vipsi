@@ -108,7 +108,7 @@ static str EffModeStr ( mode_t mode, gid_t file_grp, uid_t file_usr )
 */
 
 /*
-ulong VolumeFlags ( cstr path )
+uint32 VolumeFlags ( cstr path )
 {
 	bool wprot   = 1;	// 1
 	bool ejectbl = 0;	// 2
@@ -126,7 +126,7 @@ ulong VolumeFlags ( cstr path )
 	mounted=1;
 	xlog("\n*** SystemIO.cp:\n*** VolumeFlags(): not yet implemented for your platform.\n");
 #else
-	short f = fs.f_flags;
+	int16 f = fs.f_flags;
 	wprot   = f&MNT_RDONLY;
     ejectbl = (f&MNT_NOSUID) && (f&MNT_NODEV);
 	mounted = fs.f_blocks>0;
@@ -179,7 +179,7 @@ void ChangeWorkingDir ( cString& path )
 
 String WorkingDirString ( )
 {
-	for ( ulong n=0x80; n<0x10000; n*=2 )
+	for ( uint32 n=0x80; n<0x10000; n*=2 )
 	{
 		str s = getcwd ( tempstr(n), n );
 		if (s) return s;
@@ -497,7 +497,7 @@ void ReadDir ( cString& path, Var& v )
 		// not a link or link deref'ed ok:
 
 		bool is_dir = S_ISDIR(filestat.st_mode);
-		long n = filestat.st_size;
+		int32 n = filestat.st_size;
 		if(is_dir)
 		{
 			n = 0;
@@ -688,7 +688,7 @@ void GetVolumeInfo ( Var& v )
 
 		char flags[] = "drwx";
 	#if defined(_BSD)
-		short f = fs.f_flags;
+		int16 f = fs.f_flags;
 		if (f&MNT_RDONLY) flags[2]='-';
 	#else
 		// stat.st_mode		***TODO***  check for read-only device

@@ -59,7 +59,7 @@
 #include	"VString/String.h"
 
 
-typedef ulong NameHandle;
+typedef uint32 NameHandle;
 
 
 

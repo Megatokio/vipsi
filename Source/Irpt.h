@@ -52,7 +52,7 @@ class Irpt : private BPObj
 friend class Var;
 friend class Thread;
 
-		long	flag;			// interrupt cell
+		int32	flag;			// interrupt cell
 		Tid		wait;			// linked list of waiting threads
 
 				Irpt			( const Irpt& );					// prohibit
@@ -64,7 +64,7 @@ public:
 
 		bool	IsTriggered		( )  const		{ return flag>0;  }	// interrupts pending ?
 		bool	IsNotTriggered	( )  const		{ return flag<=0; }	// no interrupts pending ?
-		long	Interrupts		( )  const		{ return flag; 	  }	// num. of pending irpts (may be neg.)
+		int32	Interrupts		( )  const		{ return flag; 	  }	// num. of pending irpts (may be neg.)
 		bool	IsWaiting		( )  const		{ return wait!=0; }	// s.o. waiting ?
 
 		void	Clear			( )				{ flag=0; 		  }	// reset to initial state

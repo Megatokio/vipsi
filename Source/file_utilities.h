@@ -142,14 +142,14 @@ EXT int		open_file	( nothrow_t, cstr path, int flags, int mode=0664 ) throw();
 //EXT int		open_file_a	( nothrow_t, cstr path, int mode=0664 )			throw();	// append mode.
 //EXT int		open_file_n	( nothrow_t, cstr path, int mode=0664 )			throw();	// must not exist.
 //
-//EXT ulong	read_bytes	( nothrow_t, int fd, ptr p, ulong bytes )		throw();
-//TPL	ulong	read_bytes	( nothrow_t, int fd, T*  p, ulong bytes )		throw()	{ return read_bytes( nothrow,fd,(ptr)p,bytes ); }
-//TPL ulong	read_data	( nothrow_t, int fd, T*  p, ulong items )		throw()	{ return read_bytes( nothrow,fd,(ptr)p,items*SOT )/SOT;}
+//EXT uint32	read_bytes	( nothrow_t, int fd, ptr p, uint32 bytes )		throw();
+//TPL	uint32	read_bytes	( nothrow_t, int fd, T*  p, uint32 bytes )		throw()	{ return read_bytes( nothrow,fd,(ptr)p,bytes ); }
+//TPL uint32	read_data	( nothrow_t, int fd, T*  p, uint32 items )		throw()	{ return read_bytes( nothrow,fd,(ptr)p,items*SOT )/SOT;}
 //
-//EXT off_t	write_bytes	( nothrow_t, int fd, cptr p, ulong bytes )		throw();
-//TPL off_t	write_bytes	( nothrow_t, int fd, T const* p, ulong bytes )	throw() { return write_bytes(nothrow,fd,(cptr)p,bytes);}
-//TPL ulong	write_data	( nothrow_t, int fd, T const* p, ulong items )	throw() { return write_bytes(nothrow,fd,(cptr)p,items*SOT)/SOT;}
-//INL ulong	write_str	( nothrow_t, int fd, cstr p )					throw()	{ return p&&*p ? write_bytes(nothrow,fd,p,strlen(p)) : 0; }
+//EXT off_t	write_bytes	( nothrow_t, int fd, cptr p, uint32 bytes )		throw();
+//TPL off_t	write_bytes	( nothrow_t, int fd, T const* p, uint32 bytes )	throw() { return write_bytes(nothrow,fd,(cptr)p,bytes);}
+//TPL uint32	write_data	( nothrow_t, int fd, T const* p, uint32 items )	throw() { return write_bytes(nothrow,fd,(cptr)p,items*SOT)/SOT;}
+//INL uint32	write_str	( nothrow_t, int fd, cstr p )					throw()	{ return p&&*p ? write_bytes(nothrow,fd,p,strlen(p)) : 0; }
 //
 //EXT	off_t		clip_file		( nothrow_t, int fd )					throw();
 //EXT	int/*err*/	close_file		( nothrow_t, int fd )					throw();
@@ -174,16 +174,16 @@ EXT int		open_file_w			( cstr path, int mode=0664 )			throw(file_error);	// trun
 EXT int		open_file_a			( cstr path, int mode=0664 )			throw(file_error);	// append mode.
 EXT int		open_file_n			( cstr path, int mode=0664 )			throw(file_error);	// new: must not exist.
 
-EXT ulong	read_bytes			( int fd, ptr p, ulong bytes )			throw(file_error);
-TPL ulong	read_bytes			( int fd, T*  p, ulong bytes )			throw(file_error)	{ read_bytes(fd,(ptr)p,bytes); return bytes; }
-TPL ulong	read_data			( int fd, T*  p, ulong items )			throw(file_error)	{ read_bytes(fd,(ptr)p,items*SOT); return items; }
-TPL ulong	read_data			( int fd, T*  p )						throw(file_error)	{ read_bytes(fd,(ptr)p,SOT); return 1; }
+EXT uint32	read_bytes			( int fd, ptr p, uint32 bytes )			throw(file_error);
+TPL uint32	read_bytes			( int fd, T*  p, uint32 bytes )			throw(file_error)	{ read_bytes(fd,(ptr)p,bytes); return bytes; }
+TPL uint32	read_data			( int fd, T*  p, uint32 items )			throw(file_error)	{ read_bytes(fd,(ptr)p,items*SOT); return items; }
+TPL uint32	read_data			( int fd, T*  p )						throw(file_error)	{ read_bytes(fd,(ptr)p,SOT); return 1; }
 
-EXT ulong	write_bytes			( int fd, cptr p, ulong bytes )			throw(file_error);
-TPL ulong	write_bytes			( int fd, T const* p, ulong bytes )		throw(file_error)	{ write_bytes(fd,(cptr)p,bytes); return bytes; }
-TPL ulong	write_data			( int fd, T const* p, ulong items )		throw(file_error)	{ write_bytes(fd,(cptr)p,items*SOT); return items; }
-TPL ulong	write_data			( int fd, T const* p )					throw(file_error)	{ write_bytes(fd,(cptr)p,SOT); return 1; }
-INL ulong	write_str			( int fd, cstr p )						throw(file_error)	{ return p&&*p ? write_bytes(fd,p,strlen(p)) : 0; }
+EXT uint32	write_bytes			( int fd, cptr p, uint32 bytes )			throw(file_error);
+TPL uint32	write_bytes			( int fd, T const* p, uint32 bytes )		throw(file_error)	{ write_bytes(fd,(cptr)p,bytes); return bytes; }
+TPL uint32	write_data			( int fd, T const* p, uint32 items )		throw(file_error)	{ write_bytes(fd,(cptr)p,items*SOT); return items; }
+TPL uint32	write_data			( int fd, T const* p )					throw(file_error)	{ write_bytes(fd,(cptr)p,SOT); return 1; }
+INL uint32	write_str			( int fd, cstr p )						throw(file_error)	{ return p&&*p ? write_bytes(fd,p,strlen(p)) : 0; }
 
 EXT	off_t	clip_file			( int fd )								throw(file_error);
 EXT	void	close_file			( int fd )								throw(file_error);
@@ -201,15 +201,15 @@ INL	bool	is_at_eof			( int fd )								throw(file_error)	{ return file_position(
 INL	bool	is_near_eof			( int fd, off_t proximity )				throw(file_error)	{ return file_remaining(fd) <= proximity; }
 
 #if defined(_BIG_ENDIAN)
-INL	ulong	read_short_data_x	( int fd, int16*p,		 ulong items )	throw(file_error)	{ return read_data(fd,p,items); }
-EXT	ulong	read_short_data_z	( int fd, int16*p,		 ulong items )	throw(file_error);
-INL	ulong	write_short_data_x	( int fd, int16 const*p, ulong items )	throw(file_error)	{ return write_data(fd,p,items); }
-EXT	ulong	write_short_data_z	( int fd, int16 const*p, ulong items )	throw(file_error);
+INL	uint32	read_short_data_x	( int fd, int16*p,		 uint32 items )	throw(file_error)	{ return read_data(fd,p,items); }
+EXT	uint32	read_short_data_z	( int fd, int16*p,		 uint32 items )	throw(file_error);
+INL	uint32	write_short_data_x	( int fd, int16 const*p, uint32 items )	throw(file_error)	{ return write_data(fd,p,items); }
+EXT	uint32	write_short_data_z	( int fd, int16 const*p, uint32 items )	throw(file_error);
 #elif defined(_LITTLE_ENDIAN)
-EXT	ulong	read_short_data_x	( int fd, int16*p,		 ulong items )	throw(file_error);
-INL	ulong	read_short_data_z	( int fd, int16*p,		 ulong items )	throw(file_error)	{ return read_data(fd,p,items); }
-EXT	ulong	write_short_data_x	( int fd, int16 const*p, ulong items )	throw(file_error);
-INL	ulong	write_short_data_z	( int fd, int16 const*p, ulong items )	throw(file_error)	{ return write_data(fd,p,items); }
+EXT	uint32	read_short_data_x	( int fd, int16*p,		 uint32 items )	throw(file_error);
+INL	uint32	read_short_data_z	( int fd, int16*p,		 uint32 items )	throw(file_error)	{ return read_data(fd,p,items); }
+EXT	uint32	write_short_data_x	( int fd, int16 const*p, uint32 items )	throw(file_error);
+INL	uint32	write_short_data_z	( int fd, int16 const*p, uint32 items )	throw(file_error)	{ return write_data(fd,p,items); }
 #endif
 
 
