@@ -148,7 +148,7 @@ then
 if errors
     put nl," ",nl
 	log "--- ",errors," errors total ---"
-	put nl
+	put nl,nl
 else
     put nl," ",nl,"+++ all tests passed +++",nl,nl
 then

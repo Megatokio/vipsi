@@ -82,4 +82,45 @@ HEADERS += \
     Libraries/Unicode/UTF-8.h \
     Libraries/unix/os_utilities.h \
 
+DISTFILES += \
+    ../Libs/test_suite/brokenNames.tar.gz \
+    ../Libs/vip.xml \
+    ../Libs/shootout/Mandelbrot_200x200.pbm \
+    ../Libs/shootout/Mandelbrot_64x64.pbm \
+    ../Libs/shootout/Ackermann.vs \
+    ../Libs/shootout/BinaryTrees.vs \
+    ../Libs/shootout/CountWords.vs \
+    ../Libs/shootout/HelloWorld.vs \
+    ../Libs/shootout/Mandelbrot.vs \
+    ../Libs/shootout/TakFP.vs \
+    ../Libs/shootout/wc-input.txt \
+    ../Libs/test_suite/00_test.vs \
+    ../Libs/test_suite/each_and_every.vs \
+    ../Libs/test_suite/files_etc.vs \
+    ../Libs/test_suite/functions_list.vs \
+    ../Libs/test_suite/functions_numeric.vs \
+    ../Libs/test_suite/functions_text.vs \
+    ../Libs/test_suite/include_sys_call.vs \
+    ../Libs/test_suite/instructions_branching.vs \
+    ../Libs/test_suite/names.vs \
+    ../Libs/test_suite/old_bugs.vs \
+    ../Libs/test_suite/old_bugs_pruning_lists.vs \
+    ../Libs/test_suite/operators_compare.vs \
+    ../Libs/test_suite/operators_numeric.vs \
+    ../Libs/test_suite/operators_pruning.vs \
+    ../Libs/test_suite/operators_text.vs \
+    ../Libs/test_suite/procedures.vs \
+    ../Libs/test_suite/variable_protection.vs \
+    ../Libs/BOOK.vl \
+    ../Libs/DIR.vl \
+    ../Libs/HTML.vl \
+    ../Libs/script.prefs \
+    ../Libs/shell.prefs \
+    ../Libs/shell.vs \
+    ../Libs/speedometer.vs \
+    ../Libs/testdvd.vs \
+    ../Libs/TEXT.vl \
+    ../Libs/touch_version.vs \
+    ../Libs/vipsi.cgi.conf
+
 

@@ -55,7 +55,7 @@ put "that's nearly ",i/dt/710," megaboogies!",nl
 put "unbelievable...",nl
 
 
-return i/dt/710 # " megaboogies"
+return 0 // script result code 0 = OK    ALT: return i/dt/710 # " megaboogies"
 end
 
 
