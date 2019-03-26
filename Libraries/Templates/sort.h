@@ -166,9 +166,9 @@
 #ifdef FUNCTION_SORTER
 #undef FUNCTION_SORTER
 #undef CMP
-void SORTER( TYPE* a, TYPE* e, bool(*CMP)(TYPE&,TYPE&) ) throw(internal_error)
+void SORTER( TYPE* a, TYPE* e, bool(*CMP)(TYPE&,TYPE&) ) noexcept(false)//throw(internal_error)
 #else
-void SORTER( TYPE* a, TYPE* e ) throw(internal_error)
+void SORTER( TYPE* a, TYPE* e ) noexcept(false)//throw(internal_error)
 #endif
 {
 	XASSERT(a&&e);									// both pointers not nullptr

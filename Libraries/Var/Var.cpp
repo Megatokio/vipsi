@@ -58,12 +58,13 @@
 #define 	SAFE	2
 #define 	LOG		1
 
-#include	"config.h"
 #include	<math.h>
+#include	"config.h"
 #include	"Var.h"
 #include	"Unicode/Unicode.h"
 #include	"Templates/Stack.h"
 
+;
 
 #ifndef NAN
 const Double NAN = 0.0/0.0;
@@ -86,7 +87,7 @@ inline double random(double r)	{ return ldexp(random() * r, -31); }
 Var* zero = nullptr;
 Var* eins = nullptr;
 
-struct InitVar
+static struct InitVar
 {	InitVar()
 	{	zero = new Var(0.0); zero->lock_data(); zero->lock();
 		eins = new Var(1.0); eins->lock_data(); eins->lock();
@@ -117,7 +118,8 @@ Var*   Var::grow_pool ( )
 
 	uint n = 500 + pool_size/2;
 	pool = new Var*[pool_size+=n];
-	Var* var = (Var*)new char[n*sizeof(Var)];
+	Var* var = reinterpret_cast<Var*>(new char[n*sizeof(Var)]);
+	XXASSERT((size_t(var) % _MAX_ALIGNMENT) == 0);
 
 	*pool++ = nullptr;
 	while(n--) *pool++ = var++;
@@ -134,11 +136,6 @@ void Var::validate ( cstr file, uint line ) const
 {
 	#define VTRAP(X) if(!(X)) {} else abort( "internal error in file %s line %u: %s", file, line, "VTRAP(" #X ")" )
 
-// test global prerequiste: Double fits in data[]:
-	ASSERT(sizeof(Double) <= sizeof(data));
-	ASSERT(sizeof(String) <= sizeof(data));
-	ASSERT(sizeof(Vek)    <= sizeof(data));
-
 	//VTRAP(!this);
 
 	//Log("(%lu)",name);
@@ -146,7 +143,7 @@ void Var::validate ( cstr file, uint line ) const
 
 	if (parent)
 	{
-		VTRAP((int)index<0);
+		VTRAP(int(index)<0);
 		VTRAP(parent->IsNoList());
 		VTRAP(parent->list().array==nullptr);
 		VTRAP(parent->list().used<=index);
@@ -1260,7 +1257,7 @@ Var* Var::FindItem ( NameHandle namehandle ) const
 		{
 			Var* v = *--e;
 			if (v) { if (namehandle!=v->name) continue; }
-			else   { if (namehandle!=0) continue; else v = new Var((Var*)this,e-a); }
+			else   { if (namehandle!=0) continue; else v = new Var(const_cast<Var*>(this),uint(e-a)); }
 			return v;
 		}
 	}
@@ -1298,7 +1295,7 @@ int32 Var::Find ( cVar& v, int32 startidx ) const
 	{
 		bool visnull = v.IsNumber()&&v.value()==0.0;
 		if (startidx<0) startidx=0;
-		int32 endidx  = list().used;
+		int32 endidx  = int32(list().used);
 
 		while(startidx<endidx)
 		{

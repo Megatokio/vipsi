@@ -57,15 +57,15 @@
 */
 
 
-#ifndef var_h
-#define var_h
+#ifndef Var_h
+#define Var_h
 
 
 #include	"VString/String.h"
 #include	"NameHandles.h"
-#define	 RMASK(n)		(~(0xFFFFFFFF<<(n)))				// mask to select n bits from the right
-#define  LMASK(i)		(  0xFFFFFFFF<<(i) )								// mask to select all but the i bits from right
-
+#define	 RMASK(n)		(~(0xFFFFFFFFu<<(n)))				// mask to select n bits from the right
+#define  LMASK(i)		(  0xFFFFFFFFu<<(i) )				// mask to select all but the i bits from right
+;
 
 
 #ifdef VAR_LONG_DOUBLE
@@ -89,14 +89,6 @@ typedef void(*SortProcPtr)(Var**,Var**);
 #include "Irpt.h"
 #include "Thread.h"
 #include "BPObj.h"
-
-
-
-/* ----	undef defines from "Menues.h" ----
-*/
-#undef SetItem
-#undef GetItem
-#undef setitem
 
 
 /* ----	enum for Var::type_and_lock ----------------------------
@@ -247,7 +239,17 @@ friend class BPObj;
 	Var*			parent;								// parent list or nullptr
 	uint			index;								// own index in parent's list
 	NameHandle		name;								// variable's name
-	int32			data[sizeof(String)/sizeof(int32)];	// variable data
+
+	union			// variable data
+	{
+	Double			double_value;
+	String			string_value;
+	Proc			proc_value;
+	Vek				vector_value;
+	Var*			varptr_value;
+	cVar*			cvarptr_value;
+	Handle			handle_value;
+	};
 
 static Var**		pool;
 static Var*			grow_pool		( );
@@ -322,32 +324,32 @@ static bool		is_unlocked			( uint32 lock )		{ return lock          <  var_lock_b
 	void		relink			( Var* par, uint idx )	{ XXXASSERT(!is_unlinked()); kill_link(); init_link(par,idx); }
 
 // access data:
-	Double&		value			( )						{ return *(Double*)data; }
-	String&		text			( )						{ return *(String*)data; }
-	Proc&		proc			( )						{ return *(Proc*)  data; }
-	Vek&		list			( )						{ return *(Vek*   )data; }
-	Var*&		varptr			( )						{ return *(Var**)  data; }
-	Handle&		handle			( )						{ return *(Handle*)data; }
+	Double&		value			( )						{ return double_value; }
+	String&		text			( )						{ return string_value; }
+	Proc&		proc			( )						{ return proc_value; }
+	Vek&		list			( )						{ return vector_value; }
+	Var*&		varptr			( )						{ return varptr_value; }
+	Handle&		handle			( )						{ return handle_value; }
 
-	cDouble&	value			( ) const				{ return *(Double*)data; }
-	cString&	text			( )	const				{ return *(String*)data; }
-	cProc&		proc			( )	const				{ return *(Proc*)  data; }
-	cVek&		list			( )	const				{ return *(Vek*   )data; }
-	cVar*const&	varptr			( )	const				{ return *(cVar**) data; }
-	Handle const& handle		( )	const				{ return *(Handle*)data; }
+	cDouble&	value			( ) const				{ return double_value; }
+	cString&	text			( )	const				{ return string_value; }
+	cProc&		proc			( )	const				{ return proc_value; }
+	cVek&		list			( )	const				{ return vector_value; }
+	cVar*const&	varptr			( )	const				{ return cvarptr_value; }
+	Handle const& handle		( )	const				{ return handle_value; }
 
-	Stream* 	stream			( )	const				{ return (Stream*)(handle().data); }
-	Sema*		sema			( ) const				{ return (Sema*)(handle().data);   }
-	Irpt*		irpt			( ) const				{ return (Irpt*)(handle().data);   }
-	Thread*		thread			( ) const				{ return (Thread*)(handle().data); }
+	Stream* 	stream			( )	const				{ return static_cast<Stream*>(handle().data); }
+	Sema*		sema			( ) const				{ return static_cast<Sema*>(handle().data);   }
+	Irpt*		irpt			( ) const				{ return static_cast<Irpt*>(handle().data);   }
+	Thread*		thread			( ) const				{ return static_cast<Thread*>(handle().data); }
 
-	void		init_value		( )						{ value() = 0.0; }
-	void		init_value		( Double n )			{ value() = n; }
-	void		kill_value		( )						{ };
+	void		init_value		( )						{ double_value = 0; }
+	void		init_value		( Double n )			{ double_value = n; }
+	void		kill_value		( )						{ }
 
-	void		init_text		( )						{ new(data) String; }
-	void		init_text		( cString& s )			{ new(data) String(s); }
-	void		kill_text		( )						{ text()._kill(); }
+	void		init_text		( )						{ new(&string_value) String; }
+	void		init_text		( cString& s )			{ new(&string_value) String(s); }
+	void		kill_text		( )						{ string_value._kill(); }
 
 	void		init_list		( );
 	void		init_list		( cVek& );
@@ -357,7 +359,7 @@ static bool		is_unlocked			( uint32 lock )		{ return lock          <  var_lock_b
 	void		init_proc		( cProc& q )			{ proc().init(q);  }
 	void		kill_proc		( )						{ proc().kill();   }
 
-	void		init_varptr		( cVar*v )				{ (varptr()=(Var*)v)->lock(); }
+	void		init_varptr		( cVar*v )				{ (varptr() = const_cast<Var*>(v))->lock(); }
 	void		kill_varptr		( )						{ varptr()->unlock(); }
 
 	void		kill_handle		( );
@@ -406,8 +408,8 @@ static bool		is_unlocked			( uint32 lock )		{ return lock          <  var_lock_b
 	void		insert_items	( uint idx, uint n );
 	void		delete_items	( uint idx, uint n );
 	Double		compare			( cVar& q ) const;
-static void		Sort			( Var**, Var** )		throw(internal_error);
-static void		RSort			( Var**, Var** )		throw(internal_error);
+static void		Sort			( Var**, Var** )		noexcept(false);//(internal_error);
+static void		RSort			( Var**, Var** )		noexcept(false);//(internal_error);
 	void		sort			( SortProcPtr );
 	Var&		list_op			( Var&(Var::*fp)(Double), Double q );
 	Var&		list_op			( Var&(Var::*fp)(Double), cVar& q  );
@@ -426,9 +428,9 @@ public:
 	void		validate		( cstr, uint ) const;
 	#define		Validate()		validate(__FILE__,__LINE__)
 
-	void*		operator new	( size_t )					{ return new_var(); }
-	void		operator delete	( void* p, size_t )			{ XXASSERT(!((Var*)p)->is_locked()); delete_var((Var*)p); }
-	void*		operator new	( size_t, void* p )			{ return p; }
+	void*		operator new	( size_t )			{ return new_var(); }
+	void		operator delete	( void* p, size_t )	{ XXASSERT(!(static_cast<Var*>(p))->is_locked()); delete_var(static_cast<Var*>(p)); }
+	void*		operator new	( size_t, void* p )	{ return p; }
 
 				~Var			( )							{ XXXLogIn("~Var()"); XXASSERT(!is_locked()); kill_data(); kill_link_nop(); kill_name(); }
 				Var				( )							{ init_name(); init_link(); init_data_and_lock(); }
@@ -476,14 +478,14 @@ public:
 				Var				( Var* par, uint idx, cString&s,cString& name )	{ new(this) Var(par,idx, s,NewNameHandle(name)); }
 				Var				( Var* par, uint idx, cVar& q,  cString& name )	{ new(this) Var(par,idx, q,NewNameHandle(name)); }
 
-				Var				( Var* par, uint idx, char const*const* argv, uint argc=~0 );
-				Var				( char const*const* argv, uint argc=~0 );
+				Var				( Var* par, uint idx, char const*const* argv, uint argc = ~0u );
+				Var				( char const*const* argv, uint argc = ~0u );
 				Var				( cProc& p )			{ init_name(); init_link(); init_data_and_lock(p); }
 explicit		Var				( Thread* t )			{ init_name(); init_link(); init_data_and_lock(t); }
 explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(s); }
 
 	Var&		operator=		( Var& q );
-	Var&		operator=		( cVar& q )				{ return operator=( *(Var*)&q ); }
+	Var&		operator=		( cVar& q )				{ return operator=( *const_cast<Var*>(&q) ); }
 	Var&		operator=		( Double n )			{ set_data(n); return *this; }
 	Var&		operator=		( cString& s )			{ set_data(s); return *this; }		// note: no test for intersection
 	Var&		operator=		( Stream* s )			{ set_data(s); return *this; }
@@ -571,8 +573,8 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 
 	cDouble&	Value			( )	const				{ XXASSERT(IsNumber()); return value(); }
 	Double&		Value			( )						{ XXASSERT(IsNumber()); return value(); }
-	int32		LongValue		( )	const				{ return (int32)Value(); }
-	llong		LLongValue		( )	const				{ return (llong)Value(); }
+	int32		LongValue		( )	const				{ return int32(Value()); }
+	int64		LLongValue		( )	const				{ return int64(Value()); }
 
 	String&		Text			( )						{ XXASSERT(IsText());   return text(); }
 	cString&	Text			( ) const				{ XXASSERT(IsText());   return text(); }
@@ -606,7 +608,7 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	Vek&		List			( )						{ XXASSERT(IsList());   return list(); }
 	uint		ListSize		( )						{ XXASSERT(IsList());   return list().used; }
 	Var&		operator[]		( uint i );
-	cVar&		operator[]		( uint i )  const		{ return (*(Var*)this)[i]; }
+	cVar&		operator[]		( uint i )  const		{ return (*const_cast<Var*>(this))[i]; }
 	Var&		LastItem		( )						{ return (*this)[list().used-1]; }
 	cVar&		LastItem		( )	const				{ return (*this)[list().used-1]; }
 	Var&		FirstItem		( )						{ return (*this)[0]; }
@@ -626,8 +628,8 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	void		InsertItem		( uint idx )			{ InsertItems(idx,1); }
 	void		InsertItem		( uint idx, Var* q );
 	void		AppendItem		( Var* q )				{ InsertItem(at_end,q); }
-	void		AppendItems		( Var* a,Var*b=0,Var*c=0,Var*d=0 );
-	void		AppendItems		( Var* a,Var*b,Var*c,Var*d,Var*e,Var*f=0,Var*g=0,Var*h=0 );
+	void		AppendItems		( Var* a,Var*b=nullptr,Var*c=nullptr,Var*d=nullptr );
+	void		AppendItems		( Var* a,Var*b,Var*c,Var*d,Var*e,Var*f=nullptr,Var*g=nullptr,Var*h=nullptr );
 	void		DeleteItems		( uint idx, uint n );	// lösche Variablen aus List
 	void		DeleteItem		( uint idx )			{ DeleteItems(idx,1); }
 	void		DeleteLastItem	( );
