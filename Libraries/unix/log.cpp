@@ -150,10 +150,10 @@ static int  fd = -1;						// default: no log file
 static LogRotation 	logrotate = NEVER;
 static double 		logrotate_when = 0.0; 	// 0 = not initialized, 1e99 = never
 static uint 		max_logfiles = 99;
-static cstr 		logdir = NULL;
+static cstr 		logdir = nullptr;
 
 // Existing LogFile instances:
-static class LogFile** logfiles = NULL;		// Pointers to all existing LogFile instances
+static class LogFile** logfiles = nullptr;		// Pointers to all existing LogFile instances
 static uint			logfiles_cnt = 0;
 static uint			logfiles_max = 0;
 
@@ -206,7 +206,7 @@ public:
 double now()
 {
     struct timeval tv;
-    gettimeofday ( &tv, NULL );
+    gettimeofday ( &tv, nullptr );
     return tv.tv_sec + tv.tv_usec * 1e-6;
 }
 
@@ -441,7 +441,7 @@ void abort( int error )			// __attribute__((__noreturn__));
 */
 
 // Deallocate LogFile instance of current thread
-// called at thread termination if pointer in logfile_key is != NULL
+// called at thread termination if pointer in logfile_key is != nullptr
 // this function is registered with pthread_key_create()
 //
 static void delete_logfile(void* logfile)
@@ -472,7 +472,7 @@ static void atexit_actions()
 //
 static void init_once(void)
 {
-	int e = pthread_mutex_init(&mutex,NULL);
+	int e = pthread_mutex_init(&mutex,nullptr);
 	if(e) panic("init_mutex", e);
 
 	// create key:
@@ -534,7 +534,7 @@ LogFile::LogFile()
 
 		// find a free slot / thread_id:
 		uint i=0;
-		while(i<logfiles_cnt && logfiles[i]!=NULL) i++;
+		while(i<logfiles_cnt && logfiles[i]!=nullptr) i++;
 
 		// no free slot => append at end of list
 		if(i==logfiles_cnt)
@@ -574,7 +574,7 @@ LogFile::~LogFile()
 		write2log("---thread terminated---");
 
 		// remove this from logfiles[]:
-		logfiles[thread_id] = NULL;
+		logfiles[thread_id] = nullptr;
 
 	unlock();
 }
@@ -714,7 +714,7 @@ static void purge_old_logfiles(cstr fname)
     XXLogIn("LogFile:purge_old_logfiles");
 
     XXXASSERT(startswith(fname,APPL_NAME));
-    XXXASSERT(logdir!=NULL);
+    XXXASSERT(logdir!=nullptr);
 	XXXASSERT(*logdir=='/');                // must be full path. '/' must exist.
     XXXASSERT(*(strchr(logdir,0)-1)=='/');  // must end with '/'
 
@@ -734,7 +734,7 @@ static void purge_old_logfiles(cstr fname)
 	for(;;)
 	{
 		dirent* direntry = readdir(dir);
-		if(direntry==NULL) break;			// end of dir
+		if(direntry==nullptr) break;			// end of dir
 
 		cstr filename = direntry->d_name;
         #ifdef _BSD
@@ -796,7 +796,7 @@ void openLogfile(cstr dirpath, LogRotation logrotate, uint max_logfiles, bool lo
 {
 	if(logrotate_when==0.0) init();
 
-    XXASSERT(dirpath!=NULL);
+    XXASSERT(dirpath!=nullptr);
 	XXASSERT(*dirpath=='/');				// must be full path. '/' must exist.
     XXASSERT(*(strchr(dirpath,0)-1)=='/');  // must end with '/'
 

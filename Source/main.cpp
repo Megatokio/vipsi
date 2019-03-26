@@ -54,7 +54,7 @@ INIT_MSG
 
 cstr appl_name = applName;		// for abort.cp
 
-//Stream*	stdStream[3]	= { NULL,NULL,NULL };
+//Stream*	stdStream[3]	= { nullptr,nullptr,nullptr };
 
 static struct termios	old_stdin_termios;
 
@@ -111,7 +111,7 @@ int main( int argc, cstr argv[] )
 	openLogfile("/var/log/vipsi/", DAILY, 30/*max_logfiles*/, no/*log2console*/, no/*with_date*/, no/*with_msec*/);
 	xlogIn("main()");
 	assert(argc>0);
-	assert(argv!=NULL && argv[0]!=NULL);
+	assert(argv!=nullptr && argv[0]!=nullptr);
 
 	#ifndef NDEBUG
 	{
@@ -126,17 +126,17 @@ int main( int argc, cstr argv[] )
 
 	#ifdef _MACOSX
 		cstr path = getenv("PATH");
-		if( findStr(path,"/sw/")==NULL )
+		if( findStr(path,"/sw/")==nullptr )
 		setenv( "PATH", catstr(path,":/sw/bin:/sw/sbin"), yes );
-		if( findStr(path,"/opt/local/")==NULL )
+		if( findStr(path,"/opt/local/")==nullptr )
 		setenv( "PATH", catstr(path,":/opt/local/bin:/opt/local/sbin"), yes );
 	#endif
 
-	cstr stdinName  = NULL;
-	cstr stdoutName = NULL;
-	cstr stderrName = NULL;
+	cstr stdinName  = nullptr;
+	cstr stdoutName = nullptr;
+	cstr stderrName = nullptr;
 	cstr argvName   = argv[i++];
-	cstr argvFile	= NULL;
+	cstr argvFile	= nullptr;
 	bool pretend 	= no;
 	verbose    		= no;
 	bool test       = no;
@@ -319,7 +319,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			"/usr/local/lib/vipsi/test_suite/",	 	// system-wide libs
 			"~/.vipsi/test_suite/", 			// libs in user preferences
 		};
-		cstr p   = NULL;
+		cstr p   = nullptr;
 		time_t t = 0;
 		for(uint j=0;j<NELEM(pp);j++)
 		{
@@ -358,7 +358,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			"/usr/local/lib/vipsi/",		 	// system-wide libs
 			"~/.vipsi/", 				// libs in user preferences
 		};
-		cstr p = NULL;
+		cstr p = nullptr;
 		for(uint j=0;j<NELEM(pp);j++)
 		{
 			pp[j] = FullPath(pp[j],1);
@@ -370,7 +370,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		if (!p)
 		{
 			LogLine("file \"shell.vs\" not found.");
-			xlogline("pwd: %s",getwd(NULL));
+			xlogline("pwd: %s",getwd(nullptr));
 			return 1;
 		}
 		else
@@ -388,7 +388,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 
 
 // result cell
-	Var* v = NULL;
+	Var* v = nullptr;
 
 	if(pretend)
 	{
@@ -426,7 +426,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		?	(uint)errno < errno_notrepresentable
 			? (uint)errno
 			: errno_notrepresentable
-		:	v==NULL
+		:	v==nullptr
 			? 0
 			: v->IsNumber() && (uint)v->Value()<result_notrepresentable
 				? (uint)v->Value()
@@ -442,7 +442,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		if(cgi)
 		{
 			cstr serverAdmin = getenv("SERVER_ADMIN");
-			if ( !serverAdmin||strchr(serverAdmin,'@')==NULL )
+			if ( !serverAdmin||strchr(serverAdmin,'@')==nullptr )
 			{
 				serverAdmin = "please inform someone who can help.";
 			}

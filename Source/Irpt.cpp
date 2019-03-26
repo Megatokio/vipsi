@@ -73,7 +73,7 @@ void Irpt::AsyncTrigger ( int n )
 
 	for( uint i=0; i<NELEM(asyncIrpt); i++ )
 	{
-		if( asyncIrpt[i]==NULL )	// slot seems to be free?
+		if( asyncIrpt[i]==nullptr )	// slot seems to be free?
 		{
 			asyncCnt[i] += n;		// request it
 

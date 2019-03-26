@@ -80,7 +80,7 @@
 	• if you have created a local pool, then you can use AllocStr(), AllocMem() and Purge()
 	  directly with this instance.
 
-	• TempMemPool::GetPool() retrieves and may create the current pool, it never returns NULL.
+	• TempMemPool::GetPool() retrieves and may create the current pool, it never returns nullptr.
 
 	• TempMemPool::GetXtPool() similarly retrieves and may create the current surrounding pool.
 

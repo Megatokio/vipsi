@@ -45,7 +45,7 @@ class Stack
 
 	void	Resize		( );
 public:
-			Stack		( )					{ size=0; used=0; liste=NULL; }
+			Stack		( )					{ size=0; used=0; liste=nullptr; }
 			~Stack		( )					{ delete[] liste; }
 	void	Push		( const T & item )	{ if(used==size) Resize(); liste[used++] = item; }
 	T &		Pop			( )					{ return liste[--used]; }

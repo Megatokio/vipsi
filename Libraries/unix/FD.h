@@ -77,8 +77,8 @@ class FD
 public:
 
 // c'tor and d'tor:
-			FD				()											NTH	:fd(-1),fpath(NULL) {}
-			FD				(cstr path, int flags='r', int perm=0664) 	THF	:fd(-1),fpath(NULL) { open_file(path,flags,perm); }
+			FD				()											NTH	:fd(-1),fpath(nullptr) {}
+			FD				(cstr path, int flags='r', int perm=0664) 	THF	:fd(-1),fpath(nullptr) { open_file(path,flags,perm); }
 			FD				(int fd, cstr fname)						NTH	:fd(fd),fpath(newcopy(fname)){}
 			~FD				()											NTH;
 
@@ -165,7 +165,7 @@ public:
 	void 	write_file		(Array<str>&)	 						THF;
 
 // length-prefixed strings:
-// note: NULL pointers are restored as NULL!
+// note: nullptr pointers are restored as nullptr!
 	str		read_nstr		()								THF;	// temp mem
 	str		read_new_nstr	()								THF;	// new[]
 	void	write_nstr		(cstr)							THF;

@@ -651,7 +651,7 @@ void GetVolumeInfo ( Var& v )
 	struct statfs* info;
 	int n = getmntinfo(&info, 1?MNT_WAIT:MNT_NOWAIT);
 #else
-	str bu = ExecCmd("/bin/mount",NULL);		TRAP(!bu);
+	str bu = ExecCmd("/bin/mount",nullptr);		TRAP(!bu);
 	Var mi = Var(String(bu)); delete[]bu;		// assumes UTF-8
 	mi.SplitLines();							// split into lines[]
 	mi.DeleteLastItem();						// delete last empty line

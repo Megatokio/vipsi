@@ -85,7 +85,7 @@ void StartRTimer ( double d )
 		itv.it_interval.tv_usec	= 0;
 		itv.it_value.tv_sec		= (long)d;
 		itv.it_value.tv_usec	= (long)(((d-(long)d)*1000000));
-		if( setitimer(ITIMER_REAL, &itv, NULL) == 0 ) return;
+		if( setitimer(ITIMER_REAL, &itv, nullptr) == 0 ) return;
 		Log("StartRTimer() failed.");
 		errno=ok;
 	}
@@ -208,30 +208,30 @@ static void StartSignals ( )
 
 // signals ignored:
 //	sigact.sa_handler = SIG_IGN;
-//	sigaction(SIGXCPU,  &sigact, NULL);
+//	sigaction(SIGXCPU,  &sigact, nullptr);
 
 // signals default action:
 //	sigact.sa_handler = SIG_DFL;
-//	sigaction(SIGXCPU,  &sigact, NULL);
+//	sigaction(SIGXCPU,  &sigact, nullptr);
 
 // signals handled via sa_handler:		-> void(*)(int)
 	sigact.sa_handler = CatchSignals;
-	sigaction(SIGSEGV,  &sigact, NULL);
-//	sigaction(SIGINT,   &sigact, NULL);
-	sigaction(SIGALRM,  &sigact, NULL);
+	sigaction(SIGSEGV,  &sigact, nullptr);
+//	sigaction(SIGINT,   &sigact, nullptr);
+	sigaction(SIGALRM,  &sigact, nullptr);
 #ifdef SIGIO
-	sigaction(SIGIO,	&sigact, NULL);
+	sigaction(SIGIO,	&sigact, nullptr);
 #endif
 
 // signals handled via sa_sigaction:	-> 	void(*)(int,siginfo_t*,void*)
 	sigact.sa_flags |= SA_SIGINFO;
 #ifdef SIGPOLL
 	sigact.sa_sigaction = SIGPOLLHandler;
-	sigaction(SIGPOLL, &sigact, NULL);
+	sigaction(SIGPOLL, &sigact, nullptr);
 #endif
 
 // allow all signals now:
-	sigprocmask(SIG_UNBLOCK, &allsigs, NULL);	// or: pthread_sigmask()
+	sigprocmask(SIG_UNBLOCK, &allsigs, nullptr);	// or: pthread_sigmask()
 	errno=ok;								// might already been interrupted
 }
 
@@ -242,12 +242,12 @@ static void StartSignals ( )
 #if 0
 static void StopSignals ( )
 {
-	sigprocmask(SIG_BLOCK, &allsigs, NULL);
+	sigprocmask(SIG_BLOCK, &allsigs, nullptr);
 
 	struct sigaction sigact;
 	sigemptyset ( &sigact.sa_mask );
 	sigact.sa_handler = SIG_DFL;
-	for(int i=1;i;i<<=1) { sigaction(i, &sigact, NULL); }
+	for(int i=1;i;i<<=1) { sigaction(i, &sigact, nullptr); }
 
 	errno=ok;
 }
@@ -262,7 +262,7 @@ static Var* FindVar ( NameHandle nh, Var* v )
 	{
 		Var* r = v->FindItem(nh); if(r) return r;
 		r = v; v = v->Parent(); if (v) continue;
-		return nh == r->GetNameHandle() ? r : NULL;
+		return nh == r->GetNameHandle() ? r : nullptr;
 	}
 }
 
@@ -452,29 +452,29 @@ cstr VScript::tostr(uchar*tok,Var**constants)
 		a signal is encountered
 			then the current instruction is completed
 			and the state of the current thread is saved as for a task switch
-			return value: 	NULL
+			return value: 	nullptr
 			errno:		  	EINTR
 
 		an error in the main thread	is not catched:
 			the state of the current thread is saved as for a task switch
 			a return to tTERMI is pushed on the rstack
-			return value:	NULL
+			return value:	nullptr
 			errno:			error code
 			errstr:			error msg
 			errobj:			object or file name
 
 		tEOF is executed
-			return value: 	vstack empty:	NULL
+			return value: 	vstack empty:	nullptr
 							else:			vstack.top()
 			errno:		  	OK
 
 		tEND is executed
-			return value:	tEND.0:			NULL
+			return value:	tEND.0:			nullptr
 							tEND.1:			vstack.top()
 			errno:			OK
 
 		tRETURN on ground level
-			return value:	tRETURN.0		NULL
+			return value:	tRETURN.0		nullptr
 							tRETURN.1		vstack.top()
 			errno:			OK
 */
@@ -490,8 +490,8 @@ cstr VScript::tostr(uchar*tok,Var**constants)
 
 #define	Push(VPTR)			{ vp++; /*XXXTRAP(vp>=(Var**)rp);*/ TopPtr=VPTR; Top.lock(); }
 #define	Dup()				{ vp++; TopPtr=Arg2Ptr; Top.lock(); }
-#define Drop()				{ Top.unlock(); /*TopPtr=NULL;*/ vp--; }
-#define	Nip()				{ Arg2.unlock(); Arg2Ptr=TopPtr; /*TopPtr=NULL;*/ vp--; }
+#define Drop()				{ Top.unlock(); /*TopPtr=nullptr;*/ vp--; }
+#define	Nip()				{ Arg2.unlock(); Arg2Ptr=TopPtr; /*TopPtr=nullptr;*/ vp--; }
 #define Drop2()				{ Drop(); Drop(); }
 #define DropPush(VPTR)		{ Var*VP=VPTR; VP->lock(); Top.unlock(); TopPtr=VP; }			// note: Reihenfolge stellt sicher, dass VPTR gelockt bleibt,
 #define Drop2Push(VPTR)		{ Var*VP=VPTR; VP->lock(); Drop(); Top.unlock(); TopPtr=VP; }	//		 auch wenn VPTR ein item in Top.List() oder Arg2.List() ist.
@@ -699,7 +699,7 @@ Var* VScript::Execute ( )
 // no thread is willing to run  =>  sleep
 sleep:
 	{
-		sigprocmask(SIG_BLOCK,&allsigs,NULL);
+		sigprocmask(SIG_BLOCK,&allsigs,nullptr);
 
 		if(!disp_flag)
 		{
@@ -715,7 +715,7 @@ sleep:
 			xxlog("<<wakeup>>");
 		}
 
-		sigprocmask(SIG_UNBLOCK,&allsigs,NULL);
+		sigprocmask(SIG_UNBLOCK,&allsigs,nullptr);
 	}
 
 
@@ -777,7 +777,7 @@ test_switch:
 	xxlog("<<switch_regs>>");
 
 	SaveRegisters();
-	if(t_zombie) { assert(t_zombie!=t_running); delete t_zombie; t_zombie=NULL; }
+	if(t_zombie) { assert(t_zombie!=t_running); delete t_zombie; t_zombie=nullptr; }
 	thread = t_running;
 
 load_regs:
@@ -929,13 +929,13 @@ exe6:
 		Arg2AssertNonConst();
 		assert(Arg2Ptr!=root);
 		assert(TopPtr!=root);
-		assert(t_root!=NULL);
+		assert(t_root!=nullptr);
 	#if 0
 		Arg2.MoveData(Top);			// <-- tests source for type.locked -->  proc(){ … return locals} fails!
-		XXXTRAP(t_root==NULL);
+		XXXTRAP(t_root==nullptr);
 		DROP2;
 	#else
-		assert( Top.parent == NULL );
+		assert( Top.parent == nullptr );
 		assert (!(Top.IsList() && Top.Contains(Arg2)));		// <-- TODO: kann das vorkommen?
 
 		if( Arg2.type_and_data_unlocked() || (Arg2.data_is_unlocked() && Top.get_type()==Arg2.get_type()) )
@@ -955,8 +955,8 @@ exe6:
 		Arg2AssertNonConst();
 		assert(Arg2Ptr!=root);
 		assert(TopPtr!=root);
-		assert(t_root!=NULL);
-		assert(Top.parent != NULL);
+		assert(t_root!=nullptr);
+		assert(Top.parent != nullptr);
 		if( Top.IsList() && Top.Contains(Arg2) ) goto ERR_VREFCHILDOFDEST;	// TODO: crosswise child of list
 
 		if( Arg2.type_and_data_unlocked() || (Arg2.data_is_unlocked() && Top.get_type()==Arg2.get_type()) )
@@ -2652,7 +2652,7 @@ tend:	Var* result = TopPtr; vp--;
 	// terminate self
 	// entry also from: tEND
 termi_self:
-		assert(t_zombie==NULL);	// kann nicht sein: t_zombie wird nur hier gesetzt
+		assert(t_zombie==nullptr);	// kann nicht sein: t_zombie wird nur hier gesetzt
 		t_zombie = thread;			// => DISP => Threadwechsel bevor irgendwer weiter läuft
 									// => Registerwechsel => kill zombie
 		thread->unlink_running();
@@ -2717,7 +2717,7 @@ texi:	r = FindVar(nh,thread->locals); 				if(r) goto xpr;
 		nh = peek4(ip); ip+=4;
 		Assert1Arg();
 		TopAssertVar();	// wg. DropPush(r)		TODO: das sollte jetzt überflüssig sein
-texidf:	r = Top.FindItem(nh);	 	// note: FindItem() returns NULL if this is no list
+texidf:	r = Top.FindItem(nh);	 	// note: FindItem() returns nullptr if this is no list
 		if(r) goto xd1pr;			// drop, push r
 		goto xd1p0;
 
@@ -3205,7 +3205,7 @@ io_error:
 
 		str* argv = new str[argc+2];
 
-		argv[argc+1] = NULL;
+		argv[argc+1] = nullptr;
 		for (int i=argc;i>=0;i--)
 		{
 			argv[i] = newcopy(Top.ToString().CString()); Drop();
@@ -3365,7 +3365,7 @@ QUIT_APPL:
 void VScript::InitThreadError ( )		// error = { 0, "", {} }
 {
 	Var*& v = MyTid()->error;
-	assert(v==NULL);
+	assert(v==nullptr);
 
 	Init( v, new Var( isList, nh_error ) );
 	v->AppendItems (

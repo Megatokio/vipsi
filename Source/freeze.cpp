@@ -245,14 +245,14 @@ size_t Freeze ( const uchar* sp, size_t ssz, uchar* dp, size_t dsz )
 
 // root[] contains a pointer to the last occurence of any byte triplet.
 // since this would require 2^24 pointers, the size is reduced to 2^16 pointers
-// by use of function rootidx(). NULL means: no match.
+// by use of function rootidx(). nullptr means: no match.
 // note: therefore these pointers may point to 'wrong' places, which contain data
 // which coincidentially has the same rootidx.
 
 // link[] contains links from one occurance of a root[] entry to the previous occurance.
 // ideally it has the same size as the source buffer. but because we may not get that much memory,
 // we'll have to cope with a smaller array. every entry is a pointer from the current
-// position to the previous occurance. NULL means: last match.
+// position to the previous occurance. nullptr means: last match.
 // note: this list links occurances of the same rootidx() which may be quite different!
 
 	size_t LTSIZE;

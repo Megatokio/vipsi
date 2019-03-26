@@ -134,7 +134,7 @@ void UnlockNameHandle( NameHandle handle )
 	uint       i = handle & hd_mask;		// hd[i]
 
 	XASSERT(i<HashRing[idx].size);
-	XXXASSERT(hd!=NULL);
+	XXXASSERT(hd!=nullptr);
 	XASSERT(hd[i].usage>0);
 
 	hd[i].usage--;							// may become 0
@@ -153,7 +153,7 @@ void LockNameHandle ( NameHandle handle )
 	uint       i = handle & hd_mask;		// hd[i]
 
 	XASSERT(i<HashRing[idx].size);			// bogus NH
-	XXXASSERT(hd!=NULL);					// internal error
+	XXXASSERT(hd!=nullptr);					// internal error
 	XASSERT(hd[i].usage>0);					// try to lock an old but no longer valid NH
 
 	hd[i].usage++;
@@ -171,7 +171,7 @@ cString& GetNameForHandle ( NameHandle handle )
 	uint       i = handle & hd_mask;		// hd[i]
 
 	XASSERT(i<HashRing[idx].size);
-	XXXASSERT(hd!=NULL);
+	XXXASSERT(hd!=nullptr);
 	XASSERT(hd[i].usage>0);
 
 	return hd[i].name;
@@ -233,7 +233,7 @@ NameHandle NewNameHandle ( cString& s )
 	}
 
 // already exists?
-	hd = HashRing[idx].data;	XXXASSERT(hd!=NULL);
+	hd = HashRing[idx].data;	XXXASSERT(hd!=nullptr);
 	for (i=0;i<sz;i++)
 	{
 		if (hd[i].hash==hash && hd[i].usage && hd[i].name==s)
@@ -303,7 +303,7 @@ void NameHandlesPurgeCaches ( )
 		{
 			delete[] hd;
 			HashRing[idx].size = 0;
-			HashRing[idx].data = NULL;
+			HashRing[idx].data = nullptr;
 			continue;
 		}
 

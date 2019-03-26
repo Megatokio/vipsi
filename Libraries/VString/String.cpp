@@ -508,11 +508,11 @@ void String::Check ( cstr filename, uint line ) const
 		r--;
 	#endif
 
-	if (next==NULL||prev==NULL||(text==NULL&&count!=0))
+	if (next==nullptr||prev==nullptr||(text==nullptr&&count!=0))
 	{
-		if(next==NULL) Log ("(next==NULL)");
-		if(prev==NULL) Log ("(prev==NULL)");
-		if(text==NULL) Log ("(text==NULL)");
+		if(next==nullptr) Log ("(next==nullptr)");
+		if(prev==nullptr) Log ("(prev==nullptr)");
+		if(text==nullptr) Log ("(text==nullptr)");
 		abort("String::Check() failed in file %s line %u",filename,line);
 	}
 
@@ -811,7 +811,7 @@ String::String ( UCS4Char c )
 	next  = this;
 	prev  = this;
 
-	if (c==UCS1Char(c))	{ Ucs1() = abc+c;           SetDataAndCsz(NULL,csz1);                } else
+	if (c==UCS1Char(c))	{ Ucs1() = abc+c;           SetDataAndCsz(nullptr,csz1);                } else
 	if (c==UCS2Char(c))	{ Ucs2() = new UCS2Char[1]; SetDataAndCsz(text,csz2); Ucs2()[0] = c; } else
 						{ Ucs4() = new UCS4Char[1]; SetDataAndCsz(text,csz4); Ucs4()[0] = c; }
 }
@@ -929,13 +929,13 @@ String::String ( int32 n, UCS4Char c )
 	if(n<=0)
 	{
 		count  = 0;
-		Ucs1() = NULL;
-		SetDataAndCsz(NULL,csz1);
+		Ucs1() = nullptr;
+		SetDataAndCsz(nullptr,csz1);
 	}
 	else if (c==' ' && (ulong)n<NELEM(spc) )
 	{
 		Ucs1() = spc;
-		SetDataAndCsz(NULL,csz1);
+		SetDataAndCsz(nullptr,csz1);
 	}
 	else if (c==(UCS1Char)c)
 	{
@@ -2266,7 +2266,7 @@ String String::ToEscaped ( UCS4Char leftquote ) const
 
 				*z++ = '\\';
 				if(rightquote&&c==rightquote) { *z++ = c; continue; }
-				cptr p = c ? strchr(cc,c) : NULL;
+				cptr p = c ? strchr(cc,c) : nullptr;
 				if (p) { *z++ = ec[p-cc]; continue; }
 				z[2] = '0'+(c&7); c>>=3;
 				z[1] = '0'+(c&7); c>>=3;

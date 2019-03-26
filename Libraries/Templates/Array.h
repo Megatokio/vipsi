@@ -148,13 +148,13 @@ protected:
 		T*		data;
 
 		void	kill		()						{ delete[] (ptr)data; }
-		void	init		()						{ max=cnt=0; data=NULL; }
+		void	init		()						{ max=cnt=0; data=nullptr; }
 		void	init		() const				{ const_cast<Array<T>&>(*this).init(); }
 		void	init		(Array const& q)		{ max=q.max; cnt=q.cnt; data=q.data; q.init(); }
 
 public:
 
-				Array<T>	()						:max(0),cnt(0),data(NULL){}
+				Array<T>	()						:max(0),cnt(0),data(nullptr){}
 				Array<T>	(T* q, uint cnt)		:max(cnt),cnt(cnt),data(q){}
 				Array<T>	(Array const& q)		{ init(q); }
 				Array<T>	(uint cnt, uint max=0);
@@ -237,7 +237,7 @@ template<class T>
 Array<T>::Array(uint cnt, uint max)
 :	max(0),
 	cnt(0),
-	data(NULL)
+	data(nullptr)
 {
 	if(max<cnt) max=cnt;
 	CHECK_SIZE(max);
@@ -349,7 +349,7 @@ void Array<T>::shrink(uint newcnt)
 
 	if(newcnt<max-max/8)	// time to shrink data?
 	{
-		T* newdata = newcnt ? (T*) new int8[newcnt*sizeof(T)] : NULL;
+		T* newdata = newcnt ? (T*) new int8[newcnt*sizeof(T)] : nullptr;
 		memcpy(newdata,data,newcnt*sizeof(T));
 		delete[] (ptr)data;
 		data = newdata;
@@ -776,7 +776,7 @@ public:			~ObjArray	()						{ while(cnt) delete data[--cnt]; }
 
 //	bool		operator==	(ObjArray const& q) const	{ return Array<T*>::operator==(q); }		hmm, das testet auf Identität der Objekte!
 
-    // note: returned object may be NULL if grow() or auto-grow operator[] was used...
+    // note: returned object may be nullptr if grow() or auto-grow operator[] was used...
 	T const&	operator[]	(uint i) const		{ return *Array<T*>::operator[](i); } // { ASSERT(i<count()); ASSERT(getData()[i]); /*if(!getData()[i]) getData()[i]=new T(); wg. zxsp class TzxBlock*/ return *getData()[i]; }
 	T&			operator[]	(uint i)			{ return *Array<T*>::operator[](i); } // { if(i>=count()) Array<T*>::grow(i+1); if(!getData()[i]) getData()[i]=new T(); return *getData()[i]; }
 	T const&	last		() const			{ return *Array<T*>::last(); }        // { ASSERT(count()); return operator[](count()-1); }
@@ -812,7 +812,7 @@ void ObjArray<T>::print( FD& fd, cstr indent ) const
 {
     for(uint i=0;i<count();i++)
     {
-//        T::print(fd,indent,getData()[i]);     // note: if array can contain NULL then static T::print(int,cstr,T*) must handle this!
+//        T::print(fd,indent,getData()[i]);     // note: if array can contain nullptr then static T::print(int,cstr,T*) must handle this!
 		T* obj = data[i];
 		if(obj) obj->print(fd,indent); // else ...
     }
@@ -826,7 +826,7 @@ void ObjArray<T>::writeToFile( FD& fd ) const
     for(uint i=0; i<cnt; i++)
     {
 		T* obj = data[i];
-		uint8 f =obj!=NULL;
+		uint8 f =obj!=nullptr;
 		fd.write(f);
 		if(f) obj->writeToFile(fd);
     }

@@ -93,7 +93,7 @@ static VT_Color last_tty_attr = VT_normal;			// for automatic text coloring on t
 
 /* ----	UP: suche in Buffer nach stopctls -----------
 		suche nach Controlcodes für die das Bit in der stopctls-Maske gesetzt ist
-		return:		NULL:	no stopctl found
+		return:		nullptr:	no stopctl found
 					ptr:	ptr zeigt hinter den ersten stopctl im Buffer
 
 		note:
@@ -124,17 +124,17 @@ inline bool is_stopctl( UCS4Char c, ulong stopctls )
 inline cUCS1Char* find_stop_ctl ( cUCS1Char* a, cUCS1Char* e, ulong stopctls )
 {
 	while( a<e ) { UCS1Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
-	return NULL;
+	return nullptr;
 }
 inline cUCS2Char* find_stop_ctl ( cUCS2Char* a, cUCS2Char* e, ulong stopctls )
 {
 	while( a<e ) { UCS2Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
-	return NULL;
+	return nullptr;
 }
 inline cUCS4Char* find_stop_ctl ( cUCS4Char* a, cUCS4Char* e, ulong stopctls )
 {
 	while( a<e ) { UCS4Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
-	return NULL;
+	return nullptr;
 }
 
 cptr Stream::find_stop_ctl ( cptr a, cptr e, ulong stopctls )
@@ -185,7 +185,7 @@ bool Stream::GetCharAvail()
 	if(putback_string.Len()) return true;
 	fd_set fd = { {1<<0}/*stdin*/ };  	// bitmask of fd numbers to test
 	timeval t={0,0};					// tv_sec, tv_usec
-	int rc = select(1/*num_fds*/, &fd/*fd4in?*/, NULL/*fd4out?*/, NULL/*fd4error?*/, &t/*timeout*/ );
+	int rc = select(1/*num_fds*/, &fd/*fd4in?*/, nullptr/*fd4out?*/, nullptr/*fd4error?*/, &t/*timeout*/ );
 	//if(rc==-1) state=errno;
 	return rc >= 1;	// num_fd bits set on return
 }
@@ -271,7 +271,7 @@ String VT_Attr ( cString& s, VT_Color fg, VT_Color bg )
 /*	reverse lookup table fd -> Stream
 	required for interrupt handler SignalHandler(…)
 */
-static Stream*	stream0 = NULL;
+static Stream*	stream0 = nullptr;
 
 
 /* ----	UP: initialize stream --------
@@ -286,8 +286,8 @@ void Stream::init ( )
 	input.state		= inputnotpossible;
 	//output.io_cnt	= 0;
 	//input.io_cnt	= 0;
-	//output.io_ptr	= NULL;
-	//input.io_ptr	= NULL;
+	//output.io_ptr	= nullptr;
+	//input.io_ptr	= nullptr;
 	//output.lastio	= 0;
 	//input.lastio	= 0;
 	//output.irpt.Clear();

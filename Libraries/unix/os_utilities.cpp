@@ -85,13 +85,13 @@ extern char **environ;					// was required by: Mac OSX (pre 10.5 ?)
 cstr getUser()
 {
     struct passwd* p = getpwuid(getuid());
-    return p ? p->pw_name : NULL;
+    return p ? p->pw_name : nullptr;
 }
 
 cstr getEffUser()
 {
     struct passwd* p = getpwuid(geteuid());
-    return p ? p->pw_name : NULL;
+    return p ? p->pw_name : nullptr;
 }
 
 
@@ -109,7 +109,7 @@ cstr hostName()
     char s[MAXHOSTNAMELEN];
     size_t size = MAXHOSTNAMELEN;
     int mib[4] = { CTL_KERN, KERN_HOSTNAME };
-    sysctl( mib, 2, s, &size, NULL, 0);
+    sysctl( mib, 2, s, &size, nullptr, 0);
     return dupstr(s);
 
 #else
@@ -128,11 +128,11 @@ int numCPUs()
     int    n;
     size_t size = sizeof(n);
     int mib[4] = { CTL_HW, HW_AVAILCPU };
-    sysctl( mib, 2, &n, &size, NULL, 0);
+    sysctl( mib, 2, &n, &size, nullptr, 0);
     if(n>=1) return n;
 
     mib[1] = HW_NCPU;
-    sysctl( mib, NELEM(mib), &n, &size, NULL, 0 );
+    sysctl( mib, NELEM(mib), &n, &size, nullptr, 0 );
 
     return n>=1 ? n : 1;
 
@@ -149,7 +149,7 @@ void sysLoad ( double load[3] )			// ranges: 1, 5, and 15 minutes
     int mib[4] = { CTL_VM, VM_LOADAVG };
     struct loadavg data;
     size_t size = sizeof(data);
-    sysctl ( mib, 2, &data, &size, NULL, 0 );
+    sysctl ( mib, 2, &data, &size, nullptr, 0 );
 
     load[0] = double(data.ldavg[0])/data.fscale;
     load[1] = double(data.ldavg[1])/data.fscale;
@@ -175,14 +175,14 @@ void sysLoad ( double load[3] )			// ranges: 1, 5, and 15 minutes
 time_t intCurrentTime()
 {
     struct timeval tv;
-    gettimeofday ( &tv, NULL );
+    gettimeofday ( &tv, nullptr );
     return tv.tv_sec;
 }
 
 //double now()			now in log.cpp
 //{
 //    struct timeval tv;
-//    gettimeofday ( &tv, NULL );
+//    gettimeofday ( &tv, nullptr );
 //    return tv.tv_sec + tv.tv_usec/1000000.0;
 //}
 
@@ -193,7 +193,7 @@ time_t bootTime ( )
     int mib[4] = { CTL_KERN, KERN_BOOTTIME };
     struct timeval data;
     size_t size = sizeof(data);
-    sysctl ( mib, 2, &data, &size, NULL, 0 );
+    sysctl ( mib, 2, &data, &size, nullptr, 0 );
 
     return data.tv_sec;
 
@@ -202,7 +202,7 @@ time_t bootTime ( )
     // time being will read /proc/uptime
     FILE *fp;
     long ut;
-    if((fp=fopen("/proc/uptime","r"))==NULL)
+    if((fp=fopen("/proc/uptime","r"))==nullptr)
     {
         printf("Cannot open file /proc/uptime\n");	// -> FILE Stdout
         return(-1);
@@ -292,13 +292,13 @@ size_t memoryUsage (bool resident)
 /* ----	execute external command ----------------------------
         argv[]  must be a 0-terminated list
         argv[0]	hard path to command
-        envv[]  is either NULL or a 0-terminated list of environment variables
-                in case of NULL the current global environ[] list is passed
+        envv[]  is either nullptr or a 0-terminated list of environment variables
+                in case of nullptr the current global environ[] list is passed
         returns	stdout output of command called
                 returned string must be delete[]ed
                 output to stderr is still printed to stderr
                 return code is passed implicitely in errno
-        returns NULL if exec failed
+        returns nullptr if exec failed
                 then errno is set
         errno:	noerr: ok
                 errno: exec() failed
@@ -316,11 +316,11 @@ str execCmd ( str const argv[], str const envv[] )
     if ( pipe(pipout) != 0 )
     {
         XXXASSERT(errno!=ok);
-        return NULL;
+        return nullptr;
     }
 
 // preset result to "nothing"
-    char* result = NULL;
+    char* result = nullptr;
 
 // it seems, that the child can mess up the stdin stream settings
 // (and maybe stderr too) especially if execve() fails
@@ -372,7 +372,7 @@ str execCmd ( str const argv[], str const envv[] )
             }
 
             XLogLine( "ExecCmd(%s) failed: %s", quotedstr(argv[0]), strerror(errno) );
-            if(errno==EFAULT) {XLogLine("ExecCmd(): HINT: make shure the argv[] is NULL terminated!");}	// kio 2013-03-31
+            if(errno==EFAULT) {XLogLine("ExecCmd(): HINT: make shure the argv[] is nullptr terminated!");}	// kio 2013-03-31
             exit(errno);
         }
 

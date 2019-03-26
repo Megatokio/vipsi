@@ -171,7 +171,7 @@ void SORTER( TYPE* a, TYPE* e, bool(*CMP)(TYPE&,TYPE&) ) throw(internal_error)
 void SORTER( TYPE* a, TYPE* e ) throw(internal_error)
 #endif
 {
-	XASSERT(a&&e);									// both pointers not NULL
+	XASSERT(a&&e);									// both pointers not nullptr
 	if(a>=e) return;
 	XXXASSERT(a+(e-a)==e);							// alignment test: throws internal_error
 	#define SORT(A,B)	if(CMP(A,B)){SWAP(A,B);}	// for convenience

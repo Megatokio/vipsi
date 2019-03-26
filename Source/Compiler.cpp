@@ -344,11 +344,11 @@ void Compiler::store_token ( ulong rowcol, uchar token, NameHandle n )
 void Compiler::init()
 {
 	sourcefile = cachefile = source = core = rowcolxref = emptyString;
-	constants  = NULL;
+	constants  = nullptr;
 	bundle     = new Var(isList);	bundle->Lock();
 
-	qa = qp = qe = NULL;
-	zbu = NULL; zi = zlen = 0;
+	qa = qp = qe = nullptr;
+	zbu = nullptr; zi = zlen = 0;
 
 	rowcol = lfdnr = 0;
 	v_now = v_max = r_now = r_max = 0;
@@ -784,7 +784,7 @@ x:	while (comment--)
 	assert(zi<=zlen);
 	this->qa = zbu;
 	this->qe = zbu+zi;
-	zbu = NULL;
+	zbu = nullptr;
 }
 
 
@@ -827,7 +827,7 @@ void Compiler::SetDist ( Token* ip, Token* dest )
 		back branches are set immediately
 		forward branches are remembered by building a linked list starting in ip1
 
-		do0==NULL: do0 and do1 are ignored
+		do0==nullptr: do0 and do1 are ignored
 		else:      do0 and do1 are ip0 and ip1 of an outer do..loop
 				   they are used to handle 'unexpected' next, until, while and exit for the outer loop
 
@@ -1847,7 +1847,7 @@ x:	;
 		in:  v -> temp cell
 		out: if result=value			 : v-> temp cell && value in temp cell
 			 if result=reference		 : v-> variable
-			 if pSemicolon && operator= : v=NULL ((don't print result in shell))
+			 if pSemicolon && operator= : v=nullptr ((don't print result in shell))
 */
 ResultClass Compiler::value_var ( int prio )
 {
@@ -2495,7 +2495,7 @@ void Compiler::Assemble()
 	assert(errno==ok);
 	xlogIn("Compiler::Assemble()");
 
-	assert(qa!=NULL);
+	assert(qa!=nullptr);
 	assert(qa<qe);
 	assert(qe[-1].token==tEOF);
 
@@ -2771,7 +2771,7 @@ void Compiler::CheckLoops( )
 	assert(errno==ok);
 	xlogIn("Compiler::CheckLoops()");
 
-	assert(qa!=NULL);
+	assert(qa!=nullptr);
 	assert(qa<qe);
 	assert(qe[-1].token==tEOF);
 
@@ -2788,7 +2788,7 @@ void Compiler::Reorder ( bool exe )
 	assert(errno==ok);
 	xlogIn("Compiler::Reorder()");
 
-	assert(qa!=NULL);
+	assert(qa!=nullptr);
 	assert(qa<qe);
 	assert(qe[-1].token==tEOF);
 
@@ -2829,7 +2829,7 @@ void Compiler::Optimize()
 	xlogIn("Compiler::Optimize()");
 
 	assert(qa<qe);
-	assert(zbu==NULL);
+	assert(zbu==nullptr);
 	assert(qe[-1].token==tEOF);
 
 //	for(qp=qa;qp<qe;qp++) { if(qp->token==tTHEN) qp->token=tNOP; }
@@ -2843,13 +2843,13 @@ void Compiler::Compile ( bool exe )
 {
 	xlogIn( "Compiler::Compile(%i)", (int)exe );
 	assert(errno==ok);
-	assert(qa==NULL);
+	assert(qa==nullptr);
 	assert(bundle && bundle->IsList() && bundle->IsLocked());
 
 	constants = new Var( bundle, bundle_constants,  isList, "constants" );
 				new Var( bundle, bundle_source, 	source, "source" );
 
-	cstr where = NULL;
+	cstr where = nullptr;
 	bool o = exe && sourcefile.Len();
 
 	Tokenize();			if(errno) { where = " (Compile:Tokenize)"; goto x; }	// source ->  qa

@@ -56,7 +56,7 @@ private:
 		int			type;
 
 public:
-					BPObj		( )				{ varptr = NULL; type = 0; }
+					BPObj		( )				{ varptr = nullptr; type = 0; }
 		virtual		~BPObj		( );
 
 		Var*		GetVar		( )				{ return varptr; }

@@ -134,10 +134,10 @@ class any_error : public std::exception
 {
 public:
 	int		error;			// errno
-	cstr	text;			// custom error message: const, temp or NULL
+	cstr	text;			// custom error message: const, temp or nullptr
 
 public:		any_error		(cstr msg)					throw()	:error(customerror),text(msg){}
-			any_error		(int error)					throw()	:error(error), text(NULL){}
+			any_error		(int error)					throw()	:error(error), text(nullptr){}
 			any_error		(int error, cstr msg)		throw()	:error(error), text(msg){}
 VIR			~any_error		()							throw()	{}
 

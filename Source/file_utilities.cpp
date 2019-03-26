@@ -274,7 +274,7 @@ cstr DirectoryPathFromPath ( cstr path )
 
 	returns:
 		returns iso-latin-1 encoded filename or
-		returns NULL if conversion did not result in a different filename
+		returns nullptr if conversion did not result in a different filename
 */
 static cstr Latin1 ( cstr filename )
 {
@@ -285,7 +285,7 @@ static cstr Latin1 ( cstr filename )
 	{
 		char c = *q++;
 		if(c>0)  continue;
-		if(c==0) return NULL;				// no non-ascii letters found
+		if(c==0) return nullptr;				// no non-ascii letters found
 		else	 break;						// non-acii letter found
 	}
 
@@ -305,9 +305,9 @@ static cstr Latin1 ( cstr filename )
 	// 2 byte codes:	110xxxxx 10xxxxxx
 	// ill. overlong:	1100000x 10xxxxxx
 	// latin-1 range:	1100001x 10xxxxxx
-		if ((c&0xFE)!=0xC2) return NULL;	// char code too high, ill. overlong encoding or broken utf-8
+		if ((c&0xFE)!=0xC2) return nullptr;	// char code too high, ill. overlong encoding or broken utf-8
 		uchar c2 = *q++ - 0x80;
-		if (c2>=0x3F) return NULL;			// no fup -> broken utf-8
+		if (c2>=0x3F) return nullptr;			// no fup -> broken utf-8
 		*z++ = (c<<6) + c2;					// combine c1 + fup
 	}
 
@@ -335,7 +335,7 @@ static cstr Latin1 ( cstr filename )
 	{
 		ulong c0 = uchar(*z++);
 		if ((char)c0>0) continue;					// ascii
-		if (c0==0) return NULL;						// end of filename reached without invalid utf-8
+		if (c0==0) return nullptr;						// end of filename reached without invalid utf-8
 		if ((char)c0 < (char)0xc0) return file;		// unexpected fups
 		if (c0>=0xfe) return file;					// ill. codes
 
@@ -558,7 +558,7 @@ int NewTempFile ( )
 		int  fd   = open( path, O_RDWR|O_CREAT|O_EXCL, 0600 );
 		if (fd>=0) { unlink(path); return fd; }		// opened ok
 		if (errno==EEXIST) continue;				// exists => retry
-		if (tmpdir) { tmpdir = NULL; continue; }	// maybe $TMPDIR is broken
+		if (tmpdir) { tmpdir = nullptr; continue; }	// maybe $TMPDIR is broken
 		return -1;									// can't create temp file!
 	}
 }
@@ -1038,13 +1038,13 @@ int32 read_3byte_z ( int fd ) throw(file_error)
 
 str read_nstr ( int fd ) throw(file_error)
 {
-	str s = NULL; uint len = read_uchar(fd);
+	str s = nullptr; uint len = read_uchar(fd);
 	if(len) { s = tempstr(len); read_data(fd,s,len); } return s;
 }
 
 str read_new_nstr ( int fd ) throw(file_error)
 {
-	str s = NULL; uint len = read_uchar(fd);
+	str s = nullptr; uint len = read_uchar(fd);
 	if(len) { s = newstr(len); read_data(fd,s,len); } return s;
 }
 

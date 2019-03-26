@@ -145,7 +145,7 @@ inline	cstr		U_Property_LongName		( int p )	{ return U_Property_LongNames[p%U_PR
 enum	U_PropertyValue
 #include "Unicode/Includes/PropertyValue_Enum.h"
 
-// Short and Long Names: Names may be NULL!
+// Short and Long Names: Names may be nullptr!
 extern cstr const U_PropertyValue_ccc_ShortNames[U_ccc_propertyvalues];
 extern cstr const U_PropertyValue_age_ShortNames[U_age_propertyvalues];
 extern cstr const U_PropertyValue_bc_ShortNames[U_bc_propertyvalues];

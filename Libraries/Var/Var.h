@@ -244,7 +244,7 @@ friend class BPObj;
 
 // data members:
 	ulong			type_and_lock;						// variable type & security
-	Var*			parent;								// parent list or NULL
+	Var*			parent;								// parent list or nullptr
 	uint			index;								// own index in parent's list
 	NameHandle		name;								// variable's name
 	long			data[sizeof(String)/sizeof(long)];	// variable data
@@ -309,14 +309,14 @@ static bool		is_unlocked			( ulong lock )		{ return lock          <  var_lock_ba
 	bool		is_named		( )						{ return name!=0; }
 
 // access links:
-	void		init_link 		( )						{ parent = NULL; }
+	void		init_link 		( )						{ parent = nullptr; }
 	void		init_link 		( Var* par, uint idx );
 	void		init_link_grow	( Var* par, uint idx );	// may grow parent list
 	void		init_link_force	( Var* par, uint idx );	// may grow parent list or unlink old item
-	void		kill_link 		( )						{ parent->list().array[index]=NULL; }
+	void		kill_link 		( )						{ parent->list().array[index]=nullptr; }
 	void		kill_link_nop 	( )						{ /* parent==0 or parent->list().array is mangled manually */ }
-	bool		is_linked		( )						{ return parent!=NULL; }
-	bool		is_unlinked		( )						{ return parent==NULL; }
+	bool		is_linked		( )						{ return parent!=nullptr; }
+	bool		is_unlinked		( )						{ return parent==nullptr; }
 	void		link			( Var* par, uint idx )	{ XXXASSERT(!is_linked()); kill_link_nop(); init_link(par,idx); lock(); }
 	void		unlink			( )						{ XXXASSERT(!is_unlinked()); kill_link(); init_link(); unlock(); }
 	void		relink			( Var* par, uint idx )	{ XXXASSERT(!is_unlinked()); kill_link(); init_link(par,idx); }
@@ -413,7 +413,7 @@ static void		RSort			( Var**, Var** )		throw(internal_error);
 	Var&		list_op			( Var&(Var::*fp)(Double), cVar& q  );
 //	void		list_op			( void(Var::*fp)(cVar&,Double), cVar& q1, Double q2 );
 //	void		list_op			( void(Var::*fp)(cVar&,Double), cVar& q1, cVar& q2 );
-	Var&		append_list		( cVar& q, DisassProcPtr=NULL );
+	Var&		append_list		( cVar& q, DisassProcPtr=nullptr );
 	void		set_error_locked( );
 
 	void		operator delete[]	( void*, size_t );
@@ -496,8 +496,8 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	void		Link			( Var* par, uint idx );	// unlink & unlock self, unlink & unlock old item, grow parent list, lock & link.
 	void		Unlink			( );					// unlink & unlock self and shrink parent list
 	void		Vanish			( );					// unlink & unlock self, delete item in parent list and shrink parent list
-	bool		IsLinked		( )						{ return parent!=NULL; }
-	bool		IsUnlinked		( )						{ return parent==NULL; }
+	bool		IsLinked		( )						{ return parent!=nullptr; }
+	bool		IsUnlinked		( )						{ return parent==nullptr; }
 	Var*		Parent			( )						{ return parent; }
 	uint		Index			( )						{ return index; }
 
@@ -512,8 +512,8 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 // must be balanced before the root variable is destroyed!
 	void		Protect			( )						{ for(Var*p=this;p;p=p->parent) p->lock(); }
 	void		Unprotect		( )						{ Var*p=this; while(p) { Var*z=p; p=p->parent; z->unlock(); } }	// top parent incl. entire tree may vanish
-	bool		IsProtected		( )	const				{ cVar*p=this; while(p&&p->is_locked()) p=p->parent; return p==NULL; }
-	bool		IsUnprotected	( )	const				{ cVar*p=this; while(p&&p->is_locked()) p=p->parent; return p!=NULL; }
+	bool		IsProtected		( )	const				{ cVar*p=this; while(p&&p->is_locked()) p=p->parent; return p==nullptr; }
+	bool		IsUnprotected	( )	const				{ cVar*p=this; while(p&&p->is_locked()) p=p->parent; return p!=nullptr; }
 
 // type lock flag:
 	void		LockType		( )						{ lock_type(); }
@@ -645,10 +645,10 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	void		ConvertTo		( CharEncoding );
 //	void		LogVar			( ) const;
 	Double		ToNumber		( ) const;
-	String		ToString		( bool quotestring=no, DisassProcPtr=NULL ) const;
+	String		ToString		( bool quotestring=no, DisassProcPtr=nullptr ) const;
 	Var			ToList			( bool putlistinlist=no );
 	void		ConvertToNumber	( );
-	void		ConvertToString	( bool quotestring=no, DisassProcPtr=NULL );
+	void		ConvertToString	( bool quotestring=no, DisassProcPtr=nullptr );
 	void		ConvertToList	( bool putlistinlist=no );
 
 	void		JoinLines		( cString& sep );
@@ -700,12 +700,12 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	Var			operator^		( cVar& q ) const;
 
 	Var&		operator+=		( cString& s )				{ return AppendString(s); }
-	Var&		AppendString	( cString& q, DisassProcPtr=NULL );
-	Var&		AppendString	( cVar&    q, DisassProcPtr=NULL );
+	Var&		AppendString	( cString& q, DisassProcPtr=nullptr );
+	Var&		AppendString	( cVar&    q, DisassProcPtr=nullptr );
 
 	Var			operator+		( cString& s ) const		{ return ConcatString(s); }
-	Var 		ConcatString	( cString& q, DisassProcPtr=NULL ) const;
-	Var			ConcatString	( cVar&    q, DisassProcPtr=NULL ) const;
+	Var 		ConcatString	( cString& q, DisassProcPtr=nullptr ) const;
+	Var			ConcatString	( cVar&    q, DisassProcPtr=nullptr ) const;
 
 #ifdef VAR_INCLUDE_BOOLEAN
 // not really a good idea. this eliminates pruning.
@@ -731,7 +731,7 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	bool		operator>=		( cString& q ) const		{ return IsText()    && text()>=q; }
 	bool		operator<=		( cString& q ) const		{ return IsText()    && text()<=q; }
 
-	// die folgenden hauptsächlich wg. operatorXY(0), was sonst als NULL interpretiert wird. GRRR!
+	// die folgenden hauptsächlich wg. operatorXY(0), was sonst als nullptr interpretiert wird. GRRR!
 	bool		operator==		( int q ) const				{ return IsNumber()  && value()==q; }
 	bool		operator>		( int q ) const				{ return IsNumber()  && value()> q; }
 	bool		operator<		( int q ) const				{ return IsNumber()  && value()< q; }

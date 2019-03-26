@@ -172,7 +172,7 @@ cstr file_error::what() const throw()
 	static cstr typelist[16] = {0/*UNKN*/,"Pipe","Ser",0,"Dir",0,"Blk",0,"File",0,"Link",0,"Socket",0,"Erased file",0};
 
 	struct stat data;
-	cstr typestr = NULL;
+	cstr typestr = nullptr;
 	if(_fd!=-1 && fstat(_fd, &data)==0) typestr = typelist[data.st_mode>>12];
 
 	cstr msg = any_error::what();

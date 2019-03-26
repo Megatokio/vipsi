@@ -308,7 +308,7 @@ VScript::VScript ( rt runtyp, cString& applname, cString& filename, Var* argv, S
 VScript::~VScript()
 {
 	root->Unlock();
-	root = NULL;
+	root = nullptr;
 }
 
 
@@ -417,7 +417,7 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 	*/
 
 		content_type = findStr(content_type,"boundary=");
-		if (content_type==NULL) goto uct;	// unknown content type
+		if (content_type==nullptr) goto uct;	// unknown content type
 		String multipart_boundary = String("--") + (content_type+9);
 
 		String fieldname,filename,fielddata;

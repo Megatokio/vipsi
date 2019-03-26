@@ -87,11 +87,11 @@ str newstr ( int n ) throw(bad_alloc)
 /* ----	allocate char[] -----------------------------------------
         deallocate with delete[]
         includes OOMEM check
-        returns NULL if source string is NULL			2001-01-29
+        returns nullptr if source string is nullptr			2001-01-29
 */
 str newcopy ( cstr s ) throw(bad_alloc)
 {
-    str c = NULL;
+    str c = nullptr;
     if (s)
     {
         c = newstr(strLen(s));
@@ -149,7 +149,7 @@ char* findStr ( cstr target, cstr search )
         while(*s && *s==*t){s++;t++;}
         if (*s==0) return (char*)target+i;
     }
-    return NULL;	// not found
+    return nullptr;	// not found
 }
 
 
@@ -169,7 +169,7 @@ char* rFindStr ( cstr target, cstr search )
         const char* t = target+i;
         do { if (s==se) return (char*)target+i; } while (*s++==*t++);
     }
-    return NULL;	// not found
+    return nullptr;	// not found
 }
 
 
@@ -257,7 +257,7 @@ bool islowerstr	( cstr s )
 */
 char* mulstr ( cstr q, int n )
 {
-    if (q==NULL || *q==0 || n<=0) return emptystr;
+    if (q==nullptr || *q==0 || n<=0) return emptystr;
 
     int len = strLen(q);
     str s   = tempstr(len*n);
@@ -499,7 +499,7 @@ str usingstr ( cstr format, va_list va )
     A fallback to memcpy (&dst, &src, sizeof(va_list)) will give maximum portability.
 
     va_list is not necessarily just a pointer.
-    It can be a struct (e.g., gcc on Alpha), which means NULL is not portable.
+    It can be a struct (e.g., gcc on Alpha), which means nullptr is not portable.
     Or it can be an array (e.g., gcc in some PowerPC configurations),
     which means as a function parameter it can be effectively call-by-reference
     and library routines might modify the value back in the caller
@@ -742,7 +742,7 @@ inline bool utf8_no_fup	( signed char c )	{ return c>=(signed char)0xc0; }
 
 str fromutf8str( cstr qstr )		// 2011-03-16
 {
-    if(qstr==NULL||*qstr==0) return NULL;
+    if(qstr==nullptr||*qstr==0) return nullptr;
 
     if(*qstr==(char)0xef && *(qstr+1)==(char)0xbb && *(qstr+2)==(char)0xbf) qstr += 3;	// skip BOM
 
@@ -768,7 +768,7 @@ str fromutf8str( cstr qstr )		// 2011-03-16
 
 str toutf8str( cstr qstr )		// 2011-03-16
 {
-    if(qstr==NULL||*qstr==0) return NULL;
+    if(qstr==nullptr||*qstr==0) return nullptr;
 
     int	zlen = 0;
     cptr q=qstr; while(*q) zlen += utf8_no_7bit(*q++); zlen += q-qstr;
@@ -818,7 +818,7 @@ time_t dateVal ( cstr date )
     d.tm_isdst  = 0;
 #if !defined(_SOLARIS)
     d.tm_gmtoff = 0;
-    d.tm_zone   = NULL;
+    d.tm_zone   = nullptr;
 #endif
 
     return mktime(&d);	// local time
@@ -992,7 +992,7 @@ bool gt_tolower( cptr a, cptr b )
 
 
 /* ---- compare strings -------------------------------------
-        NULL pointers are assumed ""
+        nullptr pointers are assumed ""
 */
 bool eq( cptr s, cptr t )
 {
@@ -1024,7 +1024,7 @@ bool ne( cptr s, cptr t )
 
 str hexstr(cstr s)
 {
-    if(!s) return NULL;
+    if(!s) return nullptr;
 
     uint n = 2 * (uint)strlen(s);
     str z = tempstr(n);
@@ -1033,21 +1033,21 @@ str hexstr(cstr s)
     return z-n;
 }
 
-/*	returns NULL on any error
+/*	returns nullptr on any error
 */
 str unhexstr(cstr s)
 {
-    if(!s) return NULL;
+    if(!s) return nullptr;
 
     uint n = (uint)strlen(s);
-    if(n&1) return NULL;
+    if(n&1) return nullptr;
     n = n/2;
     str z = tempstr(n);
     while(*s)
     {
         uint c1 = digit_value(*(uptr)s++);
         uint c2 = digit_value(*(uptr)s++);
-        if((c1|c2)>>4) return NULL;
+        if((c1|c2)>>4) return nullptr;
         *z++ = (c1<<4)+c2;
     }
     return z-n;
@@ -1073,7 +1073,7 @@ static uint8 unbase64[128] =
 */
 str base64str(cstr s)
 {
-    if(!s) return NULL;
+    if(!s) return nullptr;
 
     uint slen = (uint)strlen(s);
     uint zlen = (slen+2)/3*4;
@@ -1110,14 +1110,14 @@ str base64str(cstr s)
 
 
 
-/*	returns NULL on any error
+/*	returns nullptr on any error
 */
 str unbase64str(cstr s)
 {
-    if(!s) return NULL;
+    if(!s) return nullptr;
 
     uint slen = (uint)strlen(s);
-    if(slen%4) return NULL;
+    if(slen%4) return nullptr;
 
     uint padd = s[slen-1]!='=' ? 0 : s[slen-2]!='=' ? 1 : 2;
     uint zlen = slen/4*3-padd;
@@ -1130,11 +1130,11 @@ str unbase64str(cstr s)
         uint c1 = *(uptr)s++;
         uint c2 = *(uptr)s++;
         uint c3 = *(uptr)s++;
-        uint c4 = *(uptr)s++;	if((c1|c2|c3|c4)&0x80) return NULL;
+        uint c4 = *(uptr)s++;	if((c1|c2|c3|c4)&0x80) return nullptr;
         c1 = unbase64[c1];
         c2 = unbase64[c2];
         c3 = unbase64[c3];
-        c4 = unbase64[c4];		if((c1|c2|c3|c4)&0x80) return NULL;
+        c4 = unbase64[c4];		if((c1|c2|c3|c4)&0x80) return nullptr;
         uint32 n = (c1<<18) + (c2<<12) + (c3<<6) + c4;
         *z++ = n>>16;
         *z++ = n>>8;
@@ -1148,12 +1148,12 @@ str unbase64str(cstr s)
         uint c1 = *(uptr)s++;
         uint c2 = *(uptr)s++;
         uint c3 = *(uptr)s++;
-        if((c1|c2|c3)&0x80) return NULL;
+        if((c1|c2|c3)&0x80) return nullptr;
 
         c1 = unbase64[c1];
         c2 = unbase64[c2];
         c3 = padd==2 ? 0 : unbase64[c3];
-        if((c1|c2|c3)&0x80) return NULL;
+        if((c1|c2|c3)&0x80) return nullptr;
 
         *z++ = (c1<<2) + (c2>>4);
         if(padd==2)
@@ -1201,7 +1201,7 @@ bool endswith( cstr a, cstr b )
 */
 void split(Array<str>& array, ptr a, ptr e)
 {
-    XXASSERT(a!=NULL);
+    XXASSERT(a!=nullptr);
 
     #define line_separators 0b0011010000010001
 
@@ -1233,7 +1233,7 @@ void split(Array<str>& array, ptr a, ptr e)
 */
 void split(Array<str>& array, ptr a, ptr e, char c)
 {
-    XXASSERT(a!=NULL);
+    XXASSERT(a!=nullptr);
 
     while(a<e)
     {

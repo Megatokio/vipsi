@@ -58,8 +58,8 @@ extern	cstr	getUser			( );
 extern	cstr	getEffUser		( );
 
 
-extern	str		execCmd			( /* cmd = argv[0] */ str const argv[], str const envv[]=NULL );
-extern	str		execCmd			( cstr cmd, ... /* argv[1] ... NULL */ );
+extern	str		execCmd			( /* cmd = argv[0] */ str const argv[], str const envv[]=nullptr );
+extern	str		execCmd			( cstr cmd, ... /* argv[1] ... nullptr */ );
 
 
 #endif

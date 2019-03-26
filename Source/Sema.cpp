@@ -89,9 +89,9 @@ void Sema::unlink_owner ( )
 {
 	assert(owner);
 
-	if (prev) { prev->next=next; prev=NULL; } else owner->blocked_sems = next;
-	if (next) { next->prev=prev; next=NULL; }
-	owner = NULL;
+	if (prev) { prev->next=next; prev=nullptr; } else owner->blocked_sems = next;
+	if (next) { next->prev=prev; next=nullptr; }
+	owner = nullptr;
 }
 
 

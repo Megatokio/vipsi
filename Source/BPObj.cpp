@@ -51,7 +51,7 @@ BPObj::~BPObj ( )
 	{
 		do
 		{
-			v->handle().data = NULL;
+			v->handle().data = nullptr;
 			v = v->handle().next;
 		}
 		while( v!=varptr );

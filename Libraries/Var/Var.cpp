@@ -42,8 +42,8 @@
 	2003-08-21 kio	eliminated isVoid
 	2003-08-23 kio	operator>>=() and operator<<=() now use ldexp() => now left operand may be non-int
 	2003-09-08 kio	ToString() now includes item names and (optionally) skips procs in lists
-	2003-10-12 kio	fixed handling of NULL in lists for string concatenation
-	2003-10-18 kio	fixed list-, list size-, and NULL in list-related issues
+	2003-10-12 kio	fixed handling of nullptr in lists for string concatenation
+	2003-10-18 kio	fixed list-, list size-, and nullptr in list-related issues
 	2004-05-28 kio	Umstellung auf NameHandles
 	2004-06-29 kio	added variable and data locking
 
@@ -83,8 +83,8 @@ inline double random(double r)	{ return ldexp(random() * r, -31); }
 //		<list>.MinVar()
 //		<list>.list_op(<fu>,<list>)
 //		<list>.append_list(<list>,<disassproc>)
-Var* zero = NULL;
-Var* eins = NULL;
+Var* zero = nullptr;
+Var* eins = nullptr;
 
 struct InitVar
 {	InitVar()
@@ -96,7 +96,7 @@ struct InitVar
 
 /* ----	variables pool -------------------------------------
 		new() gets new slots from the pool
-		pool empty is detected by first item==NULL
+		pool empty is detected by first item==nullptr
 		delete() returns slot to pool
 		pool size is always == amount of all variables ever allocated
 		=> return of all variables ever released to pool possible w/o test
@@ -104,7 +104,7 @@ struct InitVar
 		and the pool is increased to the new amount of variables allocated
 		allocated chunks are never deallocated.
 */
-static Var* no_var		= NULL;
+static Var* no_var		= nullptr;
 static uint	pool_size	= 1;
 
 Var**  Var::pool		= (&no_var)+1;
@@ -119,7 +119,7 @@ Var*   Var::grow_pool ( )
 	pool = new Var*[pool_size+=n];
 	Var* var = (Var*)new char[n*sizeof(Var)];
 
-	*pool++ = NULL;
+	*pool++ = nullptr;
 	while(n--) *pool++ = var++;
 
 	return *--pool;
@@ -148,7 +148,7 @@ void Var::validate ( cstr file, uint line ) const
 	{
 		VTRAP((int)index<0);
 		VTRAP(parent->IsNoList());
-		VTRAP(parent->list().array==NULL);
+		VTRAP(parent->list().array==nullptr);
 		VTRAP(parent->list().used<=index);
 		VTRAP(parent->list().array[index]!=this);
 	}
@@ -202,7 +202,7 @@ void Var::set_error_locked ( )
 
 void Var::init_handle ( BPObj* obj, int type )
 {
-	XXASSERT(obj->varptr==NULL);
+	XXASSERT(obj->varptr==nullptr);
 
 	handle().next = handle().prev = this;
 	handle().data = obj;
@@ -248,8 +248,8 @@ void Var::kill_handle ( )
 */
 inline void Var::init_link ( Var* par, uint idx )
 {
-	XXXASSERT( par!=NULL && par->IsList() );
-	XXXASSERT( par->list().used>idx && par->list().array[idx]==NULL );
+	XXXASSERT( par!=nullptr && par->IsList() );
+	XXXASSERT( par->list().used>idx && par->list().array[idx]==nullptr );
 
 	parent=par; index=idx; par->list().array[idx]=this;
 }
@@ -261,7 +261,7 @@ inline void Var::init_link ( Var* par, uint idx )
 */
 inline void Var::init_link_grow ( Var* par, uint idx )
 {
-	XXXASSERT( par!=NULL && par->IsList() );
+	XXXASSERT( par!=nullptr && par->IsList() );
 
 	if (idx>=par->list().used)
 	{
@@ -270,7 +270,7 @@ inline void Var::init_link_grow ( Var* par, uint idx )
 	}
 	else
 	{
-		XXXASSERT(par->list().array[idx]==NULL);
+		XXXASSERT(par->list().array[idx]==nullptr);
 	}
 
 	parent=par; index=idx; par->list().array[idx]=this;
@@ -283,7 +283,7 @@ inline void Var::init_link_grow ( Var* par, uint idx )
 */
 inline void Var::init_link_force ( Var* par, uint idx )
 {
-	XXXASSERT( par!=NULL && par->IsList() );
+	XXXASSERT( par!=nullptr && par->IsList() );
 
 	if (idx>=par->list().used)
 	{
@@ -310,7 +310,7 @@ void Var::Link ( Var* par, uint idx )
 {
 	XXXCHECK ( this );
 	XXXCHECK ( par );
-	XXASSERT ( par!=NULL && par->IsList() );
+	XXASSERT ( par!=nullptr && par->IsList() );
 	XXASSERT ( (idx>>26)==0 || idx==at_end );
 
 	if(IsList()&&Contains(par)) goto xl;
@@ -343,7 +343,7 @@ xp:	par->set_error_locked();  return;
 void Var::Unlink ( )
 {
 	XXXCHECK ( this );
-	XXASSERT ( parent!=NULL );
+	XXASSERT ( parent!=nullptr );
 
 	Var* par=parent;
 	if( par->data_is_locked() )
@@ -358,7 +358,7 @@ void Var::Unlink ( )
 	// shrink parent list
 		uint& i = par->list().used;
 		Var** a = par->list().array;
-		while( i && a[i-1]==NULL ) i--;
+		while( i && a[i-1]==nullptr ) i--;
 
 		unlock();
 	}
@@ -369,7 +369,7 @@ void Var::Unlink ( )
 void Var::Vanish()
 {
 	XXXCHECK ( this );
-	XXASSERT ( parent!=NULL );
+	XXASSERT ( parent!=nullptr );
 
 	parent->DeleteItem(index);
 }
@@ -425,7 +425,7 @@ void Var::resmask ( ulong mask )
 */
 inline void Var::init_list ( )
 {
-	list().array = NULL;
+	list().array = nullptr;
 	list().size  = 0;
 	list().used  = 0;
 }
@@ -475,7 +475,7 @@ void Var::kill_list ( )
 	if (list().size!=0)
 	{
 		XXXASSERT(list().used <= list().size);
-		XXXASSERT(list().array!=NULL);
+		XXXASSERT(list().array!=nullptr);
 
 		Var** a = list().array;
 		Var** e = a+list().used;
@@ -514,7 +514,7 @@ void Var::grow_list ( uint newused )
 
 	while (list().used<newused)
 	{
-		list().array[list().used++] = NULL; 	// händisch 'createn'
+		list().array[list().used++] = nullptr; 	// händisch 'createn'
 	}
 }
 
@@ -538,7 +538,7 @@ void Var::shrink_list ( uint newused )
 			if (v) { if(v->parent==this) { v->kill_link_nop(); v->init_link(); } v->unlock(); }
 		}
 		list().size = newused;
-		Var** newarray = NULL;
+		Var** newarray = nullptr;
 
 		if (newused>0)
 		{
@@ -553,7 +553,7 @@ void Var::shrink_list ( uint newused )
 
 
 /* ----	Insert empty items into list -------------------------------
-		note: inserted items are set to NULL == Var("",0.0)
+		note: inserted items are set to nullptr == Var("",0.0)
 */
 void Var::insert_items ( uint idx, uint n )
 {
@@ -577,7 +577,7 @@ void Var::insert_items ( uint idx, uint n )
 		while (m>idx)						// init items in gap
 		{
 			m--;
-			array[m] = NULL;
+			array[m] = nullptr;
 		}
 	}
 }
@@ -1013,7 +1013,7 @@ Var::Var ( cVar& q, NameHandle name )
 
 
 /* ----	List Var from cstr array ----------------------------
-		list terminates after argc elements or at NULL
+		list terminates after argc elements or at nullptr
 */
 Var::Var ( char const*const* argv, uint n )
 {
@@ -1243,7 +1243,7 @@ Var& Var::operator[] ( uint idx )
 
 /* ----	find item by name --------------------------------------------------
 		find named item in list
-		returns found Var or NULL
+		returns found Var or nullptr
 		named item is searched starting at the end of the list
 */
 Var* Var::FindItem ( NameHandle namehandle ) const
@@ -1265,21 +1265,21 @@ Var* Var::FindItem ( NameHandle namehandle ) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
 Var* Var::FindItem ( cString& name ) const
 {
 	NameHandle n = FindNameHandle(name);
-	return  n!=0 || name.Len()==0  ? FindItem( n ) : NULL;
+	return  n!=0 || name.Len()==0  ? FindItem( n ) : nullptr;
 }
 
 
 Var* Var::FindItem ( cstr name ) const
 {
 	NameHandle n = FindNameHandle(name);
-	return  n!=0 || name[0]==0  ? FindItem( n ) : NULL;
+	return  n!=0 || name[0]==0  ? FindItem( n ) : nullptr;
 }
 
 
@@ -1303,7 +1303,7 @@ long Var::Find ( cVar& v, long startidx ) const
 		while(startidx<endidx)
 		{
 			Var* a = list().array[startidx++];
-			if (a==NULL ? visnull : v.get_type()==a->get_type() && v.compare(*a)==0)
+			if (a==nullptr ? visnull : v.get_type()==a->get_type() && v.compare(*a)==0)
 			{
 				return startidx-1;
 			}
@@ -1329,7 +1329,7 @@ long Var::RFind ( cVar& v, long startidx ) const
 		while(startidx>=0)
 		{
 			Var* a = list().array[startidx--];
-			if (a==NULL ? visnull : v.get_type()==a->get_type() && v.compare(*a)==0)
+			if (a==nullptr ? visnull : v.get_type()==a->get_type() && v.compare(*a)==0)
 			{
 				return startidx+1;
 			}
@@ -1344,7 +1344,7 @@ long Var::RFind ( cVar& v, long startidx ) const
 /* ----	Insert empty items into list -------------------------------
 		if idx>used then nothing is done, because accessing
 		items beyond used automatically creates them
-		note: inserted items are set to NULL == Var("",0.0)
+		note: inserted items are set to nullptr == Var("",0.0)
 		handles idx==at_end
 */
 void Var::InsertItems ( uint idx, uint n )
@@ -1645,7 +1645,7 @@ void Var::sort( SortProcPtr sorter )
 		// prepare for sorting:
 			uint  n     = list().used;
 			Var** qlist = list().array;
-			for(uint i=n;i--;) { if(qlist[i]==NULL) qlist[i] = zero; }
+			for(uint i=n;i--;) { if(qlist[i]==nullptr) qlist[i] = zero; }
 
 		// doit
 			// use temp array, if compare() performs CHECK()
@@ -1664,7 +1664,7 @@ void Var::sort( SortProcPtr sorter )
 			for(uint i=n;i--;)
 			{
 				if(qlist[i]->parent==this) qlist[i]->index = i;
-				else if(qlist[i]==zero) { qlist[i] = NULL; }
+				else if(qlist[i]==zero) { qlist[i] = nullptr; }
 			}
 
 			//ClearError();	// clear type mismatchs
@@ -1952,7 +1952,7 @@ String Var::ToString ( bool quotestring, DisassProcPtr disass ) const
 				}
 				s += sep + v->ToString(yes,disass);			// recursively add item
 			}
-			else											// NULL == number 0.0
+			else											// nullptr == number 0.0
 			{
 				s += sep + '0';
 			}
@@ -2184,7 +2184,7 @@ Var& Var::list_op ( Var&(Var::*op)(Double), Double q )
 	uint  n = list().used;
 	while (n--)
 	{
-		Var* p=a[n]; if (p==NULL) p = new Var(this,n);
+		Var* p=a[n]; if (p==nullptr) p = new Var(this,n);
 		(p->*op)(q);
 	}
 	return *this;
@@ -2409,8 +2409,8 @@ Var& Var::append_list ( cVar& q, DisassProcPtr disass_proc )
 
 		while(n--)
 		{
-			if (!(zp=za[n])) zp = new Var(this,n);	// NULL <=> 0.0
-			if (!(qp=qa[n])) qp = zero;			// NULL <=> 0.0
+			if (!(zp=za[n])) zp = new Var(this,n);	// nullptr <=> 0.0
+			if (!(qp=qa[n])) qp = zero;			// nullptr <=> 0.0
 
 			if (qp->IsText())   { zp->AppendString(qp->text(),disass_proc); continue; }
 			if (qp->IsNoList()) { zp->AppendString(qp->ToString(no,disass_proc),disass_proc); continue; }

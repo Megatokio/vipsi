@@ -75,18 +75,18 @@ Thread::Thread ( Var* pro, Var* globs, float pri )
 {
 // twsp:
 	wdir  = WorkingDirString();
-	error = NULL;
+	error = nullptr;
 
 // dispatcher:
 	t_root     	 = this;			// global
 	state		 = 0;
 	prio		 = pri;
 	prio_org	 = pri;
-	blocked_sems = NULL;
-//	next 	= prev   = NULL;
-//	next_w 	= prev_w = NULL;
-//	sema	= NULL;
-//	irpt	= NULL;
+	blocked_sems = nullptr;
+//	next 	= prev   = nullptr;
+//	next_w 	= prev_w = nullptr;
+//	sema	= nullptr;
+//	irpt	= nullptr;
 //	time 	= 0.0;
 	ptime 	= 0;
 	link_running();
@@ -111,17 +111,17 @@ Thread::Thread ( Var* pro, Var* globs, float pri )
 Thread::Thread ( Thread* starter, float pri, uptr ip0, ulong stacksize )
 :	wdir(starter->wdir)
 {
-	error = NULL;
+	error = nullptr;
 
 // setup for dispatcher:
 	state		 = 0;
 	prio		 = pri;
 	prio_org	 = pri;
-	blocked_sems = NULL;
-//	next   = prev   = NULL;
-//	next_w = prev_w = NULL;
-//	sema	= NULL;
-//	irpt	= NULL;
+	blocked_sems = nullptr;
+//	next   = prev   = nullptr;
+//	next_w = prev_w = nullptr;
+//	sema	= nullptr;
+//	irpt	= nullptr;
 //	time 	= 0.0;
 	ptime	= 0;
 	link_running();
@@ -150,7 +150,7 @@ Thread::Thread ( Thread* starter, float pri, uptr ip0, ulong stacksize )
 */
 Thread::~Thread()
 {
-	if(this==t_root) t_root=NULL;
+	if(this==t_root) t_root=nullptr;
 
 // remove from all dispatcher lists
 	{
@@ -165,9 +165,9 @@ Thread::~Thread()
 	for( Sema*n,*s=blocked_sems; s; s=n )
 	{
 		n=s->next;
-		s->owner = NULL;
-		s->next  = NULL;
-		s->prev  = NULL;
+		s->owner = nullptr;
+		s->next  = nullptr;
+		s->prev  = nullptr;
 	}
 
 	PurgeResources();
@@ -248,7 +248,7 @@ void Thread::link_suspended ( )
 	Tid t = t_suspended;
 	t_suspended = this;
 	next = t;
-	prev = NULL;
+	prev = nullptr;
 	if (t) t->prev = this;
 }
 x:	XXCHECK();
@@ -283,7 +283,7 @@ void Thread::link_timeshed ( double alarmtime )
 		time   = alarmtime;
 
 		Tid t = t_timeshed;
-		Tid p = NULL;
+		Tid p = nullptr;
 		while ( t && alarmtime>t->time ) { p=t; t=t->next; }
 
 		next = t;
@@ -316,7 +316,7 @@ void Thread::link_running ( )
 	state = running;
 
 	Tid t = t_running;
-	Tid p = NULL;
+	Tid p = nullptr;
 	while ( t && prio>t->prio ) { p=t; t=t->next; }
 
 	next			= t;
@@ -404,7 +404,7 @@ void Thread::link_semashed ( Sema* sem )
 	Tid t = sem->wait;
 	sem->wait = this;
 	next_w = t; if (t) t->prev_w = this;
-	prev_w = NULL;
+	prev_w = nullptr;
 
 // boost blocking thread
 	t = sem->owner;
@@ -432,7 +432,7 @@ void Thread::link_irptshed ( Irpt  * i )
 	Tid t = i->wait;
 	i->wait = this;
 	next_w = t; if (t) t->prev_w = this;
-	prev_w = NULL;
+	prev_w = nullptr;
 
 	XXCHECK();
 }

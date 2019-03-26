@@ -42,7 +42,7 @@ static pthread_key_t tempmem_key;			// key for per-thread TempMemPool
 
 /* ----	Deallocate pool ----------------------
         called at thread termination
-        while pointer in tempmem_key is != NULL.
+        while pointer in tempmem_key is != nullptr.
         This should happen only once, for
         the automatically created pool.
 */
@@ -79,7 +79,7 @@ static void init()
 */
 TempMemPool::TempMemPool()
 :	size(0),
-    data(NULL)
+    data(nullptr)
 {
     XXLogIn("new TempMemPool");
 
@@ -111,7 +111,7 @@ void TempMemPool::purge()				// Purge() == destroy + create pool
     XXLogIn("TempMemPool::Purge");
     XXXLog("  this pool = %lx ",(ulong)this);
 
-    while( data!=NULL )
+    while( data!=nullptr )
     {
         XXXLog(".");
         TempMemData* prev = data->prev;
@@ -151,7 +151,7 @@ char* TempMemPool::alloc( int bytes ) throw(bad_alloc)
         }
         else
         {
-            newdata->prev = NULL;
+            newdata->prev = nullptr;
             data = newdata;
             size = 0;
         }
@@ -198,7 +198,7 @@ TempMemPool* TempMemPool::getXPool() throw(bad_alloc)
     if( !prev )
     {
         prev = new TempMemPool();					// automatically create 'outer' pool
-        prev->prev = NULL;							// 'outer' pool 'unterheben'.
+        prev->prev = nullptr;							// 'outer' pool 'unterheben'.
         pool->prev = prev;
         pthread_setspecific( tempmem_key, pool );	// aktuellen Pool erneut als 'aktuell' markieren
     }												// note: *might* fail with ENOMEM (utmost unlikely)
