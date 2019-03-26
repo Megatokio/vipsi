@@ -1,4 +1,4 @@
-/*	Copyright  (c)	Günter Woigk 2007 - 2013
+/*	Copyright  (c)	Günter Woigk 2007 - 2019
 					mailto:kio@little-bat.de
 
 	This file is free software
@@ -33,7 +33,7 @@
 
 
 
-// used in Var/var.cpp
+typedef unsigned int uint;
 
 
 template<class T>

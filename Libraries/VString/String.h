@@ -43,8 +43,8 @@
 */
 
 
-#ifndef _String_h_
-#define _String_h_
+#ifndef String_h
+#define String_h
 
 #include "kio/kio.h"
 #include "Unicode/Unicode.h"

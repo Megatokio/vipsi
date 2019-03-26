@@ -53,8 +53,8 @@
 */
 
 
-#ifndef name_handles_h
-#define	name_handles_h
+#ifndef NameHandles_h
+#define	NameHandles_h
 
 #include	"VString/String.h"
 

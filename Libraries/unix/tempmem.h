@@ -105,11 +105,11 @@
 #include "../kio/kio.h"
 
 
-extern	char*		tempmem			( int size ) throw(bad_alloc);
-extern	char*		tempstr			( int size ) throw(bad_alloc);
+extern	char*		tempmem			( int size ) noexcept(false);
+extern	char*		tempstr			( int size ) noexcept(false);
 
-extern	char*		xtempmem		( int size ) throw(bad_alloc);
-extern	char*		xtempstr		( int size ) throw(bad_alloc);
+extern	char*		xtempmem		( int size ) noexcept(false);
+extern	char*		xtempstr		( int size ) noexcept(false);
 
 extern	void		purgeTempMem	( );
 
@@ -139,12 +139,12 @@ public:
 					~TempMemPool	();
 
 	void			purge			();
-	char*			alloc			(int size)	throw(bad_alloc);
-	char*			allocStr		(int len )	throw(bad_alloc);	// 0-terminated
-	char*			allocMem		(int size)	throw(bad_alloc);	// aligned to _MAX_ALIGNMENT
+	char*			alloc			(int size)	noexcept(false);
+	char*			allocStr		(int len )	noexcept(false);	// 0-terminated
+	char*			allocMem		(int size)	noexcept(false);	// aligned to _MAX_ALIGNMENT
 
-static TempMemPool*	getPool			()			throw(bad_alloc);
-static TempMemPool*	getXPool		()			throw(bad_alloc);
+static TempMemPool*	getPool			()			noexcept(false);
+static TempMemPool*	getXPool		()			noexcept(false);
 };
 
 
@@ -153,7 +153,7 @@ static TempMemPool*	getXPool		()			throw(bad_alloc);
 */
 
 inline
-char* TempMemPool::allocStr ( int len ) throw(bad_alloc)
+char* TempMemPool::allocStr ( int len ) noexcept(false)
 {
 	char* p = alloc(len+1);
 	p[len] = 0;

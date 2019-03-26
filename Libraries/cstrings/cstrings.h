@@ -38,9 +38,9 @@
 	  and for returning result strings.
 */
 
-
-#ifndef _cstrings_h_
-#define _cstrings_h_
+;
+#ifndef cstrings_h
+#define cstrings_h
 
 #include "kio/kio.h"
 template <class T> class Array;
@@ -70,16 +70,16 @@ INL	bool	no_hex_digit(char c) 	{ return uchar(c-'0')>'9'-'0' && uchar((c|0x20)-'
 INL	int		digit_val(char c)       { return uchar(c-'0'); }										 // char -> digit value: [0..9] ---> [0..9]; non-digits ≥ 10
 INL	int		digit_value(char c)     { return c<='9' ? uchar(c-'0') : int(uchar((c&~0x20)-'A'))+10; } // char -> digit value: [0..9,A..Z,a..z] -> [0...35]; non-digits ≥ 36
 
-INL	char	hexchar(int n)			{ n &= 15; return (n>=10 ? 'A'-10 : '0') + n; }		// digit value -> char
+INL	char	hexchar(int n)			{ n &= 15; return char((n>=10 ? 'A'-10 : '0') + n); }		// digit value -> char
 
 
 // ----	allocate with new[] ----
-EXT	str 	newstr		(int n) throw(bad_alloc);		// allocate memory with new[]
-EXT	str		newcopy		(cstr)  throw(bad_alloc);		// allocate memory with new[] and copy text
+EXT	str 	newstr		(int n) noexcept(false);		// allocate memory with new[]
+EXT	str		newcopy		(cstr)  noexcept(false);		// allocate memory with new[] and copy text
 
 
 // ---- querries ----
-INL int		strLen		(cstr s)			{ return s?(int)strlen(s):0; }		// c-string
+INL int		strLen		(cstr s)			{ return s ? int(strlen(s)) : 0; }		// c-string
 EXT	bool	lt			(cstr,cstr);
 EXT	bool	gt			(cstr,cstr);
 EXT	bool	gt_tolower	(cstr,cstr);
@@ -93,18 +93,18 @@ EXT	bool	islowerstr	(cstr);
 
 
 // ---- allocate in tempMem pool ----
-EXT	str		tempstr		(int n) throw(bad_alloc);		// tempmem.h
-EXT	str		xtempstr	(int n) throw(bad_alloc);		// tempmem.h
+EXT	str		tempstr		(int n) noexcept(false);		// tempmem.h
+EXT	str		xtempstr	(int n) noexcept(false);		// tempmem.h
 EXT	str		spacestr	(int n, char c=' ');
 EXT	str		whitestr	(cstr, char c=' ');
 EXT	str		dupstr		(cstr);
 EXT	str		xdupstr     (cstr);
 
 EXT	str		substr		(cptr a, cptr e);
-INL str		substr		(cuptr a, cuptr e)			{ return substr((cptr)a,(cptr)e); }		// convenience method
+INL str		substr		(cuptr a, cuptr e)			{ return substr(cptr(a),cptr(e)); }		// convenience method
 EXT	str 	mulstr 		(cstr, int n);
 EXT	str 	catstr 		(cstr, cstr);
-EXT	str 	catstr 		(cstr, cstr, cstr, cstr=0, cstr=0, cstr=0);
+EXT	str 	catstr 		(cstr, cstr, cstr, cstr=nullptr, cstr=nullptr, cstr=nullptr);
 EXT	str 	midstr 		(cstr, int a, int n);
 EXT	str 	midstr 		(cstr, int a);
 EXT	str 	leftstr 	(cstr, int n);
@@ -114,7 +114,7 @@ INL char	lastchar	(cstr s)					{ return s&&*s ? s[strlen(s)-1] : 0; }
 EXT	str		hexstr 		(uint32 n, int len);
 EXT	str		hexstr 		(uint64 n, int len);
 
-template<class T> str hexstr(T n, int len)			{ return sizeof(T)>sizeof(uint32) ? hexstr((uint64)n,len) : hexstr((uint32)n,len); }
+template<class T> str hexstr(T n, int len)			{ return sizeof(T)>sizeof(uint32) ? hexstr(uint64(n),len) : hexstr(uint32(n),len); }
 
 EXT	str		binstr		(int n, cstr b0="00000000", cstr b1="11111111");
 EXT	str		numstr 		(float32);

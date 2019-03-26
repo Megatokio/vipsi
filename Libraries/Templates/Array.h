@@ -90,8 +90,8 @@
 #if 0
 	inline bool gt(cstr& a, cstr& b) { return strcmp(a,b)>0; }
 	inline bool lt(cstr& a, cstr& b) { return strcmp(a,b)<0; }
-	template<> inline void sort(cstr* a, cstr* e) throw(internal_error) { sort( a, e, (bool(*)(cstr&,cstr&))gt); }
-	template<> inline void rsort(cstr* a, cstr* e) throw(internal_error) { sort( a, e, (bool(*)(cstr&,cstr&))lt); }
+	template<> inline void sort(cstr* a, cstr* e) noexcept(false) { sort( a, e, (bool(*)(cstr&,cstr&))gt); }
+	template<> inline void rsort(cstr* a, cstr* e) noexcept(false) { sort( a, e, (bool(*)(cstr&,cstr&))lt); }
 #else
 	#define 	SORTER 		sort
 	#define 	CMP(A,B)	(strcmp(A,B)>0)
@@ -113,8 +113,8 @@
 #if 0
 	inline bool gt(str& a, str& b) { return strcmp(a,b)>0; }
 	inline bool lt(str& a, str& b) { return strcmp(a,b)<0; }
-	template<> inline void sort(str* a, str* e) throw(internal_error) { sort( a, e, (bool(*)(str&,str&))gt); }
-	template<> inline void rsort(str* a, str* e) throw(internal_error) { sort( a, e, (bool(*)(str&,str&))lt); }
+	template<> inline void sort(str* a, str* e) noexcept(false) { sort( a, e, (bool(*)(str&,str&))gt); }
+	template<> inline void rsort(str* a, str* e) noexcept(false) { sort( a, e, (bool(*)(str&,str&))lt); }
 #else
 	#define 	SORTER 		sort
 	#define 	CMP(A,B)	(strcmp(A,B)>0)
@@ -168,34 +168,34 @@ public:
 // access data members:
 	uint const&	count   	() const				{ return cnt; }						// & wird in vicci benutzt TODO: eliminate
 	T* const&	getData		() const				{ return data; }					// & wird in vicci benutzt TODO: eliminate
-	T const&	operator[]	(uint i) const			throw(index_error) { CHECK_IDX(i); return data[i]; }
-	T&			operator[]	(uint i)				throw(index_error) { CHECK_IDX(i); return data[i]; }	// non-auto-growing
-	T const&	first		() const				throw(index_error) { CHECK_IDX(0); return data[0]; }
-	T&			first		()						throw(index_error) { CHECK_IDX(0); return data[0]; }
-	T const&	last		() const				throw(index_error) { CHECK_IDX(0); return data[cnt-1]; }
-	T&			last		()						throw(index_error) { CHECK_IDX(0); return data[cnt-1]; }
+	T const&	operator[]	(uint i) const			noexcept(false) { CHECK_IDX(i); return data[i]; }
+	T&			operator[]	(uint i)				noexcept(false) { CHECK_IDX(i); return data[i]; }	// non-auto-growing
+	T const&	first		() const				noexcept(false) { CHECK_IDX(0); return data[0]; }
+	T&			first		()						noexcept(false) { CHECK_IDX(0); return data[0]; }
+	T const&	last		() const				noexcept(false) { CHECK_IDX(0); return data[cnt-1]; }
+	T&			last		()						noexcept(false) { CHECK_IDX(0); return data[cnt-1]; }
 
 	bool		operator==	(Array const& q) const;
 	bool		operator!=	(Array const& q) const;
 	bool		contains	(T item) const			{ for(uint i=0;i<cnt;i++) if(data[i]==item) return true; return false; }
 
 // resize:
-	void	    grow        ()					    throw(limit_error)	{ grow(cnt+1); }
-	void		grow		(uint newcnt)			throw(limit_error);
+	void	    grow        ()					    noexcept(false)	{ grow(cnt+1); }
+	void		grow		(uint newcnt)			noexcept(false);
 	void		shrink		(uint newcnt);
-	void		resize		(uint newcnt)			throw(limit_error)	{ shrink(newcnt); grow(newcnt); }
-	void		drop		()						throw(index_error) 	{ CHECK_IDX(0); --cnt; }
-	T			pop			()						throw(index_error) 	{ CHECK_IDX(0); return data[--cnt]; }
-	void		purge		()											{ kill(); init(); }
-	void		append		(T n)					throw(limit_error)	{ grow(cnt+1); data[cnt-1]=n; }
-	Array&		operator<<	(T n)					throw(limit_error)	{ grow(cnt+1); data[cnt-1]=n; return *this; }
-	void		remove		(uint idx)				throw(index_error);
+	void		resize		(uint newcnt)			noexcept(false)	{ shrink(newcnt); grow(newcnt); }
+	void		drop		()						noexcept(false) { CHECK_IDX(0); --cnt; }
+	T			pop			()						noexcept(false) { CHECK_IDX(0); return data[--cnt]; }
+	void		purge		()										{ kill(); init(); }
+	void		append		(T n)					noexcept(false)	{ grow(cnt+1); data[cnt-1]=n; }
+	Array&		operator<<	(T n)					noexcept(false)	{ grow(cnt+1); data[cnt-1]=n; return *this; }
+	void		remove		(uint idx)				noexcept(false);
 	void		removeItem	(T);
-	void		insertat	(uint idx, T)			throw(limit_error);
-	void		insertat	(uint idx, Array const&)throw(limit_error);
+	void		insertat	(uint idx, T)			noexcept(false);
+	void		insertat	(uint idx, Array const&)noexcept(false);
 	void		removerange	(uint a, uint e)		;
-	void		insertrange	(uint a, uint e)		throw(limit_error);
-	void		append		(Array const& q)		throw(limit_error);
+	void		insertrange	(uint a, uint e)		noexcept(false);
+	void		append		(Array const& q)		noexcept(false);
 
 	void 		revert		();
 	void 		rol			()						{ rol(0,cnt); }
@@ -212,13 +212,13 @@ public:
 	void 		rsort		(uint a, uint e)					{ if(e>cnt) e=cnt; if(a<e) ::rsort(data+a, data+e); }
 	void 		sort		(uint a, uint e, bool(*gt)(T&,T&))	{ if(e>cnt) e=cnt; if(a<e) ::sort(data+a, data+e, gt); }
 
-	void		writeToFile		(FD& fd) const		throw(file_error)		{ fd.write(cnt); fd.write_data(data,cnt); }
-	void		readFromFile	(FD& fd)			throw(file_error);
-	void		appendFromFile	(FD& fd, uint cnt)	throw(file_error,limit_error);		// used in zxsp for uint8
+	void		writeToFile		(FD& fd) const		noexcept(false)		{ fd.write(cnt); fd.write_data(data,cnt); }
+	void		readFromFile	(FD& fd)			noexcept(false);
+	void		appendFromFile	(FD& fd, uint cnt)	noexcept(false);		// used in zxsp for uint8
 
 private:		// for easier specialisation: Array<str|cstr> reads|writes nstr
-	void		read_from_file	(FD& fd, uint a, uint e) throw(file_error)	{ fd.read_data(data+a,e-a); }
-	void		write_to_file	(FD& fd, uint a, uint e) throw(file_error)	{ fd.write_data(data+a,e-a); }
+	void		read_from_file	(FD& fd, uint a, uint e) noexcept(false)	{ fd.read_data(data+a,e-a); }
+	void		write_to_file	(FD& fd, uint a, uint e) noexcept(false)	{ fd.write_data(data+a,e-a); }
 };
 
 
@@ -242,7 +242,7 @@ Array<T>::Array(uint cnt, uint max)
 	if(max<cnt) max=cnt;
 	CHECK_SIZE(max);
 
-	data = (T*) new int8[max*sizeof(T)];
+	data = reinterpret_cast<T*> ( new int8[max*sizeof(T)] );
 	memset(data,0,cnt*sizeof(T));
 	this->cnt = cnt;
 	this->max = max;
@@ -282,7 +282,7 @@ Array<T> Array<T>::copy() const
 
 	if(cnt)
 	{
-		z.data = (T*) new int8[cnt*sizeof(T)];
+		z.data = reinterpret_cast<T*> ( new int8[cnt*sizeof(T)] );
 		memcpy(z.data,data,cnt*sizeof(T));
 		z.max = z.cnt = cnt;
 	}
@@ -303,7 +303,7 @@ Array<T> Array<T>::copyofrange(uint a,uint e) const
 	{
 		CHECK_END(e);
 
-		z.data = (T*) new int8[(e-a)*sizeof(T)];
+		z.data = reinterpret_cast<T*> ( new int8[(e-a)*sizeof(T)] );
 		memcpy(z.data, data+a, (e-a)*sizeof(T));
 		z.max = z.cnt = e-a;
 	}
@@ -318,7 +318,7 @@ Array<T> Array<T>::copyofrange(uint a,uint e) const
 // preallocates ~12% more
 //
 template<class T>
-void Array<T>::grow(uint newcnt) throw(limit_error)
+void Array<T>::grow(uint newcnt) noexcept(false)
 {
 	if(newcnt<=cnt) return;
 
@@ -381,7 +381,7 @@ void Array<T>::removeItem(T item)
 // idx < cnt
 //
 template<class T>
-void Array<T>::remove(uint idx) throw(index_error)
+void Array<T>::remove(uint idx) noexcept(false)
 {
 	CHECK_IDX(idx);
 
@@ -394,7 +394,7 @@ void Array<T>::remove(uint idx) throw(index_error)
 // idx ≤ cnt
 //
 template<class T>
-void Array<T>::insertat(uint idx, T t) throw(limit_error)
+void Array<T>::insertat(uint idx, T t) noexcept(false)
 {
 	CHECK_END(idx);
 
@@ -409,7 +409,7 @@ void Array<T>::insertat(uint idx, T t) throw(limit_error)
 // idx ≤ cnt
 //
 template<class T>
-void Array<T>::insertat(uint idx, Array const& q) throw(limit_error)
+void Array<T>::insertat(uint idx, Array const& q) noexcept(false)
 {
 	insertrange(idx,idx+q.count());
 	memcpy(data+idx,q.data,q.count()*sizeof(T));
@@ -434,7 +434,7 @@ void Array<T>::removerange(uint a, uint e)
 // a ≤ cnt
 //
 template<class T>
-void Array<T>::insertrange(uint a, uint e) throw(limit_error)
+void Array<T>::insertrange(uint a, uint e) noexcept(false)
 {
 	CHECK_END(a);
 	if(a>=e) return;
@@ -449,7 +449,7 @@ void Array<T>::insertrange(uint a, uint e) throw(limit_error)
 // *moves* data, source array is cleared
 //
 template<class T>
-void Array<T>::append(Array const& q) throw(limit_error)
+void Array<T>::append(Array const& q) noexcept(false)
 {
 	grow(cnt+q.cnt);
 	memcpy(data+cnt-q.cnt, q.data, q.cnt*sizeof(T));
@@ -460,10 +460,10 @@ void Array<T>::append(Array const& q) throw(limit_error)
 // append n items from file
 //
 template<class T>
-void Array<T>::appendFromFile(FD& fd, uint n) throw(file_error,limit_error)
+void Array<T>::appendFromFile(FD& fd, uint n) noexcept(false)
 {
-	grow(cnt+n);					// throws limit_error
-	read_from_file(fd,cnt-n, cnt);	// throws file_error
+	grow(cnt+n);
+	read_from_file(fd,cnt-n, cnt);
 }
 
 
@@ -529,20 +529,20 @@ void Array<T>::shuffle(uint a, uint e)	// shuffle range [a..[e
 
 // Spezialisierungen für str und cstr:
 template<>
-inline void Array<cstr>::read_from_file(FD& fd, uint a, uint e) throw(file_error)	{ while(a<e) data[a++] = fd.read_str(); }
+inline void Array<cstr>::read_from_file(FD& fd, uint a, uint e) noexcept(false)	{ while(a<e) data[a++] = fd.read_str(); }
 template<>
-inline void Array<cstr>::write_to_file(FD& fd, uint a, uint e) throw(file_error)	{ while(a<e) fd.write_str(data[a++]); }
+inline void Array<cstr>::write_to_file(FD& fd, uint a, uint e) noexcept(false)	{ while(a<e) fd.write_str(data[a++]); }
 template<>
-inline void Array<str>::read_from_file(FD& fd, uint a, uint e) throw(file_error)	{ while(a<e) data[a++] = fd.read_str(); }
+inline void Array<str>::read_from_file(FD& fd, uint a, uint e) noexcept(false)	{ while(a<e) data[a++] = fd.read_str(); }
 template<>
-inline void Array<str>::write_to_file(FD& fd, uint a, uint e) throw(file_error)		{ while(a<e) fd.write_str(data[a++]); }
+inline void Array<str>::write_to_file(FD& fd, uint a, uint e) noexcept(false)		{ while(a<e) fd.write_str(data[a++]); }
 
 
 // read array from file
 // which was written with writeToFile()
 //
 template<class T>
-void Array<T>::readFromFile(FD& fd) throw(file_error)
+void Array<T>::readFromFile(FD& fd) noexcept(false)
 {
 	purge();
 	uint n; fd.read(n);
@@ -581,8 +581,8 @@ public:	virtual	~CstrArray	()					{ while(cnt) delete[] data[--cnt]; }
 		void	purge		()                  { kill(); init(); }
 
 		void	append		(cstr s)				{ Array<cstr>::append(newcopy(s)); }
-		void	append		(CstrArray const& q)	throw(limit_error) { Array<cstr>::append(q); }
-		void	insertat	(uint idx, cstr s)		throw(limit_error) { Array<cstr>::insertat(idx,s); }
+		void	append		(CstrArray const& q)	noexcept(false) { Array<cstr>::append(q); }
+		void	insertat	(uint idx, cstr s)		noexcept(false) { Array<cstr>::insertat(idx,s); }
 
 		void	remove		(uint idx)          { ASSERT(idx<cnt); delete[] data[idx]; Array<cstr>::remove(idx); }
 		void	removerange	(uint , uint );     //TODO
@@ -623,7 +623,7 @@ public:	virtual	~CstrArray	()					{ while(cnt) delete[] data[--cnt]; }
 		int		find		(cstr s) const      { for(int i=cnt;i--;) if(eq(s,data[i])) return i; return -1; }
 		void	append_if_new(cstr s)           { for(int i=cnt;i--;) if(eq(s,data[i])) return; append(s); }
 
-    	void	appendFromFile(FD& fd,int32 cnt)throw(file_error);  //TODO
+    	void	appendFromFile(FD& fd,int32 cnt) noexcept(false);  //TODO
 };
 
 
@@ -708,7 +708,7 @@ public:	virtual	~StrArray	()					{ while(cnt) delete[] data[--cnt]; }
 		int		find		(cstr s) const      { for(int i=cnt;i--;) if(eq(s,data[i])) return i; return -1; }
 		void	append_if_new(cstr s)           { for(int i=cnt;i--;) if(eq(s,data[i])) return; append(s); }
 
-    	void	appendFromFile(FD& fd,int32 cnt)throw(file_error);  //TODO
+    	void	appendFromFile(FD& fd,int32 cnt) noexcept(false);  //TODO
 };
 
 
@@ -770,7 +770,7 @@ public:			~ObjArray	()						{ while(cnt) delete data[--cnt]; }
 
 	void		print		(FD& fd, cstr indent)	const;
 	void		writeToFile	(FD& fd)				const;
-	void		readFromFile(FD& fd)				throw(file_error);
+	void		readFromFile(FD& fd)				noexcept(false);
 
     ObjArray&   operator << (T* t)					{ Array<T*>::append(t); return *this; }
 
@@ -833,7 +833,7 @@ void ObjArray<T>::writeToFile( FD& fd ) const
 }
 
 template<class T>
-void ObjArray<T>::readFromFile( FD& fd ) throw(file_error)
+void ObjArray<T>::readFromFile( FD& fd ) noexcept(false)
 {
 	purge();
 	uint n; fd.read(n);

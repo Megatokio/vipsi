@@ -57,8 +57,7 @@
 // #include <clocale>
 // std::setlocale(LC_ALL, "en_US");
 
-
-
+;
 
 #ifdef HAVE_NAN_H
 #include	<nan.h>
@@ -76,7 +75,7 @@ str emptystr = &null;
         presets terminating 0
         2007-07-10: added the 'bad_alloc'
 */
-str newstr ( int n ) throw(bad_alloc)
+str newstr ( int n ) noexcept(false)
 {
     str c = new char[n+1];
     c[n] = 0;
@@ -89,7 +88,7 @@ str newstr ( int n ) throw(bad_alloc)
         includes OOMEM check
         returns nullptr if source string is nullptr			2001-01-29
 */
-str newcopy ( cstr s ) throw(bad_alloc)
+str newcopy ( cstr s ) noexcept(false)
 {
     str c = nullptr;
     if (s)

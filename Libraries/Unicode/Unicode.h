@@ -29,8 +29,8 @@
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef  _Unicode_h_
-#define	 _Unicode_h_
+#ifndef  Unicode_h
+#define	 Unicode_h
 
 #include "kio/kio.h"
 #include "cstrings/cstrings.h"
@@ -79,8 +79,8 @@ const	UCS4Char	UCS4ReplacementChar		= 0xfffd;
 **************************************************************** */
 
 inline	UCS4Char	UCS4CharFromUCS4	( UCS4Char n )			{ return n; }	// 2005-06-09: support for 32 bit added  =>  now this is a nop now
-inline	UCS2Char	UCS2CharFromUCS4	( UCS4Char n )			{ return UCS2Char(n)==n ? n : UCS2ReplacementChar; }
-inline	UCS1Char	UCS1CharFromUCS4	( UCS4Char n )			{ return UCS1Char(n)==n ? n : UCS1ReplacementChar; }
+inline	UCS2Char	UCS2CharFromUCS4	( UCS4Char n )			{ return UCS2Char(n)==n ? UCS2Char(n) : UCS2ReplacementChar; }
+inline	UCS1Char	UCS1CharFromUCS4	( UCS4Char n )			{ return UCS1Char(n)==n ? UCS1Char(n) : UCS1ReplacementChar; }
 
 
 
@@ -97,23 +97,23 @@ extern	cUCS2Table	ucs2_from_rtos;
 extern	cUCS2Table	ucs2_from_cp_437;
 extern	cUCS2Table	ucs2_from_atari_st;
 
-inline	UCS2Char	UCS2CharFrom8Bit	( char c, cUCS2Table t)	{ return t[(uchar)c]; }
-inline	UCS2Char	UCS2CharFromLatin1	( char c )				{ return (uchar)c; }
+inline	UCS2Char	UCS2CharFrom8Bit	( char c, cUCS2Table t)	{ return t[uchar(c)]; }
+inline	UCS2Char	UCS2CharFromLatin1	( char c )				{ return uchar(c); }
 inline	UCS2Char	UCS2CharFromAsciiUS	( char c )				{ return c&0x7f; }
-inline	UCS2Char	UCS2CharFromMacRoman( char c )				{ return ucs2_from_mac_roman[(uchar)c]; }
-inline	UCS2Char	UCS2CharFromAsciiGer( char c )				{ return ucs2_from_ascii_ger[(uchar)c]; }
-inline	UCS2Char	UCS2CharFromRtos	( char c )				{ return ucs2_from_rtos[(uchar)c]; }
-inline	UCS2Char	UCS2CharFromCp437	( char c )				{ return ucs2_from_cp_437[(uchar)c]; }
-inline	UCS2Char	UCS2CharFromAtariST	( char c )				{ return ucs2_from_atari_st[(uchar)c]; }
+inline	UCS2Char	UCS2CharFromMacRoman( char c )				{ return ucs2_from_mac_roman[uchar(c)]; }
+inline	UCS2Char	UCS2CharFromAsciiGer( char c )				{ return ucs2_from_ascii_ger[uchar(c)]; }
+inline	UCS2Char	UCS2CharFromRtos	( char c )				{ return ucs2_from_rtos[uchar(c)]; }
+inline	UCS2Char	UCS2CharFromCp437	( char c )				{ return ucs2_from_cp_437[uchar(c)]; }
+inline	UCS2Char	UCS2CharFromAtariST	( char c )				{ return ucs2_from_atari_st[uchar(c)]; }
 
 extern	char		UCS4CharTo8Bit		( UCS4Char c, cUCS2Table t );
-inline	char		UCS4CharToLatin1	( UCS4Char c )			{ return c>>8 ? '?' : c; }
-inline	char		UCS4CharToAsciiUS	( UCS4Char c )			{ return c>>7 ? '?' : c; }
-inline	char		UCS4CharToAsciiGer	( UCS4Char c )			{ return (c|0x20)<='z' && c!='@' ? c : UCS4CharTo8Bit(c,ucs2_from_ascii_ger); }
-inline	char		UCS4CharToRtos		( UCS4Char c )			{ return (c|0x20)<='z' && c!='@' ? c : UCS4CharTo8Bit(c,ucs2_from_rtos); }
-inline	char		UCS4CharToMacRoman	( UCS4Char c )			{ return c>>7 ? UCS4CharTo8Bit(c,ucs2_from_mac_roman) : c; }
-inline	char		UCS4CharToCp437		( UCS4Char c )			{ return c>>7 ? UCS4CharTo8Bit(c,ucs2_from_cp_437)    : c; }
-inline	char		UCS4CharToAtariST	( UCS4Char c )			{ return c>>7 ? UCS4CharTo8Bit(c,ucs2_from_atari_st)  : c; }
+inline	char		UCS4CharToLatin1	( UCS4Char c )			{ return c>>8 ? '?' : char(c); }
+inline	char		UCS4CharToAsciiUS	( UCS4Char c )			{ return c>>7 ? '?' : char(c); }
+inline	char		UCS4CharToAsciiGer	( UCS4Char c )			{ return (c|0x20)<='z' && c!='@' ? char(c) : UCS4CharTo8Bit(c,ucs2_from_ascii_ger); }
+inline	char		UCS4CharToRtos		( UCS4Char c )			{ return (c|0x20)<='z' && c!='@' ? char(c) : UCS4CharTo8Bit(c,ucs2_from_rtos); }
+inline	char		UCS4CharToMacRoman	( UCS4Char c )			{ return c>>7 ? UCS4CharTo8Bit(c,ucs2_from_mac_roman) : char(c); }
+inline	char		UCS4CharToCp437		( UCS4Char c )			{ return c>>7 ? UCS4CharTo8Bit(c,ucs2_from_cp_437)    : char(c); }
+inline	char		UCS4CharToAtariST	( UCS4Char c )			{ return c>>7 ? UCS4CharTo8Bit(c,ucs2_from_atari_st)  : char(c); }
 
 
 
@@ -255,29 +255,29 @@ extern int				UCS4CharPrintWidth		( UCS4Char n );		// print width of char in mon
 	extern float	ucs2_get_numericvalue	( UCS2Char n );
 	extern float	ucs4_get_numericvalue	( UCS4Char n );
 
-inline	bool		UCS4CharIsDecimalDigit	( UCS4Char n )		{ return n<256  ? is_dec_digit(n) : UCS4CharGeneralCategory(n) == U_gc_decimal_number; }
-inline	bool		UCS4CharIsNumberLetter	( UCS4Char n )		{ return n<256  ? is_dec_digit(n) : UCS4CharGeneralCategory(n) == U_gc_letter_number; }
-inline	bool		UCS4CharHasNumericValue	( UCS4Char n )		{ return n<0xb2 ? is_dec_digit(n)	// digits, numbers & decorated numbers
+inline	bool		UCS4CharIsDecimalDigit	( UCS4Char n )		{ return n<256  ? is_dec_digit(char(n)) : UCS4CharGeneralCategory(n) == U_gc_decimal_number; }
+inline	bool		UCS4CharIsNumberLetter	( UCS4Char n )		{ return n<256  ? is_dec_digit(char(n)) : UCS4CharGeneralCategory(n) == U_gc_letter_number; }
+inline	bool		UCS4CharHasNumericValue	( UCS4Char n )		{ return n<0xb2 ? is_dec_digit(char(n))	// digits, numbers & decorated numbers
 																: uchar_in_range(U_gc_number, UCS4CharGeneralCategory(n), U_gc_other_number); }
 // Get Decimal Digit Value.
 // No error checking. Non-Decimal-Digits return meaningless values.
-inline	int			UCS1CharDigitValue		( UCS1Char n )		{ return digit_val(n); }
-inline	int			UCS2CharDigitValue		( UCS2Char n )		{ return n>>8 ? ucs2_get_digitvalue(n) : digit_val(n); }
-inline	int			UCS4CharDigitValue		( UCS4Char n )		{ return n>>8 ? ucs4_get_digitvalue(n) : digit_val(n); }
+inline	int			UCS1CharDigitValue		( UCS1Char n )		{ return digit_val(char(n)); }
+inline	int			UCS2CharDigitValue		( UCS2Char n )		{ return n>>8 ? ucs2_get_digitvalue(n) : digit_val(char(n)); }
+inline	int			UCS4CharDigitValue		( UCS4Char n )		{ return n>>8 ? ucs4_get_digitvalue(n) : digit_val(char(n)); }
 
 // Get Digit, Number & Decorated Number value.
 // some fractionals. one negative. two NaNs.
-inline	float		UCS1CharNumericValue	( UCS1Char n )		{ return uchar_in_range('0',n,'9')  ? digit_val(n) : ucs2_get_numericvalue(n); }
-inline	float		UCS2CharNumericValue	( UCS2Char n )		{ return ushort_in_range('0',n,'9') ? digit_val(n) : ucs2_get_numericvalue(n); }
-inline	float		UCS4CharNumericValue	( UCS4Char n )		{ return ulong_in_range('0',n,'9')  ? digit_val(n) : ucs4_get_numericvalue(n); }
+inline	float		UCS1CharNumericValue	( UCS1Char n )		{ return uchar_in_range('0',n,'9')  ? digit_val(char(n)) : ucs2_get_numericvalue(n); }
+inline	float		UCS2CharNumericValue	( UCS2Char n )		{ return ushort_in_range('0',n,'9') ? digit_val(char(n)) : ucs2_get_numericvalue(n); }
+inline	float		UCS4CharNumericValue	( UCS4Char n )		{ return ulong_in_range('0',n,'9')  ? digit_val(char(n)) : ucs4_get_numericvalue(n); }
 
 // quick variants:
 inline	bool		UCS4CharIsDec			( UCS4Char n )		{ return ulong_in_range('0',n,'9'); }
 inline	bool		UCS4CharIsOct			( UCS4Char n )		{ return ulong_in_range('0',n,'7'); }
 inline	bool		UCS4CharIsBin			( UCS4Char n )		{ return ulong_in_range('0',n,'1'); }
 inline	bool		UCS4CharIsHex			( UCS4Char n )		{ return ulong_in_range('0',n,'9') || ulong_in_range('a',n|0x20,'f'); }
-inline	int			UCS4CharDecVal			( UCS4Char n )		{ return n>>7 ? 99 : digit_val(n);	  }			// 0..9;  NaN>9
-inline	int			UCS4CharHexVal			( UCS4Char n )		{ return n>>7 ? 99 : digit_value(n); }			// 0..36; NaN>36
+inline	int			UCS4CharDecVal			( UCS4Char n )		{ return n>>7 ? 99 : digit_val(char(n));	  }			// 0..9;  NaN>9
+inline	int			UCS4CharHexVal			( UCS4Char n )		{ return n>>7 ? 99 : digit_value(char(n)); }			// 0..36; NaN>36
 
 
 /* ********************************************************************************
@@ -310,8 +310,8 @@ inline	UCS2Char	UCS2CharSimpleTitlecase	( UCS2Char n )		{ return n<0xd7  ? UCS1_
 inline	UCS4Char	UCS4CharSimpleTitlecase	( UCS4Char n )		{ return n<0xd7  ? UCS1_SUC_Table[n]  : ucs4_simple_titlecase(n); }
 
 // Info:
-inline	bool 		UCS4CharIsLowercase 	( UCS4Char n )		{ return n<0xd7 ? is_lowercase(n) : UCS4CharGeneralCategory(n) == U_gc_ll; }
-inline	bool 		UCS4CharIsUppercase 	( UCS4Char n )		{ return n<0xd7 ? is_uppercase(n)
+inline	bool 		UCS4CharIsLowercase 	( UCS4Char n )		{ return n<0xd7 ? is_lowercase(char(n)) : UCS4CharGeneralCategory(n) == U_gc_ll; }
+inline	bool 		UCS4CharIsUppercase 	( UCS4Char n )		{ return n<0xd7 ? is_uppercase(char(n))
 																  : uchar_in_range(U_gc_lt, UCS4CharGeneralCategory(n), U_gc_lu); }
 
 
@@ -320,11 +320,11 @@ inline	bool 		UCS4CharIsUppercase 	( UCS4Char n )		{ return n<0xd7 ? is_uppercas
 **************************************************************** */
 
 // UPs:
-	extern bool		ucs4_is_printable		( UCS4Char n );
+extern	bool		ucs4_is_printable		( UCS4Char n );
 
-inline	bool		UCS4CharIsPrintable		( UCS4Char n )		{ return n<0x700 ? n!=0x7f && (n&~0x80)>=0x20 : ucs4_is_printable(n); }
-inline	bool		UCS4CharIsControl		( UCS4Char n )		{ return n==0x7f || (n&~0x80)<0x20; }	// checked
-inline	bool		UCS4CharIsLetter		( UCS4Char n )		{ return n<0x80 ? is_letter(n)			// checked
+inline	bool		UCS4CharIsPrintable		( UCS4Char n )		{ return n<0x700 ? n!=0x7f && (n&~0x80u)>=0x20 : ucs4_is_printable(n); }
+inline	bool		UCS4CharIsControl		( UCS4Char n )		{ return n==0x7f || (n&~0x80u)<0x20; }
+inline	bool		UCS4CharIsLetter		( UCS4Char n )		{ return n<0x80 ? is_letter(char(n))
 																  : uchar_in_range(U_gc_letter, UCS4CharGeneralCategory(n), U_gc_lu); }
 
 

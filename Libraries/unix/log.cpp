@@ -224,7 +224,7 @@ inline void lock()   { pthread_mutex_lock(&mutex);	 }
 inline void unlock() { pthread_mutex_unlock(&mutex); }
 #endif
 
-#ifndef _cstrings_h_
+#ifndef cstrings_h
 //  strncpy variant which always terminates the destination string
 //  Returns the resulting string size or the buffer size, if the string was truncated.
 //  The string is always delimited with a 0 character unless sz = 0.

@@ -72,10 +72,10 @@ extern void panic( int error_number )		__attribute__((__noreturn__));
 #define	IERR()		ABORT("INTERNAL ERROR")
 #define	TODO()		ABORT("TODO")
 #define	ASSERT(X)	do{ if(!(X)) ABORT("TEST FAILED: " #X); } while(0)
-#define	INDEX(I,M)	do{ if((size_t)(ssize_t)(I) >= (size_t)(ssize_t)(M)) \
-					ABORT(usingstr("INDEX OORANGE: %i ≥ %i", (int)(I), (int)(M))); } while(0)
-#define	LIMIT(I,M)	do{ if((size_t)(ssize_t)(I) >  (size_t)(ssize_t)(M)) \
-					ABORT(usingstr("SIZE OORANGE: %u > %u",  (int)(I), (int)(M))); } while(0)
+#define	INDEX(I,M)	do{ if(size_t(ssize_t(I)) >= size_t(ssize_t(M))) \
+					ABORT(usingstr("INDEX OORANGE: %i ≥ %i", int(I), int(M))); } while(0)
+#define	LIMIT(I,M)	do{ if(size_t(ssize_t(I)) >  size_t(ssize_t(M))) \
+					ABORT(usingstr("SIZE OORANGE: %u > %u",  int(I), int(M))); } while(0)
 
 
 // in final version throw internal_error
