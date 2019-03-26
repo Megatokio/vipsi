@@ -1194,7 +1194,7 @@ top_f:	Drop2Push(f?eins:zero);
 		Assert1Arg();
 		TopAssertTemp();
 		TopReqNumber();
-		Top.Value() = labs((long)Top.Value());
+		Top.Value() = abs(Top.Value());
 		QUICK;
 
 	case tSIGN:			// <temp> tSIGN -- <temp>
