@@ -63,6 +63,9 @@ extern void panic( int error_number )		__attribute__((__noreturn__));
 //	must not be called from a function registered with atexit()
 //	–––––––––––––––––––––––––––––––––––––––––––––––––––
 
+#define likely(x)      __builtin_expect(!!(x), 1)
+#define unlikely(x)    __builtin_expect(!!(x), 0)
+
 #define	ABORT(MSG)	abort("in %s line %u: %s", __FILE__, __LINE__, MSG)
 
 // in development version abort(..) on error
@@ -71,10 +74,10 @@ extern void panic( int error_number )		__attribute__((__noreturn__));
 
 #define	IERR()		ABORT("INTERNAL ERROR")
 #define	TODO()		ABORT("TODO")
-#define	ASSERT(X)	do{ if(!(X)) ABORT("TEST FAILED: " #X); } while(0)
-#define	INDEX(I,M)	do{ if(size_t(ssize_t(I)) >= size_t(ssize_t(M))) \
+#define	ASSERT(X)	do{ if(unlikely(!(X))) ABORT("TEST FAILED: " #X); } while(0)
+#define	INDEX(I,M)	do{ if(unlikely(size_t(ssize_t(I)) >= size_t(ssize_t(M)))) \
 					ABORT(usingstr("INDEX OORANGE: %i ≥ %i", int(I), int(M))); } while(0)
-#define	LIMIT(I,M)	do{ if(size_t(ssize_t(I)) >  size_t(ssize_t(M))) \
+#define	LIMIT(I,M)	do{ if(unlikely(size_t(ssize_t(I)) >  size_t(ssize_t(M)))) \
 					ABORT(usingstr("SIZE OORANGE: %u > %u",  int(I), int(M))); } while(0)
 
 
@@ -85,10 +88,10 @@ extern void panic( int error_number )		__attribute__((__noreturn__));
 #define	IERR()		throw internal_error(__FILE__, __LINE__,internalerror)
 #define	TODO()		throw internal_error(__FILE__,__LINE__,notyetimplemented)
 
-#define	ASSERT(X)	do{ if(!(X)) throw internal_error(__FILE__,__LINE__,"TEST FAILED: " #X); } while(0)
-#define	INDEX(I,M)	do{ if((size_t)(ssize_t)(I) >= (size_t)(ssize_t)(M)) \
+#define	ASSERT(X)	do{ if(unlikely(!(X))) throw internal_error(__FILE__,__LINE__,"TEST FAILED: " #X); } while(0)
+#define	INDEX(I,M)	do{ if(unlikely(size_t(ssize_t(I)) >= size_t(ssize_t(M)))) \
 					throw index_error(__FILE__,__LINE__,I,M); } while(0)
-#define	LIMIT(I,M)	do{ if((size_t)(ssize_t)(I) >  (size_t)(ssize_t)(M)) \
+#define	LIMIT(I,M)	do{ if(unlikely(size_t(ssize_t(I)) >  size_t(ssize_t(M)))) \
 					throw limit_error(__FILE__,__LINE__,I,M); } while(0)
 #endif
 
