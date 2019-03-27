@@ -59,14 +59,14 @@ uint32	opcodeTupels[256][256];
 	#error hmm hmm ...
 #endif
 
-const 	Double d_ln10 = log(10.0);
-const 	Double d_ln2  = log( 2.0);
+static const 	Double d_ln10 = log(10.0);
+static const 	Double d_ln2  = log( 2.0);
 //const	Double d_ln16 = log(16.0);
 
-sigset_t allsigs;	/* filled */
-sigset_t nosigs;	/* cleared */
+static sigset_t allsigs;	/* filled */
+static sigset_t nosigs;	/* cleared */
 
-int		ignore_sigsegv = 0;		// ignore counter for signal SIGSEGV
+static int		ignore_sigsegv = 0;		// ignore counter for signal SIGSEGV
 
 
 /* ----	start TimeShed timer --------------------------
@@ -817,28 +817,21 @@ exe6:
 	}
 	#endif
 
-	#ifndef NDEBUG
-	{
-		if(vp+1<va)		goto ERR_VSTACKUNDERFLOW;
-		if(rp>=re)		goto ERR_RSTACKUNDERFLOW;
-	}
-	{
-		if(rp<ra)		goto ERR_STACKOVERFLOW;
-	}
-	#endif
+	IFDEBUG( if(vp+1 < va) goto ERR_VSTACKUNDERFLOW;
+			 if(rp >= re)  goto ERR_RSTACKUNDERFLOW;
+			 if(rp < ra)   goto ERR_STACKOVERFLOW; )
 
 	assert(root->ListSize() >= 5);
 
-	if(XXLOG)
-	{
-		Log("{%s}",tokenname[*ip].CString());
-	}
+	XXLog("{%s}",tokenname[*ip].CString());
 
-	switch((TokenEnum)*ip++)
+	switch( TokenEnum(*ip++))
 	{
 	case tDUP:
 		Assert1Arg();
 		Dup();
+		QUICK;
+
 	case tNODEREF:			// before tARROW
 		QUICK;
 
@@ -3236,11 +3229,9 @@ ERR_TOPNOPARENT:	SetError( topnoparent,
 
 ERR_NIMP:			errno = notyetimplemented;				ERROR;
 
-#if defined(DEBUG)
-ERR_STACKOVERFLOW:	SetError("stack overflow"); 				ERROR;
-ERR_VSTACKUNDERFLOW:SetError("variables stack underflow"); 		ERROR;
-ERR_RSTACKUNDERFLOW:SetError("return stack underflow"); 		ERROR;
-#endif
+IFDEBUG(ERR_STACKOVERFLOW:	SetError("stack overflow"); 		ERROR;)
+IFDEBUG(ERR_VSTACKUNDERFLOW:SetError("variables stack underflow"); ERROR;)
+IFDEBUG(ERR_RSTACKUNDERFLOW:SetError("return stack underflow"); ERROR;)
 ERR_VSTACKBOGUS:	SetError("variable stack bogus"); 			ERROR;
 
 ASSERT_ISTEMP:		SetError("assertion failed: IsTemp()"); 	ERROR;

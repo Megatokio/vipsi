@@ -295,12 +295,12 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			atexit(restore_stdin);		// ***TODO*** also on error exit
 			assert(errno==ok);
 
-			new_stdin_termios.c_lflag    &= ~ICANON;	// noncanonical input: no wait for nl, no erase, no kill processing
-			new_stdin_termios.c_lflag    &= ~ECHO;		// no echo on input
-			new_stdin_termios.c_lflag    &= ~ECHONL;	// also no echo for nl on input
+			new_stdin_termios.c_lflag    &= ~ulong(ICANON);	// noncanonical input: no wait for nl, no erase, no kill processing
+			new_stdin_termios.c_lflag    &= ~ulong(ECHO);	// no echo on input
+			new_stdin_termios.c_lflag    &= ~ulong(ECHONL);	// also no echo for nl on input
 			new_stdin_termios.c_cc[VMIN]  = 1;			// min. input bytes for read(); note: 0 does not work with FILE* !!
 			new_stdin_termios.c_cc[VTIME] = 0/*1*/;  	// max. wait time in 0.1s for read(); 0==off
-			int err = tcsetattr(0,TCSADRAIN,&new_stdin_termios);	// drain output, then change
+			IFDEBUG(int err =) tcsetattr(0,TCSADRAIN,&new_stdin_termios);	// drain output, then change
 			assert(err==0);
 			SetBlocking(0,yes);
 			assert(errno==ok);
@@ -317,7 +317,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			"../Libs/test_suite/", 				// libs in installation directory
 			"../../Libs/test_suite/", 			// libs in installation directory	(MacOS)
 			"../../../Libs/test_suite/", 		// libs in installation directory	(MacOS)
-			"/usr/local/lib/vipsi/test_suite/",	 	// system-wide libs
+			"/usr/local/lib/vipsi/test_suite/",	// system-wide libs
 			"/opt/local/lib/vipsi/test_suite/",	// system-wide libs
 			"~/.vipsi/test_suite/", 			// libs in user preferences
 		};
@@ -357,7 +357,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			"../Libs/",					// libs in installation directory
 			"../../Libs/", 				// libs in installation directory  (Mac OSX)
 			"../../../Libs/", 			// libs in installation directory  (Mac OSX)
-			"/usr/local/lib/vipsi/",		 	// system-wide libs
+			"/usr/local/lib/vipsi/",	// system-wide libs
 			"/opt/local/lib/vipsi/",	// system-wide libs
 			"~/.vipsi/", 				// libs in user preferences
 		};
@@ -421,18 +421,18 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 	//		 127 = command not found
 	//		 128+N command terminated by signal N
 	//		 all other codes possible too!
-	const uint errno_notrepresentable  = 125;
-	const uint result_notrepresentable = 125;
+	static const uint errno_notrepresentable  = 125;
+	static const uint result_notrepresentable = 125;
 
-	uint result =
+	int result =
 		errno
-		?	(uint)errno < errno_notrepresentable
-			? (uint)errno
+		?	uint(errno) < errno_notrepresentable
+			? int(errno)
 			: errno_notrepresentable
 		:	v==nullptr
 			? 0
-			: v->IsNumber() && (uint)v->Value()<result_notrepresentable
-				? (uint)v->Value()
+			: v->IsNumber() && uint(v->Value()) < result_notrepresentable
+				? int(v->Value())
 				: result_notrepresentable;
 
 

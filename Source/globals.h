@@ -3,6 +3,6 @@
 // 2008-04-13
 
 
-extern uint verbose;
+extern unsigned int verbose;
 
 

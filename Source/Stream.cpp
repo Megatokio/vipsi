@@ -209,14 +209,14 @@ cstr vt100_setfgcolor ( VT_Color c )
 {
 	bool bright = c&VT_bright; c &= 15; if (c==VT_normal) return vt100_clearfgcolor;
 	static escseq e = "\033[39m"; if (bright) e[2] = '9';
-	e[3] = '0' -VT_black +c; return e;
+	e[3] = char('0' -VT_black +c); return e;
 }
 
 cstr vt100_setbgcolor ( VT_Color c )
 {
 	bool bright = c&VT_bright; c &= 15; if (c==VT_normal) return vt100_clearbgcolor;
 	static escseq bu[2] = { "\033[49m", "\033[100m" };
-	ptr e = bu[bright]; e[3+bright] = '0' - VT_black +c; return e;
+	ptr e = bu[bright]; e[3+bright] = char('0' - VT_black +c); return e;
 }
 
 cstr vt100_setattr ( VT_Color fg, VT_Color bg )

@@ -123,11 +123,11 @@
 		p[7] = ((uchar*)&f)[7];
 	#else
 		#if	defined(_POWERPC)						// G3/G4 can access misaligned
-			XXXTRAP(sizeof(double)!=2*sizeof(int32));// but this takes very int32: ~2000 cycles!
+			XXXTRAP(sizeof(double)!=2*sizeof(int32));// but this takes very long: ~2000 cycles!
 			((int32*)p)[0] = ((int32*)&f)[0];			// <-- this fails for _I386 -O2
 			((int32*)p)[1] = ((int32*)&f)[1];			// <-- ""
 		#else
-			*(double*)p = f;
+			*reinterpret_cast<double*>(p) = f;
 		#endif
 	#endif
 	}
@@ -148,12 +148,12 @@
 		return f;
 	#else
 		#if	defined(_POWERPC)						// G3/G4 can access misaligned
-			double f;								// but this takes very int32: ~2000 cycles!
+			double f;								// but this takes very long: ~2000 cycles!
 			((int32*)&f)[0] = ((int32*)p)[0];			// <-- this fails for _I386 -O2
 			((int32*)&f)[1] = ((int32*)p)[1];			// <-- probably due to optimization
 			return f;								// <-- f is not yet written when returning here!
 		#else
-			return *(double*)p;
+			return *reinterpret_cast<double*>(p);
 		#endif
 	#endif
 	}

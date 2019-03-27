@@ -67,7 +67,7 @@ public:
 		Sema&		operator=	( const Sema& );	// prohibit
 
 public:
-					Sema		( )				: flag(0),wait(0),owner(0),next(0),prev(0) { }
+					Sema		( )				: flag(0),wait(nullptr),owner(nullptr),next(nullptr),prev(nullptr) {}
 					~Sema		( );			// destructor: unlink waiting tasks!
 
 		bool		IsFree		( ) const		{ return flag<=0; }
@@ -77,7 +77,7 @@ public:
 		bool		IsNotAvailable()const		{ return IsBlocked() && owner!=MyTid(); }
 		bool		IsMine		( ) const		{ return IsBlocked() && owner==MyTid(); }
 		bool		IsNotMine	( ) const		{ return IsFree()    || owner!=MyTid(); }
-		bool		IsWaiting	( ) const		{ return wait!=0; }
+		bool		IsWaiting	( ) const		{ return wait!=nullptr; }
 		Tid			Owner		( ) const		{ return owner; }
 
 		void		Clear		( );			// reset to initial state

@@ -59,13 +59,13 @@ friend class Thread;
 		Irpt&	operator=		( const Irpt& );					// prohibit
 
 public:
-				Irpt			( )				:flag(0),wait(0){}	// create cleared interrupt
+				Irpt			( )				:flag(0),wait(nullptr){}	// create cleared interrupt
 				~Irpt			( );								// destructor: unlink waiting tasks!
 
 		bool	IsTriggered		( )  const		{ return flag>0;  }	// interrupts pending ?
 		bool	IsNotTriggered	( )  const		{ return flag<=0; }	// no interrupts pending ?
 		int32	Interrupts		( )  const		{ return flag; 	  }	// num. of pending irpts (may be neg.)
-		bool	IsWaiting		( )  const		{ return wait!=0; }	// s.o. waiting ?
+		bool	IsWaiting		( )  const		{ return wait != nullptr; }	// s.o. waiting ?
 
 		void	Clear			( )				{ flag=0; 		  }	// reset to initial state
 		void	Clear			( int n )		{ if(n>0)flag-=n; }	// clear n interrupts

@@ -750,23 +750,23 @@ int/*err*/ close_file ( nothrow_t, int fd ) throw()
 	• relative path
 	• home directory
 */
-int open_file ( cstr path, int flags, int mode ) throw(file_error)
+int open_file ( cstr path, int flags, int mode ) noexcept(false)
 {
 	int fd = open_file( nothrow, path, flags, mode );
 	if(fd!=-1) return fd; else throw(file_error(path,fd,errno));
 }
 
-int open_file_r ( cstr path )				throw(file_error)	{ return open_file(path,O_RDONLY); }
-int open_file_rw( cstr path )				throw(file_error)	{ return open_file(path,O_RDWR); }
-int open_file_w ( cstr path, int mode )		throw(file_error)	{ return open_file(path,O_WRONLY|O_CREAT|O_TRUNC,mode); }
-int open_file_a ( cstr path, int mode )		throw(file_error)	{ return open_file(path,O_WRONLY|O_CREAT|O_APPEND,mode); }
-int open_file_n ( cstr path, int mode )		throw(file_error)	{ return open_file(path,O_WRONLY|O_CREAT|O_EXCL,mode); }
+int open_file_r ( cstr path )				noexcept(false)	{ return open_file(path,O_RDONLY); }
+int open_file_rw( cstr path )				noexcept(false)	{ return open_file(path,O_RDWR); }
+int open_file_w ( cstr path, int mode )		noexcept(false)	{ return open_file(path,O_WRONLY|O_CREAT|O_TRUNC,mode); }
+int open_file_a ( cstr path, int mode )		noexcept(false)	{ return open_file(path,O_WRONLY|O_CREAT|O_APPEND,mode); }
+int open_file_n ( cstr path, int mode )		noexcept(false)	{ return open_file(path,O_WRONLY|O_CREAT|O_EXCL,mode); }
 
 
 /*	Truncate file at current fpos and return current fpos == file size
 	note: should only fail if the fd is unsuited (invalid, r/o or not a file).
 */
-off_t clip_file ( int fd ) throw(file_error)
+off_t clip_file ( int fd ) noexcept(false)
 {
 	errno=ok;							// clear errno and custom_error
 	off_t fpos = lseek( fd, 0, SEEK_CUR );
@@ -779,7 +779,7 @@ off_t clip_file ( int fd ) throw(file_error)
 	error: the file is not closed.
 	note:  should only fail, if the fd is invalid.
 */
-void close_file ( int fd ) throw(file_error)
+void close_file ( int fd ) noexcept(false)
 {
 	errno=ok;							// clear errno and custom_error
 	do
@@ -793,14 +793,14 @@ void close_file ( int fd ) throw(file_error)
 /*	Truncate and close file at current fpos
 	error: the file is not closed.
 */
-void clip_and_close ( int fd ) throw(file_error)
+void clip_and_close ( int fd ) noexcept(false)
 {
 	clip_file(fd);
 	close_file(fd);
 }
 
 
-off_t seek_fpos( int fd, off_t fpos, int whence ) throw(file_error)
+off_t seek_fpos( int fd, off_t fpos, int whence ) noexcept(false)
 {
 	fpos = lseek( fd, fpos, whence );
 	if( fpos==-1 ) throw file_error("(unkn.)",fd,errno);
@@ -808,7 +808,7 @@ off_t seek_fpos( int fd, off_t fpos, int whence ) throw(file_error)
 }
 
 
-uint32 read_bytes ( int fd, ptr p, uint32 bytes ) throw(file_error)
+uint32 read_bytes ( int fd, ptr p, uint32 bytes ) noexcept(false)
 {
 	errno=ok;							// clear errno and custom_error
 	uint32 m = bytes;
@@ -822,7 +822,7 @@ r:	uint32 n = read( fd, p, m );
 }
 
 
-uint32 write_bytes ( int fd, cptr p, uint32 bytes ) throw(file_error)
+uint32 write_bytes ( int fd, cptr p, uint32 bytes ) noexcept(false)
 {
 	errno=ok;							// clear errno and custom_error
 	uint32 m = bytes;
@@ -841,7 +841,7 @@ w:	uint32 n = write( fd, p, m );
 	note: for little endian cpus (intel/z80) this is straight forward
 		  and defined inline as read_data(fd,int16*,cnt)
 */
-uint32 read_short_data_z( int fd, int16* bu, uint32 items ) throw(file_error)
+uint32 read_short_data_z( int fd, int16* bu, uint32 items ) noexcept(false)
 {
 	read_data( fd, bu, items );				// throw file_error
 	for( uint32 i=0; i<items; i++ ) { bu[i] = Peek2Z(bu+i); }
@@ -852,7 +852,7 @@ uint32 read_short_data_z( int fd, int16* bu, uint32 items ) throw(file_error)
 	note: for little endian cpus (intel/z80) this is straight forward
 		  and defined inline as write_data(fd,int16*,cnt)
 */
-uint32 write_short_data_z( int fd, int16 const* bu, uint32 items ) throw(file_error)
+uint32 write_short_data_z( int fd, int16 const* bu, uint32 items ) noexcept(false)
 {
 	if( items<=4*1024 ) try
 	{
@@ -876,7 +876,7 @@ uint32 write_short_data_z( int fd, int16 const* bu, uint32 items ) throw(file_er
 	note: for big endian cpus (ppc/68k) this is straight forward
 		  and defined inline as read_data(fd,int16*,cnt)
 */
-uint32 read_short_data_x( int fd, int16* bu, uint32 items ) throw(file_error)
+uint32 read_short_data_x( int fd, int16* bu, uint32 items ) noexcept(false)
 {
 	read_data( fd, bu, items );				// throw file_error
 	for( uint32 i=0; i<items; i++ ) { bu[i] = peek2X(bu+i); }
@@ -887,7 +887,7 @@ uint32 read_short_data_x( int fd, int16* bu, uint32 items ) throw(file_error)
 	note: for big endian cpus (ppc/68k) this is straight forward
 		  and defined inline as write_data(fd,int16*,cnt)
 */
-uint32 write_short_data_x( int fd, int16 const* bu, uint32 items ) throw(file_error)
+uint32 write_short_data_x( int fd, int16 const* bu, uint32 items ) noexcept(false)
 {
 	if( items<=4*1024 ) try
 	{
@@ -905,52 +905,52 @@ uint32 write_short_data_x( int fd, int16 const* bu, uint32 items ) throw(file_er
 #endif
 
 
-int8 read_char ( int fd ) throw(file_error)
+int8 read_char ( int fd ) noexcept(false)
 {
 	int8 c;
 	read_bytes(fd,&c,1);
 	return c;
 }
 
-void write_char ( int fd, int8 c ) throw(file_error)
+void write_char ( int fd, int8 c ) noexcept(false)
 {
 	write_bytes(fd,&c,1);
 }
 
-int16 read_short ( int fd ) throw(file_error)
+int16 read_short ( int fd ) noexcept(false)
 {
 	int16 z;
 	read_bytes(fd,(ptr)&z,2);
 	return z;
 }
 
-int16 read_short_x ( int fd ) throw(file_error)
+int16 read_short_x ( int fd ) noexcept(false)
 {
 	int8 bu[2];
 	read_bytes(fd,bu,2);
 	return peek2X(bu);
 }
 
-int16 read_short_z ( int fd ) throw(file_error)
+int16 read_short_z ( int fd ) noexcept(false)
 {
 	int8 bu[2];
 	read_bytes(fd,bu,2);
 	return peek2Z(bu);
 }
 
-void write_short ( int fd, int16 n ) throw(file_error)
+void write_short ( int fd, int16 n ) noexcept(false)
 {
 	write_bytes(fd,(cptr)&n,2);
 }
 
-void write_short_x ( int fd, int16 n ) throw(file_error)
+void write_short_x ( int fd, int16 n ) noexcept(false)
 {
 	int8 bu[2];
 	poke2X(bu,n);
 	write_bytes(fd,bu,2);
 }
 
-void write_short_z ( int fd, int16 n ) throw(file_error)
+void write_short_z ( int fd, int16 n ) noexcept(false)
 {
 	int8 bu[2];
 	poke2Z(bu,n);
@@ -958,54 +958,54 @@ void write_short_z ( int fd, int16 n ) throw(file_error)
 }
 
 
-int32 read_long ( int fd ) throw(file_error)
+int32 read_long ( int fd ) noexcept(false)
 {
 	int32 z;
 	read_bytes(fd,(ptr)&z,4);
 	return z;
 }
 
-int32 read_long_x ( int fd ) throw(file_error)
+int32 read_long_x ( int fd ) noexcept(false)
 {
 	int8 bu[4];
 	read_bytes(fd,bu,4);
 	return peek4X(bu);
 }
 
-int32 read_long_z ( int fd ) throw(file_error)
+int32 read_long_z ( int fd ) noexcept(false)
 {
 	int8 bu[4];
 	read_bytes(fd,bu,4);
 	return peek4Z(bu);
 }
 
-void write_long ( int fd, int32 n ) throw(file_error)
+void write_long ( int fd, int32 n ) noexcept(false)
 {
 	write_bytes(fd,(cptr)&n,4);
 }
 
-void write_long_x ( int fd, int32 n ) throw(file_error)
+void write_long_x ( int fd, int32 n ) noexcept(false)
 {
 	int8 bu[4];
 	poke4X(bu,n);
 	write_bytes(fd,bu,4);
 }
 
-void write_long_z ( int fd, int32 n ) throw(file_error)
+void write_long_z ( int fd, int32 n ) noexcept(false)
 {
 	int8 bu[4];
 	poke4Z(bu,n);
 	write_bytes(fd,bu,4);
 }
 
-uint32 read_u3byte_x ( int fd ) throw(file_error)
+uint32 read_u3byte_x ( int fd ) noexcept(false)
 {
 	int8 bu[4]={0,0,0,0};
 	read_bytes(fd,bu+1,3);
 	return peek4X(bu);
 }
 
-int32 read_3byte_x ( int fd ) throw(file_error)
+int32 read_3byte_x ( int fd ) noexcept(false)
 {
 	int8 bu[4]={0,0,0,0};
 	read_bytes(fd,bu+1,3);
@@ -1013,14 +1013,14 @@ int32 read_3byte_x ( int fd ) throw(file_error)
 	return peek4X(bu);
 }
 
-uint32 read_u3byte_z ( int fd ) throw(file_error)
+uint32 read_u3byte_z ( int fd ) noexcept(false)
 {
 	int8 bu[4]={0,0,0,0};
 	read_bytes(fd,bu,3);
 	return peek4Z(bu);
 }
 
-int32 read_3byte_z ( int fd ) throw(file_error)
+int32 read_3byte_z ( int fd ) noexcept(false)
 {
 	int8 bu[4]={0,0,0,0};
 	read_bytes(fd,bu,3);
@@ -1036,19 +1036,19 @@ int32 read_3byte_z ( int fd ) throw(file_error)
 //	write_data(fd,s,len);
 //}
 
-str read_nstr ( int fd ) throw(file_error)
+str read_nstr ( int fd ) noexcept(false)
 {
 	str s = nullptr; uint len = read_uchar(fd);
 	if(len) { s = tempstr(len); read_data(fd,s,len); } return s;
 }
 
-str read_new_nstr ( int fd ) throw(file_error)
+str read_new_nstr ( int fd ) noexcept(false)
 {
 	str s = nullptr; uint len = read_uchar(fd);
 	if(len) { s = newstr(len); read_data(fd,s,len); } return s;
 }
 
-off_t file_size ( int fd ) throw(file_error)
+off_t file_size ( int fd ) noexcept(false)
 {
 	struct stat fs;
 	//if( fd<0 ) throw(file_error(EBADF));

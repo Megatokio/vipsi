@@ -2505,9 +2505,7 @@ void Compiler::Assemble()
 	uint destsize = (qe-qa)*4;
 	uchar* destbu = new uchar[destsize];
 	uptr dp		  = destbu;
-	#if defined(DEBUG)
-	uptr destend  = destbu+destsize;
-	#endif
+	IFDEBUG(uptr destend  = destbu+destsize;)
 	uint32* xrefbu = new uint32[destsize]; int xrefi = 0; uint32 xrefx = 0;
 
 	for(qp=qa;qp<qe;qp++)

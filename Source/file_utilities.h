@@ -95,7 +95,7 @@ extern	off_t	FileLength		( FILE* file );							// returns -1 and sets errno on e
 
 extern	cstr	FileNameFromPath		( cstr path );
 extern	cstr	ExtensionFromPath		( cstr path );
-inline	str		ExtensionFromPath		( str path )			{ return (str)ExtensionFromPath( (cstr)path ); }
+inline	str		ExtensionFromPath		( str path )			{ return str(ExtensionFromPath(cstr(path))); }
 extern	cstr	BasenameFromPath		( cstr path );
 extern	cstr	DirectoryPathFromPath	( cstr path );
 
@@ -135,7 +135,7 @@ class FD
 #define TPL template<class T>
 #define SOT sizeof(T)
 
-EXT int		open_file	( nothrow_t, cstr path, int flags, int mode=0664 ) throw();
+EXT int		open_file	( nothrow_t, cstr path, int flags, int mode=0664 ) noexcept;
 //EXT int		open_file_r	( nothrow_t, cstr path )						throw();	// must exist.
 //EXT int		open_file_rw( nothrow_t, cstr path )						throw();	// must exist.
 //EXT int		open_file_w	( nothrow_t, cstr path, int mode=0664 )			throw();	// truncates file !!
@@ -167,93 +167,93 @@ EXT int		open_file	( nothrow_t, cstr path, int flags, int mode=0664 ) throw();
 //				note: premature end of file is handled as an error.
 // ################################################################
 
-EXT int		open_file			( cstr path, int flags, int mode=0664 )	throw(file_error);
-EXT int		open_file_r			( cstr path )							throw(file_error);	// must exist.
-EXT int		open_file_rw		( cstr path )							throw(file_error);	// must exist.
-EXT int		open_file_w			( cstr path, int mode=0664 )			throw(file_error);	// truncates file!
-EXT int		open_file_a			( cstr path, int mode=0664 )			throw(file_error);	// append mode.
-EXT int		open_file_n			( cstr path, int mode=0664 )			throw(file_error);	// new: must not exist.
+EXT int		open_file			( cstr path, int flags, int mode=0664 )	noexcept(false);
+EXT int		open_file_r			( cstr path )							noexcept(false);	// must exist.
+EXT int		open_file_rw		( cstr path )							noexcept(false);	// must exist.
+EXT int		open_file_w			( cstr path, int mode=0664 )			noexcept(false);	// truncates file!
+EXT int		open_file_a			( cstr path, int mode=0664 )			noexcept(false);	// append mode.
+EXT int		open_file_n			( cstr path, int mode=0664 )			noexcept(false);	// new: must not exist.
 
-EXT uint32	read_bytes			( int fd, ptr p, uint32 bytes )			throw(file_error);
-TPL uint32	read_bytes			( int fd, T*  p, uint32 bytes )			throw(file_error)	{ read_bytes(fd,(ptr)p,bytes); return bytes; }
-TPL uint32	read_data			( int fd, T*  p, uint32 items )			throw(file_error)	{ read_bytes(fd,(ptr)p,items*SOT); return items; }
-TPL uint32	read_data			( int fd, T*  p )						throw(file_error)	{ read_bytes(fd,(ptr)p,SOT); return 1; }
+EXT uint32	read_bytes			( int fd, ptr p, uint32 bytes )			noexcept(false);
+TPL uint32	read_bytes			( int fd, T*  p, uint32 bytes )			noexcept(false)	{ read_bytes(fd,ptr(p),bytes); return bytes; }
+TPL uint32	read_data			( int fd, T*  p, uint32 items )			noexcept(false)	{ read_bytes(fd,ptr(p),items*SOT); return items; }
+TPL uint32	read_data			( int fd, T*  p )						noexcept(false)	{ read_bytes(fd,ptr(p),SOT); return 1; }
 
-EXT uint32	write_bytes			( int fd, cptr p, uint32 bytes )			throw(file_error);
-TPL uint32	write_bytes			( int fd, T const* p, uint32 bytes )		throw(file_error)	{ write_bytes(fd,(cptr)p,bytes); return bytes; }
-TPL uint32	write_data			( int fd, T const* p, uint32 items )		throw(file_error)	{ write_bytes(fd,(cptr)p,items*SOT); return items; }
-TPL uint32	write_data			( int fd, T const* p )					throw(file_error)	{ write_bytes(fd,(cptr)p,SOT); return 1; }
-INL uint32	write_str			( int fd, cstr p )						throw(file_error)	{ return p&&*p ? write_bytes(fd,p,strlen(p)) : 0; }
+EXT uint32	write_bytes			( int fd, cptr p, uint32 bytes )		noexcept(false);
+TPL uint32	write_bytes			( int fd, T const* p, uint32 bytes )	noexcept(false)	{ write_bytes(fd,cptr(p),bytes); return bytes; }
+TPL uint32	write_data			( int fd, T const* p, uint32 items )	noexcept(false)	{ write_bytes(fd,cptr(p),items*SOT); return items; }
+TPL uint32	write_data			( int fd, T const* p )					noexcept(false)	{ write_bytes(fd,cptr(p),SOT); return 1; }
+INL uint32	write_str			( int fd, cstr p )						noexcept(false)	{ return p&&*p ? write_bytes(fd,p,uint(strlen(p))) : 0; }
 
-EXT	off_t	clip_file			( int fd )								throw(file_error);
-EXT	void	close_file			( int fd )								throw(file_error);
-EXT	void	clip_and_close		( int fd )								throw(file_error);
+EXT	off_t	clip_file			( int fd )								noexcept(false);
+EXT	void	close_file			( int fd )								noexcept(false);
+EXT	void	clip_and_close		( int fd )								noexcept(false);
 
-EXT off_t	seek_fpos			( int fd, off_t fpos, int f=SEEK_SET )	throw(file_error);
-INL off_t	seek_endoffile		( int fd )								throw(file_error)	{ return seek_fpos(fd,0,SEEK_END); }
-INL off_t	skip_bytes			( int fd, off_t signed_offset )			throw(file_error)	{ return seek_fpos(fd,signed_offset,SEEK_CUR); }
-INL off_t	rewind_file			( int fd )								throw(file_error)	{ return seek_fpos(fd,0,SEEK_SET); }
+EXT off_t	seek_fpos			( int fd, off_t fpos, int f=SEEK_SET )	noexcept(false);
+INL off_t	seek_endoffile		( int fd )								noexcept(false)	{ return seek_fpos(fd,0,SEEK_END); }
+INL off_t	skip_bytes			( int fd, off_t signed_offset )			noexcept(false)	{ return seek_fpos(fd,signed_offset,SEEK_CUR); }
+INL off_t	rewind_file			( int fd )								noexcept(false)	{ return seek_fpos(fd,0,SEEK_SET); }
 
-INL off_t	file_position		( int fd )								throw(file_error)	{ return seek_fpos(fd,0,SEEK_CUR); }
-EXT off_t	file_size			( int fd )								throw(file_error);
-INL off_t	file_remaining		( int fd )								throw(file_error)	{ return file_size(fd) - file_position(fd); }
-INL	bool	is_at_eof			( int fd )								throw(file_error)	{ return file_position(fd) >= file_size(fd); }
-INL	bool	is_near_eof			( int fd, off_t proximity )				throw(file_error)	{ return file_remaining(fd) <= proximity; }
+INL off_t	file_position		( int fd )								noexcept(false)	{ return seek_fpos(fd,0,SEEK_CUR); }
+EXT off_t	file_size			( int fd )								noexcept(false);
+INL off_t	file_remaining		( int fd )								noexcept(false)	{ return file_size(fd) - file_position(fd); }
+INL	bool	is_at_eof			( int fd )								noexcept(false)	{ return file_position(fd) >= file_size(fd); }
+INL	bool	is_near_eof			( int fd, off_t proximity )				noexcept(false)	{ return file_remaining(fd) <= proximity; }
 
 #if defined(_BIG_ENDIAN)
-INL	uint32	read_short_data_x	( int fd, int16*p,		 uint32 items )	throw(file_error)	{ return read_data(fd,p,items); }
-EXT	uint32	read_short_data_z	( int fd, int16*p,		 uint32 items )	throw(file_error);
-INL	uint32	write_short_data_x	( int fd, int16 const*p, uint32 items )	throw(file_error)	{ return write_data(fd,p,items); }
-EXT	uint32	write_short_data_z	( int fd, int16 const*p, uint32 items )	throw(file_error);
+INL	uint32	read_short_data_x	( int fd, int16*p,		 uint32 items )	noexcept(false)	{ return read_data(fd,p,items); }
+EXT	uint32	read_short_data_z	( int fd, int16*p,		 uint32 items )	noexcept(false);
+INL	uint32	write_short_data_x	( int fd, int16 const*p, uint32 items )	noexcept(false)	{ return write_data(fd,p,items); }
+EXT	uint32	write_short_data_z	( int fd, int16 const*p, uint32 items )	noexcept(false);
 #elif defined(_LITTLE_ENDIAN)
-EXT	uint32	read_short_data_x	( int fd, int16*p,		 uint32 items )	throw(file_error);
-INL	uint32	read_short_data_z	( int fd, int16*p,		 uint32 items )	throw(file_error)	{ return read_data(fd,p,items); }
-EXT	uint32	write_short_data_x	( int fd, int16 const*p, uint32 items )	throw(file_error);
-INL	uint32	write_short_data_z	( int fd, int16 const*p, uint32 items )	throw(file_error)	{ return write_data(fd,p,items); }
+EXT	uint32	read_short_data_x	( int fd, int16*p,		 uint32 items )	noexcept(false);
+INL	uint32	read_short_data_z	( int fd, int16*p,		 uint32 items )	noexcept(false)	{ return read_data(fd,p,items); }
+EXT	uint32	write_short_data_x	( int fd, int16 const*p, uint32 items )	noexcept(false);
+INL	uint32	write_short_data_z	( int fd, int16 const*p, uint32 items )	noexcept(false)	{ return write_data(fd,p,items); }
 #endif
 
 
-EXT int16	read_short		( int fd )				throw(file_error);
-EXT int16	read_short_x	( int fd )				throw(file_error);		// x: internet byte order, 68k, ppc
-EXT int16	read_short_z	( int fd )				throw(file_error);		// z: i386, z80
-INL uint16	read_ushort		( int fd )				throw(file_error)		{ return read_short(fd);   }
-INL uint16	read_ushort_x	( int fd )				throw(file_error)		{ return read_short_x(fd); }
-INL uint16	read_ushort_z	( int fd )				throw(file_error)		{ return read_short_z(fd); }
+EXT int16	read_short		( int fd )				noexcept(false);
+EXT int16	read_short_x	( int fd )				noexcept(false);		// x: internet byte order, 68k, ppc
+EXT int16	read_short_z	( int fd )				noexcept(false);		// z: i386, z80
+INL uint16	read_ushort		( int fd )				noexcept(false)		{ return uint16(read_short(fd));   }
+INL uint16	read_ushort_x	( int fd )				noexcept(false)		{ return uint16(read_short_x(fd)); }
+INL uint16	read_ushort_z	( int fd )				noexcept(false)		{ return uint16(read_short_z(fd)); }
 
-EXT void	write_short		( int fd, int16 )		throw(file_error);
-EXT void	write_short_x	( int fd, int16 )		throw(file_error);
-EXT void	write_short_z	( int fd, int16 )		throw(file_error);
-INL void	write_ushort	( int fd, uint16 n )	throw(file_error)		{ write_short(fd,n);   }
-INL void	write_ushort_x	( int fd, uint16 n )	throw(file_error)		{ write_short_x(fd,n); }
-INL void	write_ushort_z	( int fd, uint16 n )	throw(file_error)		{ write_short_z(fd,n); }
+EXT void	write_short		( int fd, int16 )		noexcept(false);
+EXT void	write_short_x	( int fd, int16 )		noexcept(false);
+EXT void	write_short_z	( int fd, int16 )		noexcept(false);
+INL void	write_ushort	( int fd, uint16 n )	noexcept(false)		{ write_short(fd,int16(n));   }
+INL void	write_ushort_x	( int fd, uint16 n )	noexcept(false)		{ write_short_x(fd,int16(n)); }
+INL void	write_ushort_z	( int fd, uint16 n )	noexcept(false)		{ write_short_z(fd,int16(n)); }
 
-EXT int32	read_long		( int fd )				throw(file_error);
-EXT int32	read_long_x		( int fd )				throw(file_error);
-EXT int32	read_long_z		( int fd )				throw(file_error);
-INL uint32	read_ulong		( int fd )				throw(file_error)		{ return read_long(fd);   }
-INL uint32	read_ulong_x	( int fd )				throw(file_error)		{ return read_long_x(fd); }
-INL uint32	read_ulong_z	( int fd )				throw(file_error)		{ return read_long_z(fd); }
+EXT int32	read_long		( int fd )				noexcept(false);
+EXT int32	read_long_x		( int fd )				noexcept(false);
+EXT int32	read_long_z		( int fd )				noexcept(false);
+INL uint32	read_ulong		( int fd )				noexcept(false)		{ return uint32(read_long(fd));   }
+INL uint32	read_ulong_x	( int fd )				noexcept(false)		{ return uint32(read_long_x(fd)); }
+INL uint32	read_ulong_z	( int fd )				noexcept(false)		{ return uint32(read_long_z(fd)); }
 
-EXT void	write_long		( int fd, int32 )		throw(file_error);
-EXT void	write_long_x	( int fd, int32 )		throw(file_error);
-EXT void	write_long_z	( int fd, int32 )		throw(file_error);
-INL void	write_ulong		( int fd, uint32 n )	throw(file_error)		{ write_long(fd,n);   }
-INL void	write_ulong_x	( int fd, uint32 n )	throw(file_error)		{ write_long_x(fd,n); }
-INL void	write_ulong_z	( int fd, uint32 n )	throw(file_error)		{ write_long_z(fd,n); }
+EXT void	write_long		( int fd, int32 )		noexcept(false);
+EXT void	write_long_x	( int fd, int32 )		noexcept(false);
+EXT void	write_long_z	( int fd, int32 )		noexcept(false);
+INL void	write_ulong		( int fd, uint32 n )	noexcept(false)		{ write_long(fd,int32(n));   }
+INL void	write_ulong_x	( int fd, uint32 n )	noexcept(false)		{ write_long_x(fd,int32(n)); }
+INL void	write_ulong_z	( int fd, uint32 n )	noexcept(false)		{ write_long_z(fd,int32(n)); }
 
-EXT int8	read_char		( int fd )				throw(file_error);
-INL uint8	read_uchar		( int fd )				throw(file_error)		{ return read_char(fd); }
-EXT void	write_char		( int fd, int8 )		throw(file_error);
-INL void	write_uchar		( int fd, uint8 c )		throw(file_error)		{ write_char(fd,c); }
+EXT int8	read_char		( int fd )				noexcept(false);
+INL uint8	read_uchar		( int fd )				noexcept(false)		{ return uint8(read_char(fd)); }
+EXT void	write_char		( int fd, int8 )		noexcept(false);
+INL void	write_uchar		( int fd, uint8 c )		noexcept(false)		{ write_char(fd,int8(c)); }
 
-EXT int32	read_3byte_x	( int fd )				throw(file_error);
-EXT int32	read_3byte_z	( int fd )				throw(file_error);
-EXT uint32	read_u3byte_x	( int fd )				throw(file_error);
-EXT uint32	read_u3byte_z	( int fd )				throw(file_error);
+EXT int32	read_3byte_x	( int fd )				noexcept(false);
+EXT int32	read_3byte_z	( int fd )				noexcept(false);
+EXT uint32	read_u3byte_x	( int fd )				noexcept(false);
+EXT uint32	read_u3byte_z	( int fd )				noexcept(false);
 
 //EXT	void	write_nstr		( int fd, cstr s )		throw(file_error,limit_error);	// prefixes data with uint8 len
-EXT str		read_nstr		( int fd )				throw(file_error);		// read into tempstr
-EXT str		read_new_nstr	( int fd )				throw(file_error);		// read into newstr
+EXT str		read_nstr		( int fd )				noexcept(false);		// read into tempstr
+EXT str		read_new_nstr	( int fd )				noexcept(false);		// read into newstr
 
 
 #undef TPL
