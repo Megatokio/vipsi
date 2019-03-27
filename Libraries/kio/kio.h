@@ -584,6 +584,7 @@ static_assert(sizeof(off_t)==8,"sizeof(off_t) wrong!");
         • ifndef LOG then LOG is set to 1
         • ifndef SAFE then compiling is aborted via #error
         • ifdef FINAL then SAFE is decremented by 1 and LOG is cleared to 0
+        • ifdef RELEASE ""
         • ifdef DEBUG then SAFE is incremented by 1
 */
 #ifndef LOG
@@ -606,7 +607,7 @@ static_assert(sizeof(off_t)==8,"sizeof(off_t) wrong!");
 
 // command line option -DFINAL
 // no logging, less error checking
-#if defined(FINAL) || defined(NDEBUG)
+#if defined(FINAL) || defined(RELEASE) || defined(NDEBUG)
     #if LOG>2
         #undef 		LOG
         #define		LOG		2
