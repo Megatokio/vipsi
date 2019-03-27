@@ -300,7 +300,8 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			new_stdin_termios.c_lflag    &= ~ECHONL;	// also no echo for nl on input
 			new_stdin_termios.c_cc[VMIN]  = 1;			// min. input bytes for read(); note: 0 does not work with FILE* !!
 			new_stdin_termios.c_cc[VTIME] = 0/*1*/;  	// max. wait time in 0.1s for read(); 0==off
-			assert( tcsetattr(0,TCSADRAIN,&new_stdin_termios)==0 );	// drain output, then change
+			int err = tcsetattr(0,TCSADRAIN,&new_stdin_termios);	// drain output, then change
+			assert(err==0);
 			SetBlocking(0,yes);
 			assert(errno==ok);
 		}
@@ -313,10 +314,11 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		cstr fname = "00_test.vs";
 		cstr pp[] =
 		{
-			"../libs/test_suite/", 				// libs in installation directory
-			"../../libs/test_suite/", 			// libs in installation directory	(MacOS)
-			"../../../libs/test_suite/", 		// libs in installation directory	(MacOS)
+			"../Libs/test_suite/", 				// libs in installation directory
+			"../../Libs/test_suite/", 			// libs in installation directory	(MacOS)
+			"../../../Libs/test_suite/", 		// libs in installation directory	(MacOS)
 			"/usr/local/lib/vipsi/test_suite/",	 	// system-wide libs
+			"/opt/local/lib/vipsi/test_suite/",	// system-wide libs
 			"~/.vipsi/test_suite/", 			// libs in user preferences
 		};
 		cstr p   = nullptr;
@@ -351,11 +353,12 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		cstr fname = "shell.vs";
 		cstr pp[] =
 		{
-			"libs/",					// libs in project directory
-			"../libs/",					// libs in installation directory
-			"../../libs/", 				// libs in installation directory  (Mac OSX)
-			"../../../libs/", 			// libs in installation directory  (Mac OSX)
+			"Libs/",					// libs in project directory
+			"../Libs/",					// libs in installation directory
+			"../../Libs/", 				// libs in installation directory  (Mac OSX)
+			"../../../Libs/", 			// libs in installation directory  (Mac OSX)
 			"/usr/local/lib/vipsi/",		 	// system-wide libs
+			"/opt/local/lib/vipsi/",	// system-wide libs
 			"~/.vipsi/", 				// libs in user preferences
 		};
 		cstr p = nullptr;
