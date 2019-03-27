@@ -261,7 +261,9 @@ void CreateDir ( cString& path, cstr mode )
 		if (r==s_none) errno=ok;
 		else if (*mode=='n'||r!=s_dir) { errno = EEXIST; goto x; }
 
+		mode_t z = umask(0);
 		mkdir ( cpath, 0777 );
+		umask(z);
 		if (errno==EEXIST) errno=ok;
 	}
 

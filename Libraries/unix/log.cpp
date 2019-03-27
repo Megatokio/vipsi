@@ -282,6 +282,80 @@ static LogFile* getLogfile(double now)
 }
 
 
+/*	normalize path (except for symlinks)
+	create missing directories
+	return normalized path
+*/
+static cstr create_path( cstr path )
+{
+    if (!path||!*path)
+    {
+		errno = ENOTDIR;
+		return "";
+	}
+	if(lastchar(path) != '/')			// directory path must end with '/'
+	{
+		path = catstr(path,"/");
+	}
+    if(path[0]=='~' && path[1]=='/')	// home dir
+    {
+		cstr h = getenv("HOME");
+		if(h) path = catstr(h, path+1);
+	}
+    if(path[0]!='/')					// relative path
+    {
+        char bu[MAXPATHLEN];
+        cstr wd = getcwd(bu,MAXPATHLEN);
+        if(!wd) { if(errno==ENOENT) errno=ENOTDIR; return path; }
+        assert(wd[0]=='/' || wd[0]==0);
+        path = catstr(wd, "/", path);
+    }
+
+    errno = noerror;
+
+	struct stat fs;
+	int err = lstat(path, &fs);		// lstat(): follow last symlink
+	if(!err && (fs.st_mode >> 12) == DT_DIR) return path;
+
+	// normalize "./" and "../" and create directories:
+	for(uint a=0;;)
+	{
+		cptr p = strchr(path+a+1,'/'); if(p==nullptr) break;
+		uint e = uint(p-path);
+
+		if(e-a==1)						// --> "//"
+		{
+			path = catstr(substr(path,p-1),p);
+			continue;
+		}
+		if(e-a==2 && path[e-1]=='.')	// --> "./"
+		{
+			path = catstr(substr(path,p-2),p);
+			continue;
+		}
+		if(e-a==3 && path[e-1]=='.' && path[e-2]=='.')	// --> "../"
+		{
+			if(a>0) while(path[--a] != '/') {}
+			path = catstr(substr(path,path+a), path+e);
+			continue;
+		}
+
+		a = e;
+
+		int err = lstat(substr(path,p),&fs);
+		if(err || (fs.st_mode >> 12) != DT_DIR)
+		{
+			mode_t z = umask(0);
+			err = mkdir(path,0777);
+			umask(z);
+			if(err) return substr(path,p+1);	// errno set
+		}
+	}
+
+	errno = noerror;
+	return path;
+}
+
 
 /*  ___________________________________________________________________
 	Print formatted log message to stderr and/or logfile.
@@ -358,7 +432,7 @@ static void write2log(int thread_id, double when, uint indent, cstr msg)
 
 
 /*  ___________________________________________________________________
-	print error in case of emergeny:
+	print error in case of emergency:
 	- logfile may be not yet initialized
 	- lock may be locked
 	- normal logfile may be broken and stderr may be /dev/null
@@ -378,7 +452,14 @@ void panic(cstr fmt, va_list va) // __attribute__((__noreturn__));
     char msg[300];	snprintf (msg, NELEM(msg), "%s: Panic: %s", APPL_NAME, zbu);
 
 	log2console = yes;
-	if(fd==-1) fd = open("/tmp/Panic.log", O_WRONLY|O_CREAT|O_APPEND,0660);
+	if(fd==-1)
+	{
+		mode_t z = umask(0);
+		// note: wg. macos SIERRA: umask(0): else write permission is removed from passed permission flags
+		// note: wg. macos SIERRA: 0666: must be writable for all, else user1 can't write to logfile created by user2
+		fd = open("/tmp/Panic.log", O_WRONLY|O_CREAT|O_APPEND,0666);
+		umask(z);
+	}
 
 	write2log(quick_id(),now(),0,msg);
 	_exit(PANICED);
@@ -796,9 +877,10 @@ void openLogfile(cstr dirpath, LogRotation logrotate, uint max_logfiles, bool lo
 {
 	if(logrotate_when==0.0) init();
 
-    XXASSERT(dirpath!=nullptr);
-	XXASSERT(*dirpath=='/');				// must be full path. '/' must exist.
-    XXASSERT(*(strchr(dirpath,0)-1)=='/');  // must end with '/'
+	dirpath = create_path(dirpath);
+	if(errno) dirpath = create_path(LOGFILE_BASE_DIRECTORY APPL_NAME "/");
+	if(errno) dirpath = create_path(LOGFILE_AUX_DIRECTORY APPL_NAME "/");
+	if(errno) panic("could not create log dir",strerror(errno));
 
     char filepath[1024];
 	lock();
@@ -880,7 +962,11 @@ void openLogfile(cstr dirpath, LogRotation logrotate, uint max_logfiles, bool lo
 		}
 
 		if(fd>2) close(fd);
-		fd = open(filepath, O_WRONLY|O_CREAT|O_APPEND,0660);
+		mode_t z = umask(0);
+		// note: wg. macos SIERRA: umask(0): else write permission is removed from passed permission flags
+		// note: wg. macos SIERRA: 0666: must be writable for all, else user1 can't write to logfile created by user2
+		fd = open(filepath, O_WRONLY|O_CREAT|O_APPEND,0666);
+		umask(z);
 		if(fd==-1) panic("open logfile \"%s\" failed: %s", filepath, strerror(errno));
 
 	unlock();
