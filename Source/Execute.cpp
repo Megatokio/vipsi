@@ -53,6 +53,12 @@ INIT_MSG
 // serrors.cpp:
 inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
 extern	String	ErrorString	( );
+extern	void	ForceError	( int/*OSErr*/e, cString& msg );
+inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
+inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
+inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
+extern	void	AppendToError	( cString& msg );
+extern	void	PrependToError	( cString& msg );
 
 
 #ifdef OPCODE_PROFILING
@@ -91,7 +97,7 @@ void StartRTimer ( double d )
 		itv.it_value.tv_sec		= (int32)d;
 		itv.it_value.tv_usec	= (int32)(((d-(int32)d)*1000000));
 		if( setitimer(ITIMER_REAL, &itv, nullptr) == 0 ) return;
-		Log("StartRTimer() failed.");
+		logline("StartRTimer() failed.");
 		errno=ok;
 	}
 
@@ -347,7 +353,7 @@ void MeltString ( String& v )
 		csz = v.ReqCsz();
 		if (csz<v.Csz())
 		{
-			Log("MeltString(): warning: csz seems increased");
+			logline("MeltString(): warning: csz seems increased");
 			v.ResizeCsz(csz);
 		}
 	}
@@ -433,7 +439,7 @@ cstr VScript::tostr(uchar*tok,Var**constants)
 	{
 //	case tNUM0:	return "0";
 //	case tNUM1: return "1";
-	case tNUM:  return numstr(constants[peek1(tok+1)]->Value());
+	case tNUM:  return ::tostr(constants[peek1(tok+1)]->Value());
 	case tSTR:  return CString(constants[peek1(tok+1)]->Text().ToQuoted());
 	case tIDF:	return catstr("idf:",CString(GetNameForHandle(NameHandle(peek4(tok+1)))));
  	default:	return CString(tokenname[*tok]);
@@ -828,7 +834,7 @@ exe6:
 
 	assert(root->ListSize() >= 5);
 
-	XXLog("{%s}",tokenname[*ip].CString());
+	xxlog("{%s}",tokenname[*ip].CString());
 
 	switch( TokenEnum(*ip++))
 	{
@@ -1835,7 +1841,7 @@ top_n:	if(TopIsNoTemp())
 		TopAssertTemp();
 		TopReqString();
 		Top.Text() = FullPath(Top.Text(),1);		// ***TODO*** fullpath(<path>,<deref_symlink>)
-		if(errno) { LogLine("FullPath returned error: %s",errorstr()); }
+		if(errno) { logline("FullPath returned error: %s",errorstr()); }
 		LOOP;
 
 	case tMDATE:		//	<temp> tMDATE -- <temp>
@@ -1969,7 +1975,7 @@ texifile:	Assert1Arg();
 		Assert1Arg();
 		TopAssertTemp();
 		TopReqString();
-		Top = dateVal(CString(Top.Text()));		// unix/os_utilities.h
+		Top = dateval(CString(Top.Text()));		// unix/os_utilities.h
 		LOOP;
 
 	case tNOW:			//	tNOW -- <temp>
@@ -3189,7 +3195,7 @@ ww:		if( errno==ok ) DROP2;
 io_timeout:
 		errno = timeoutexpired;
 io_error:
-		LogLine("error in file: ",s->FilePath().CString());		// TODO: remove
+		logline("error in file: %s",s->FilePath().CString());		// TODO: remove
 		PrependToError( s->FilePath() + ": " );
 		ERROR;
 
@@ -3316,7 +3322,10 @@ compile_error:
 			case rtTERMI:
 			{
 				AddToThreadError( ip, emptyString );
-				Log( "\nThread %s died after error: %s\n%s\n", thread->GetName().ToQuoted().CString(), errorstr(), (*thread->error)[2].Text().CString() );
+				logline( "\nThread %s died after error: %s\n%s",
+					thread->GetName().ToQuoted().CString(),
+					errorstr(),
+					(*thread->error)[2].Text().CString() );
 
 	ee_termi:	errno=ok;
 
@@ -3342,7 +3351,7 @@ compile_error:
 
 			default:
 				rp=re;
-				LogLine("Execute(): error_exit: RStack corrupted.");
+				logline("Execute(): error_exit: RStack corrupted.");
 				if(thread==t_root) goto ee_quit; else goto ee_termi;
 			}
 		}
@@ -3434,7 +3443,7 @@ void Thread::PurgeResources ( )
 		case rtEVAL:	 RDropEvalOrInclude(); continue;
 		case rtTERMI:
 		case rtQUITAPPL: rp=re;		// => break
-		default:		 LogLine("Thread::PurgeResources(): RStack corrupted ");
+		default:		 logline("Thread::PurgeResources(): RStack corrupted ");
 						 rp=re;		// => break
 		}
 

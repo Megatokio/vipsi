@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2008 - 2019
   					mailto:kio@little-bat.de
 
@@ -80,7 +81,7 @@
 	• if you have created a local pool, then you can use AllocStr(), AllocMem() and Purge()
 	  directly with this instance.
 
-	• TempMemPool::GetPool() retrieves and may create the current pool, it never returns nullptr.
+	• TempMemPool::GetPool() retrieves and may create the current pool, it never returns NULL.
 
 	• TempMemPool::GetXtPool() similarly retrieves and may create the current surrounding pool.
 
@@ -98,20 +99,20 @@
 	You must then pass a copy in the surrounding pool, e.g. made with xdupstr() (see "cstrings.h")
 */
 
-
-#ifndef tempmem_h
-#define	tempmem_h
-
 #include "../kio/kio.h"
 
 
-extern	char*		tempmem			( int size ) noexcept(false);
-extern	char*		tempstr			( int size ) noexcept(false);
+extern	char*	tempmem (uint size)		noexcept;
+extern	char*	tempstr (uint size)		noexcept;
+inline	char*	tempmem (int size)		noexcept { assert(size>=0); return tempmem(uint(size)); }
+//inline char*	tempstr (int size)		noexcept { assert(size>=0); return tempstr(uint(size)); }
 
-extern	char*		xtempmem		( int size ) noexcept(false);
-extern	char*		xtempstr		( int size ) noexcept(false);
+extern	char*	xtempmem (uint size)	noexcept;
+extern	char*	xtempstr (uint size)	noexcept;
+inline	char*	xtempmem (int size)		noexcept { assert(size>=0); return xtempmem(uint(size)); }
+inline	char*	xtempstr (int size)		noexcept { assert(size>=0); return xtempstr(uint(size)); }
 
-extern	void		purgeTempMem	( );
+extern	void	purgeTempMem ()			noexcept;
 
 
 
@@ -127,24 +128,24 @@ struct TempMemData
 
 class TempMemPool
 {
-	int				size;
+	uint			size;
 	TempMemData*	data;
 	TempMemPool*	prev;
 
-					TempMemPool		(TempMemPool const&);			// prohibit
-	void			operator=		(TempMemPool const&);			// prohibit
+					TempMemPool		(TempMemPool const&) = delete;
+	void			operator=		(TempMemPool const&) = delete;
 
 public:
-					TempMemPool		();
-					~TempMemPool	();
+					TempMemPool		()			noexcept;
+					~TempMemPool	()			noexcept;
 
-	void			purge			();
-	char*			alloc			(int size)	noexcept(false);
-	char*			allocStr		(int len )	noexcept(false);	// 0-terminated
-	char*			allocMem		(int size)	noexcept(false);	// aligned to _MAX_ALIGNMENT
+	void			purge			()			noexcept;
+	char*			alloc			(uint size)	noexcept;
+	char*			allocStr		(uint len)	noexcept;	// 0-terminated
+	char*			allocMem		(uint size)	noexcept;	// aligned to _MAX_ALIGNMENT
 
-static TempMemPool*	getPool			()			noexcept(false);
-static TempMemPool*	getXPool		()			noexcept(false);
+static TempMemPool*	getPool			()			noexcept;
+static TempMemPool*	getXPool		()			noexcept;
 };
 
 
@@ -153,7 +154,7 @@ static TempMemPool*	getXPool		()			noexcept(false);
 */
 
 inline
-char* TempMemPool::allocStr ( int len ) noexcept(false)
+char* TempMemPool::allocStr (uint len) noexcept
 {
 	char* p = alloc(len+1);
 	p[len] = 0;
@@ -161,7 +162,7 @@ char* TempMemPool::allocStr ( int len ) noexcept(false)
 }
 
 
-#endif
+
 
 
 

@@ -55,6 +55,16 @@
 
 INIT_MSG
 
+// serrors.cpp:
+inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
+extern	String	ErrorString	( );
+extern	void	ForceError	( int/*OSErr*/e, cString& msg );
+inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
+inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
+inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
+extern	void	AppendToError	( cString& msg );
+extern	void	PrependToError	( cString& msg );
+
 
 const String failed(" failed: ");
 
@@ -215,7 +225,7 @@ void CreateFile ( cString& path, cString& data, cstr mode )
 
 	if( data.Csz()!=csz1 )
 	{
-		if( XLOG && data.ReqCsz()!=csz1 ) LogLine("warning: CreateFile() truncated non-8bit data");
+		if( XLOG && data.ReqCsz()!=csz1 ) logline("warning: CreateFile() truncated non-8bit data");
 		String s(data);
 		s.ResizeCsz(csz1);
 		CreateFile( path, s, mode );

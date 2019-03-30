@@ -50,6 +50,15 @@
 INIT_MSG
 
 
+// serrors.cpp:
+inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
+extern	String	ErrorString	( );
+extern	void	ForceError	( int/*OSErr*/e, cString& msg );
+inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
+inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
+inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
+extern	void	AppendToError	( cString& msg );
+extern	void	PrependToError	( cString& msg );
 
 
 cstr appl_name = applName;		// for abort.cp
@@ -126,9 +135,9 @@ int main( int argc, cstr argv[] )
 
 	#ifdef _MACOSX
 		cstr path = getenv("PATH");
-		if( findStr(path,"/sw/")==nullptr )
+		if( find(path,"/sw/")==nullptr )
 		setenv( "PATH", catstr(path,":/sw/bin:/sw/sbin"), yes );
-		if( findStr(path,"/opt/local/")==nullptr )
+		if( find(path,"/opt/local/")==nullptr )
 		setenv( "PATH", catstr(path,":/opt/local/bin:/opt/local/sbin"), yes );
 	#endif
 
@@ -212,53 +221,53 @@ int main( int argc, cstr argv[] )
 
 	if(errno)
 	{
-x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
+x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		return errno;
 	}
 
 
 	if (verbose)
 	{
-		Log("\n");
-		Log( "Compiled with %s\n",    _COMPILER);
-		Log( "Compiled for %s\n",     _PLATFORM);
-		Log( "Running on a %s CPU\n", _PROCESSOR);
-		Log( "Byte order is %s\n",    _BYTEORDER);
+		logNl();
+		logline( "Compiled with %s",    _COMPILER);
+		logline( "Compiled for %s",     _PLATFORM);
+		logline( "Running on a %s CPU", _PROCESSOR);
+		logline( "Byte order is %s",    _BYTEORDER);
 
-		Log("\n");
-		Log( "Memory alignment is %s\n", _ALIGNMENT_REQUIRED ? "required" : "not required" );
-		Log( "max. alignment is %i\n", _MAX_ALIGNMENT);
-		Log( "%s alignments:\n", _ALIGNMENT_REQUIRED ? "Required" : "Preferred" );
-//		Log( "    short ....... %i\n", _SHORT_ALIGNMENT);
-//		Log( "    int ......... %i\n", _INT_ALIGNMENT);
-//		Log( "    long ........ %i\n", _LONG_ALIGNMENT);
-//		Log( "    llong ....... %i\n", _LONG_LONG_ALIGNMENT);
-//		Log( "    double ...... %i\n", _DOUBLE_ALIGNMENT);
-//		Log( "    pointer ..... %i\n", _POINTER_ALIGNMENT);
-		Log( "sizeof(size_t)  = %i\n",   sizeof(size_t));
-		Log( "sizeof(float)   = %i\n",   sizeof(float));
-		Log( "sizeof(double)  = %i\n\n", sizeof(double));
+		logNl();
+		logline( "Memory alignment is %s", _ALIGNMENT_REQUIRED ? "required" : "not required" );
+		logline( "max. alignment is %i", _MAX_ALIGNMENT);
+		logline( "%s alignments:", _ALIGNMENT_REQUIRED ? "Required" : "Preferred" );
+//		logline( "    short ....... %i", _SHORT_ALIGNMENT);
+//		logline( "    int ......... %i", _INT_ALIGNMENT);
+//		logline( "    long ........ %i", _LONG_ALIGNMENT);
+//		logline( "    llong ....... %i", _LONG_LONG_ALIGNMENT);
+//		logline( "    double ...... %i", _DOUBLE_ALIGNMENT);
+//		logline( "    pointer ..... %i", _POINTER_ALIGNMENT);
+		logline( "sizeof(size_t)  = %i",   int(sizeof(size_t)));
+		logline( "sizeof(float)   = %i",   int(sizeof(float)));
+		logline( "sizeof(double)  = %i\n", int(sizeof(double)));
 		if(sizeof(Double)!=sizeof(double))
-		Log( "sizeof(Double)  = %i\n\n", sizeof(Double));
+		logline( "sizeof(Double)  = %i\n", int(sizeof(Double)));
 
 
 	// info about current environment:
-		Log("\n");
-		Log("argvName = %s\n", argvName );
-		Log("stdin    = %s\n", stdinName );
-		Log("stdout   = %s\n", stdoutName);
-		Log("stderr   = %s\n", stderrName);
+		logNl();
+		logline("argvName = %s", argvName );
+		logline("stdin    = %s", stdinName );
+		logline("stdout   = %s", stdoutName);
+		logline("stderr   = %s", stderrName);
 
 		for (int j=0;j<3;j++)
 		{
 			if (ClassifyFile(j)!=s_tty) continue;
 			int rows,cols; errno=ok;
-			if( TerminalSize ( j, rows, cols ) == -1 ) Log("TerminalSize() failed: %s", errorstr());
-			else Log( "Terminal size: rows,cols = %u,%u\n",rows,cols );
+			if( TerminalSize ( j, rows, cols ) == -1 ) logline("TerminalSize() failed: %s", errorstr());
+			else logline( "Terminal size: rows,cols = %u,%u",rows,cols );
 			break;
 		}
 
-		Log("\n");
+		logNl();
 		assert(errno==ok);
 	}
 
@@ -269,17 +278,17 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		#ifdef INCLUDE_VAR_TEST_SUITE
 			errno=ok;
 			TestStringClass();
-			if (errno) log("*** String Test error: %s ***\n\n",errorstr()); else logNl();
+			if (errno) logline("*** String Test error: %s ***\n",errorstr()); else logNl();
 		#else
-			LogLine("class Var test suite was not compiled in.\n");
+			logline("class Var test suite was not compiled in.\n");
 		#endif
 
 		#ifdef INCLUDE_STRING_TEST_SUITE
 			errno=ok;
 			TestVarClass();
-			if (errno) log("*** Var Test error: %s ***\n\n",errorstr()); else logNl();
+			if (errno) logline("*** Var Test error: %s ***\n",errorstr()); else logNl();
 		#else
-			LogLine("class String test suite was not compiled in.\n");
+			logline("class String test suite was not compiled in.\n");
 		#endif
 		errno=ok;
 	}
@@ -334,13 +343,13 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		errno=ok;
 		if (!p)
 		{
-			LogLine("file \"test_suite/00_test.vs\" not found.");
+			logline("file \"test_suite/00_test.vs\" not found.");
 			return 1;
 		}
 		else
 		{
 			argvFile = newcopy(catstr(p,fname));				// durable copy; memleak ignored
-			LogLine("Loading test script \"%s\"",argvFile);
+			logline("Loading test script \"%s\"",argvFile);
 			chdir(p);
 		}
 	}
@@ -372,7 +381,7 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		errno=ok;
 		if (!p)
 		{
-			LogLine("file \"shell.vs\" not found.");
+			logline("file \"shell.vs\" not found.");
 			xlogline("pwd: %s",getwd(nullptr));
 			return 1;
 		}
@@ -479,9 +488,9 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 		}
 		else
 		{
-			LogNL(); Log( CString( VT_FGColor(catstr("while executing script ",quotedstr(argvFile),":"),VT_red) ) );
-			LogNL(); Log( CString( VT_FGColor(errstr,VT_red) ) );
-			LogNL();
+			logNl();
+			logline( "%s", CString( VT_FGColor(catstr("while executing script ",quotedstr(argvFile),":"),VT_red) ) );
+			logline( "%s", CString( VT_FGColor(errstr,VT_red) ) );
 		}
 	}
 
@@ -498,9 +507,9 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 	#endif
 
 	#ifdef OPCODE_PROFILING
-		LogLine("\ntokens defined: %i",(int)tokens);
+		logline("\ntokens defined: %i", int(tokens));
 
-		LogLine("\nopcode singles:");
+		logline("\nopcode singles:");
 		for (int i=0; i<40; i++)
 		{
 			uint32 m=0;
@@ -508,13 +517,13 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			{
 				if (opcodeProfile[j]>opcodeProfile[m]) m=j;
 			}
-			LogLine ( "    %s%8lu",
-					 (TokenName(m)+"           ").LeftString(12).CString(), opcodeProfile[m]
-					);
+			logline ( "    %s%8u",
+					 (TokenName(m)+"           ").LeftString(12).CString(),
+					 opcodeProfile[m] );
 			opcodeProfile[m]=0;
 		}
 
-		LogLine("\nopcode tupels:");
+		logline("\nopcode tupels:");
 		for (int i=0; i<40; i++)
 		{
 			uint32 m=0,n=0;
@@ -523,11 +532,10 @@ x:		Log ( "\n%s: %s\n\n", argvName, errorstr() );
 			{
 				if (opcodeTupels[j][k]>opcodeTupels[m][n]) { m=j; n=k; }
 			}
-			LogLine ( "    %s%s%8lu",
+			logline ( "    %s%s%8u",
 					 (TokenName(m)+"           ").LeftString(12).CString(),
 					 (TokenName(n)+"           ").LeftString(12).CString(),
-					 opcodeTupels[m][n]
-					);
+					 opcodeTupels[m][n] );
 			opcodeTupels[m][n]=0;
 		}
 	#endif

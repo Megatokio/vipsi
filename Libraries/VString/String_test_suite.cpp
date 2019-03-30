@@ -1,115 +1,96 @@
-// utf-8
-
-#define LOG 0
-#define SAFE 0
-
-
-#include "kio/kio.h"
-#include "unix/os_utilities.h"
-
-
-#ifdef	INCLUDE_STRING_TEST_SUITE
-
-
-DEBUG_INIT_MSG("String test suite <init-free>");
-
-
-#include <math.h>
-#ifndef NAN
-	const double NAN = 0.0/0.0;
-#endif
-
-#include "sstring.h"
+#undef NDEBUG
+#define SAFETY 2
+#define LOGLEVEL 1
 #include <time.h>
-#include "var/NameHandles.h"
+#include "Libraries/kio/kio.h"
+#undef  assert
+#define assert(X) do{ if(X){}else{throw internal_error(__FILE__, __LINE__, "FAILED: " #X);} }while(0)
 
-void LogOK() { Log(" ...ok"); LogNL(); }
+#include "String.h"
+
+#define TRY num_tests++; try{
+#define END }catch(std::exception& e){num_errors++; logline("%s",e.what());}
+#define EXPECT(X) num_errors++; logline("%s line %i: FAILED: did not throw",__FILE__,__LINE__);}catch(X&){}\
+  catch(std::exception&){num_errors++;logline("%s line %i: FAILED: wrong type of exception thrown",__FILE__,__LINE__);}
+
+
+void logOK() { log(" ...ok"); logNl(); }
+#define TRAP(X) assert(!(X))
+#define	RMASK(n) (~(0xFFFFFFFF<<(n)))					// mask to select n bits from the right (BUMMER: max. 31!!)
+static uint random(uint n) { return (uint32(n) * uint16(random())) >> 16; } // 16 bit random number in range [0 ... [n
 
 
 
 
-
-void TestStringClass()
+void TestStringClass(uint& num_tests, uint& num_errors)
 {
-	Log("\n+++ Testing class String ($LIB/ustring/sstring.cp) +++\n\n");
+	logIn("test VString/String");
 
-	Log("Struct size ");
-	{
-		Log("= %i",(int)sizeof(String));
-		TRAP(sizeof(String)!=20);
-	}
-	LogOK();
+	//{
+	//	log("= %i",(int)sizeof(String));
+	//	TRAP(sizeof(String)!=20);
+	//}
 
 
-	Log("~String() ");
-	{
+	TRY // ~String()
 		String a,b(33),c(40,csz4),d(50,' ');
 		String e(c,13,33),f(e);
 		String viele[500];
 		String g(viele[123]);
-	}
-	LogOK();
+	END
 
-
-	Log("String() ");
-	{
+	TRY // String()
 		String s;
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
-	}
-	LogOK();
+	END
 
-
-	Log("String(UCS4Char) ");
-	{
+	TRY // String(UCS4Char)
 		String a('a');
 		TRAP( a.Csz()!=1 );
 		TRAP( a.Len()!=1 );
 		TRAP( a[0]!='a' );
-	//	TRAP( a.NotWritable() );
+		//TRAP( a.NotWritable() );
 		for (uint i=0;i<256;i++)
 		{
 			String b(i);
 			TRAP( b.Csz()!=1 );
 			TRAP( b.Len()!=1 );
 			TRAP( b[0]!=i );
-	//		TRAP( b.NotWritable() );
+			//TRAP( b.NotWritable() );
 		}
 
 		a = String(300);
 		TRAP( a.Csz()!=2 );
 		TRAP( a.Len()!=1 );
 		TRAP( a[0]!=300 );
-	//	TRAP( a.NotWritable() );
+		//TRAP( a.NotWritable() );
 		for (uint i=256;i<0x10000;i+=17)
 		{
 			String b(i);
 			TRAP( b.Csz()!=2 );
 			TRAP( b.Len()!=1 );
 			TRAP( b[0]!=i );
-	//		TRAP( b.NotWritable() );
+			//TRAP( b.NotWritable() );
 		}
 
 		a = String(0x10030);
 		TRAP( a.Csz()!=4 );
 		TRAP( a.Len()!=1 );
 		TRAP( a[0]!=0x10030 );
-	//	TRAP( a.NotWritable() );
+		//TRAP( a.NotWritable() );
 		for (ulong i=0x10000;i<0xF0000000;i+=i/2001)
 		{
 			String b(i);
 			TRAP( b.Csz()!=4 );
 			TRAP( b.Len()!=1 );
 			TRAP( b[0]!=i );
-	//		TRAP( b.NotWritable() );
+			//TRAP( b.NotWritable() );
 		}
-	}
-	LogOK();
+	END
 
-
-	Log("String(cUCS1CharPtr,long) ");
-	{
+	TRY // String(cUCS1CharPtr,long)
 		UCS1Char c[]={ 'a','n','t','o','n','x','x' };
 		String s(c,5);
 		TRAP(s.Len()!=5);
@@ -121,12 +102,9 @@ void TestStringClass()
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
-	}
-	LogOK();
+	END
 
-
-	Log("String(cUCS2CharPtr,long) ");
-	{
+	TRY // String(cUCS2CharPtr,long)
 		UCS2Char c[]={ 'a','n','t','o','n','x','x' };
 		String s(c,5);
 		TRAP(s.Len()!=5);
@@ -138,12 +116,9 @@ void TestStringClass()
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
-	}
-	LogOK();
+	END
 
-
-	Log("String(cUCS4CharPtr,long) ");
-	{
+	TRY // String(cUCS4CharPtr,long)
 		UCS4Char c[]={ 'a','n','t','o','n','x','x' };
 		String s(c,5);
 		TRAP(s.Len()!=5);
@@ -155,12 +130,9 @@ void TestStringClass()
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
-	}
-	LogOK();
+	END
 
-
-	Log("String(cUTF8CharPtr,long) ");
-	{
+	TRY // String(cUTF8CharPtr,long)
 		cstr c={ "antonxx" };
 		String s(c,5);
 		TRAP(s.Len()!=5);
@@ -193,12 +165,9 @@ void TestStringClass()
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
-	}
-	LogOK();
+	END
 
-
-	Log("String(long,CharSize) ");
-	{
+	TRY // String(long,CharSize)
 		String s(66,csz1);
 		TRAP(s.Csz()!=1);
 		TRAP(s.Len()!=66);
@@ -228,29 +197,25 @@ void TestStringClass()
 		TRAP(s.Csz()!=1);
 		TRAP(s.Len()!=0);
 		TRAP(s.NotWritable());
+	END
 
-	}
-	LogOK();
-
-
-	Log("String(long,UCS4Char) ");
-	{
+	TRY // String(long,UCS4Char)
 		TRAP(String(7,'a')!="aaaaaaa");
-		TRAP(String(0l,'s')!=emptyString);
+		TRAP(String(int32(0),'s')!=emptyString);
 		TRAP(String(4,0x160)!="ŠŠŠŠ");
 		TRAP(String(7,' ')!="       ");
 
-		String s = String(0l,99999);
+		String s = String(int32(0),99999);
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
 
-		s = String(0l,999);
+		s = String(int32(0),999);
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
 
-		s = String(0l,99);
+		s = String(int32(0),99);
 		TRAP(s.Len()!=0);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
@@ -266,17 +231,14 @@ void TestStringClass()
 		TRAP(s.Csz()!=2);
 		TRAP(s.NotWritable());
 		TRAP(s!="ŠŠŠŠŠŠŠŠŠ");
-	}
-	LogOK();
+	END
 
-
-	Log("String(cUTF8Str) ");
-	{
+	TRY // String(cUTF8Str)
 		String s=String("Trottellumme_0123FF");
 		TRAP(s.Len()!=19);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
-		for(int i=0;i<s.Len();i++) TRAP((long)s[i]!="Trottellumme_0123FF"[i]);
+		for(int i=0;i<s.Len();i++) TRAP(s[i] != uint("Trottellumme_0123FF"[i]));
 
 		uchar c[]={'G','r',0xfc,0xdf,' ','G','o','t','t','!'};
 		s=String("Grüß Gott!");
@@ -297,27 +259,24 @@ void TestStringClass()
 		TRAP(s.NotWritable());
 		for(int i=0;i<s.Len();i++) { TRAP(s[i]!=c2[i]); }
 
-		char  bogus[] = { 0x80,'a',0x93,'b',0xbf,0xbf,0xc0,0xc1,0xc2,0x80,0 };
+		uchar bogus[] = { 0x80,'a',0x93,'b',0xbf,0xbf,0xc0,0xc1,0xc2,0x80,0 };
 		uchar anton[] = {      'a',     'b',          '?', '?', 0x80,       };
-		s=String(bogus);
+		s=String(ptr(bogus));
 		TRAP(s.Len()!=5);
 		TRAP(s.Csz()!=1);
 		TRAP(s.NotWritable());
 		for(int i=0;i<s.Len();i++) { TRAP(s[i]!=anton[i]); }
 
-		char   bummer[] = { 0x80,'a',0x93,'b',0xbf,0xbf,0xc0,0xc1,0xc2,0x80,0xdf,0xbf,0 };
+		uchar  bummer[] = { 0x80,'a',0x93,'b',0xbf,0xbf,0xc0,0xc1,0xc2,0x80,0xdf,0xbf,0 };
 		ushort anton2[] = {      'a',     'b',          '?', '?', 0x80,     (1<<11)-1      };
-		s=String(bummer);
+		s=String(ptr(bummer));
 		TRAP(s.Len()!=6);
 		TRAP(s.Csz()!=2);
 		TRAP(s.NotWritable());
 		for(int i=0;i<s.Len();i++) { TRAP(s[i]!=anton2[i]); }
-	}
-	LogOK();
+	END
 
-
-	Log("String(cString) ");
-	{
+	TRY // String(cString)
 		String s="test";
 		String a(s);
 		TRAP(s!=a);
@@ -337,12 +296,9 @@ void TestStringClass()
 		TRAP(b.Csz()!=2);
 		TRAP(b.Len()!=7);
 		TRAP(b!="<aha•€>");
-	}
-	LogOK();
+	END
 
-
-	Log("String(cString,long,long) ");
-	{
+	TRY // String(cString,long,long)
 		TRAP(String("Esmeralda",1,6) != "smera");
 		TRAP(String("<aha•€>",1,6) != "aha•€");
 		TRAP(String("Esmeralda",-1,6) != "Esmera");
@@ -358,25 +314,19 @@ void TestStringClass()
 		TRAP(String("Esmeralda",9,9) != "");
 		TRAP(String("Esmeralda",10,9) != "");
 		TRAP(String("Esmeralda",9,10) != "");
-	}
-	LogOK();
+	END
 
-
-	Log("compare(cString) ");
-	{
+	TRY // compare(cString)
 		String a[]={""," ","2•","2€","A","Antimon","Anton","Antonov","a","a ","aa","aaa","aab","anton","b","b ","berta","cÄsar","cäsar","Äffchen","•","•2"};
-		for( int i=0;i<(int)NELEM(a);i+=2 ) a[i] = (SpaceString(i)+a[i]).MidString(i);
-		for( int i=0;i<(int)NELEM(a);i++ )
-		for( int j=0;j<(int)NELEM(a);j++ )
+		for( int i=0;i<int(NELEM(a));i+=2 ) a[i] = (SpaceString(i)+a[i]).MidString(i);
+		for( int i=0;i<int(NELEM(a));i++ )
+		for( int j=0;j<int(NELEM(a));j++ )
 		{
-			TRAP ( SIGN(a[i].compare(a[j])) != SIGN(i-j) );
+			TRAP ( sign(a[i].compare(a[j])) != sign(i-j) );
 		}
-	}
-	LogOK();
+	END
 
-
-	Log("Truncate(long) ");
-	{
+	TRY // Truncate(long)
 		String s="antonov";
 		s.Truncate(5);
 		TRAP(s!="anton");
@@ -387,12 +337,9 @@ void TestStringClass()
 		s="antonov";
 		s.Truncate(-1);
 		TRAP(s!="");
-	}
-	LogOK();
+	END
 
-
-	Log("Resize(long,UCS4Char) ");
-	{
+	TRY // Resize(long,UCS4Char)
 		String s="antonov";
 		s.Resize(5);
 		TRAP(s!="anton");
@@ -413,12 +360,9 @@ void TestStringClass()
 		TRAP(s!="anton€");
 		s.Resize(10,'x');
 		TRAP(s!="anton€xxxx");
-	}
-	LogOK();
+	END
 
-
-	Log("Len() ");
-	{
+	TRY // Len()
 		TRAP(SpaceString(0).Len()!=0);
 		TRAP(SpaceString(1).Len()!=1);
 		TRAP(SpaceString(55).Len()!=55);
@@ -432,12 +376,9 @@ void TestStringClass()
 		TRAP(String(22,0x10010).Len()!=22 );
 		String s="xxanton";s=s.MidString(2);
 		TRAP(s.Len()!=5);
-	}
-	LogOK();
+	END
 
-
-	Log("Csz() ");
-	{
+	TRY // Csz()
 		TRAP( String("").Csz()!=1 );
 		TRAP( String("anton").Csz()!=1 );
 		TRAP( String("Äffe").Csz()!=1 );
@@ -447,12 +388,9 @@ void TestStringClass()
 		TRAP( String(77,0x1010).Csz()!=2 );
 		TRAP( String(0x10010).Csz()!=4 );
 		TRAP( String(77,0x10010).Csz()!=4 );
-	}
-	LogOK();
+	END
 
-
-	Log("operator[](long) ");
-	{
+	TRY // operator[](long)
 		String s = "antonov";
 		TRAP(s[0]!='a');
 		TRAP(s[1]!='n');
@@ -479,54 +417,39 @@ void TestStringClass()
 		s = s.MidString(2);
 		TRAP(s[0]!='t');
 		TRAP(s[7]!='5');
-	}
-	LogOK();
+	END
 
-
-	Log("UCS1Text() ");
-	{
+	TRY // UCS1Text()
 		String s="xxanton";
 		TRAP(String(s.UCS1Text()+2,5)!="anton");
 		s=s.MidString(2);
 		TRAP(String(s.UCS1Text()+0,5)!="anton");
-	}
-	LogOK();
+	END
 
-
-	Log("UCS2Text() ");
-	{
+	TRY // UCS2Text()
 		String s="x€anton";
 		TRAP(String(s.UCS2Text()+2,5)!="anton");
 		s=s.MidString(2);
 		TRAP(String(s.UCS2Text()+0,5)!="anton");
-	}
-	LogOK();
+	END
 
-
-	Log("UCS4Text() ");
-	{
+	TRY // UCS4Text()
 		String s=String(0x101010)+"€anton";
 		TRAP(String(s.UCS4Text()+2,5)!="anton");
 		s=s.MidString(2);
 		TRAP(String(s.UCS4Text()+0,5)!="anton");
-	}
-	LogOK();
+	END
 
-
-	Log("Text() ");
-	{
+	TRY // Text()
 		String s="xxanton";
-		TRAP(s.Text()!=(cptr)s.UCS1Text());
+		TRAP(s.Text()!=ptr(s.UCS1Text()));
 		s="x€anton";
-		TRAP(s.Text()!=(cptr)s.UCS2Text());
+		TRAP(s.Text()!=ptr(s.UCS2Text()));
 		s=String(0x101010)+"€anton";
-		TRAP(s.Text()!=(cptr)s.UCS4Text());
-	}
-	LogOK();
+		TRAP(s.Text()!=ptr(s.UCS4Text()));
+	END
 
-
-	Log("IsWritable() ");
-	{
+	TRY // IsWritable()
 		String s = String(55,csz1);
 		TRAP(!s.IsWritable());
 		s = String(55,csz2);
@@ -542,12 +465,10 @@ void TestStringClass()
 		z=s.SubString(3,5);
 		TRAP(s.IsWritable());
 		TRAP(z.IsWritable());
-	}
-	LogOK();
+	END
 
 
-	Log("NotWritable() ");
-	{
+	TRY // NotWritable()
 		String s = String(55,csz1);
 		TRAP(s.NotWritable());
 		s = String(55,csz2);
@@ -563,12 +484,9 @@ void TestStringClass()
 		z=s.SubString(3,5);
 		TRAP(!s.NotWritable());
 		TRAP(!z.NotWritable());
-	}
-	LogOK();
+	END
 
-
-	Log("MakeWritable() ");
-	{
+	TRY // MakeWritable()
 		String s="anton";
 		s.MakeWritable();
 		TRAP(s.NotWritable());
@@ -582,11 +500,9 @@ void TestStringClass()
 		z.UCS1Text()[0] = 'A';
 		TRAP(s!="anton");
 		TRAP(z!="Anton");
-	}
-	LogOK();
+	END
 
-	Log("SubString(long,long) ");
-	{
+	TRY // SubString(long,long)
 		String s="anton";
 		TRAP(s.SubString(0,s.Len())!=s);
 		TRAP(s.SubString(0,3)!="ant");
@@ -597,12 +513,9 @@ void TestStringClass()
 		TRAP(s.SubString(3,1)!="");
 		TRAP(s.SubString(1,1)!="");
 		TRAP(s.SubString(8,8)!="");
-	}
-	LogOK();
+	END
 
-
-	Log("MidString(long,long) ");
-	{
+	TRY // MidString(long,long)
 		String s="anton";
 		TRAP(s.MidString(0,s.Len())!=s);
 		TRAP(s.MidString(0,3)!="ant");
@@ -614,12 +527,9 @@ void TestStringClass()
 		TRAP(s.MidString(1,0)!="");
 		TRAP(s.MidString(8,0)!="");
 		SpaceString(33,33);
-	}
-	LogOK();
+	END
 
-
-	Log("MidString(long) ");
-	{
+	TRY // MidString(long)
 		String s="anton";
 		TRAP(s.MidString(0)!=s);
 		TRAP(s.MidString(-1)!=s);
@@ -627,36 +537,27 @@ void TestStringClass()
 		TRAP(s.MidString(-1)!=s);
 		TRAP(s.MidString(4)!="n");
 		TRAP(s.MidString(5)!="");
-	}
-	LogOK();
+	END
 
-
-	Log("LeftString(long) ");
-	{
+	TRY // LeftString(long)
 		String s="anton";
 		TRAP(s.LeftString(s.Len())!=s);
 		TRAP(s.LeftString(3)!="ant");
 		TRAP(s.LeftString(0)!="");
 		TRAP(s.LeftString(8)!="anton");
 		TRAP(s.LeftString(-1)!="");
-	}
-	LogOK();
+	END
 
-
-	Log("RightString(long) ");
-	{
+	TRY // RightString(long)
 		String s="anton";
 		TRAP(s.RightString(s.Len())!=s);
 		TRAP(s.RightString(3)!="ton");
 		TRAP(s.RightString(0)!="");
 		TRAP(s.RightString(8)!="anton");
 		TRAP(s.RightString(-1)!="");
-	}
-	LogOK();
+	END
 
-
-	Log("operator=(cString) ");
-	{
+	TRY // operator=(cString)
 		String s = "anton";
 		TRAP(s!="anton");
 		TRAP(s.NotWritable());
@@ -669,12 +570,9 @@ void TestStringClass()
 		TRAP(s!="");
 		s="€";
 		TRAP(s!="€");
-	}
-	LogOK();
+	END
 
-
-	Log("operator+(cString) ");
-	{
+	TRY // operator+(cString)
 		String s="anto";
 		TRAP(s+""!=s);
 		s="antonov";
@@ -697,12 +595,9 @@ void TestStringClass()
 		TRAP(s!="antonx€z");
 		s = s.RightString(3) + s.LeftString(5);
 		TRAP(s!="x€zanton");
-	}
-	LogOK();
+	END
 
-
-	Log("operator+=(cString) ");
-	{
+	TRY // operator+=(cString)
 		String s="";
 		TRAP((s+="")!="");
 		TRAP(s!="");
@@ -722,12 +617,9 @@ void TestStringClass()
 		TRAP(s!="xyzant€n");
 		s += s.RightString(5);
 		TRAP(s!="xyzant€nant€n");
-	}
-	LogOK();
+	END
 
-
-	Log("operator*(long) ");
-	{
+	TRY // operator*(long)
 		String s="";
 		TRAP(s*0!="");
 		TRAP(s*1!="");
@@ -745,12 +637,9 @@ void TestStringClass()
 		TRAP(s*-5!="");
 		s=s.RightString(3);
 		TRAP(s*5!="tontontontonton");
-	}
-	LogOK();
+	END
 
-
-	Log("operator*=(long) ");
-	{
+	TRY // operator*=(long)
 		String s="anton";
 		TRAP((s*=3)!="antonantonanton");
 		TRAP(s!="antonantonanton");
@@ -767,76 +656,52 @@ void TestStringClass()
 		s=s.RightString(3);
 		s*=5;
 		TRAP(s!="tontontontonton");
-	}
-	LogOK();
+	END
 
-
-	Log("operator==(cString) ");		// uses compare(cString) --> only basic tests here
-	{
+	TRY // operator==(cString)			uses compare(cString) --> only basic tests here
 		TRAP  ( String("a")=="b" );
 		TRAP  ( String("b")=="a" );
-		ASSERT( String("a")=="a" );
-	}
-	LogOK();
+		assert( String("a")=="a" );
+	END
 
-
-	Log("operator!=(cString) ");		// uses compare(cString) --> only basic tests here
-	{
-		ASSERT( String("a")!="b" );
-		ASSERT( String("b")!="a" );
+	TRY // operator!=(cString)			uses compare(cString) --> only basic tests here
+		assert( String("a")!="b" );
+		assert( String("b")!="a" );
 		TRAP  ( String("a")!="a" );
-	}
-	LogOK();
+	END
 
-
-	Log("operator<(cString) ");		// uses compare(cString) --> only basic tests here
-	{
-		ASSERT( String("a")<"b" );
+	TRY // operator<(cString)			uses compare(cString) --> only basic tests here
+		assert( String("a")<"b" );
 		TRAP  ( String("b")<"a" );
 		TRAP  ( String("a")<"a" );
-	}
-	LogOK();
+	END
 
-
-	Log("operator>(cString) ");		// uses compare(cString) --> only basic tests here
-	{
+	TRY // operator>(cString)			uses compare(cString) --> only basic tests here
 		TRAP  ( String("a")>"b" );
-		ASSERT( String("b")>"a" );
+		assert( String("b")>"a" );
 		TRAP  ( String("a")>"a" );
-	}
-	LogOK();
+	END
 
-
-	Log("operator>=(cString) ");		// uses compare(cString) --> only basic tests here
-	{
+	TRY // operator>=(cString)			uses compare(cString) --> only basic tests here
 		TRAP  ( String("a")>="b" );
-		ASSERT( String("b")>="a" );
-		ASSERT( String("a")>="a" );
-	}
-	LogOK();
+		assert( String("b")>="a" );
+		assert( String("a")>="a" );
+	END
 
-
-	Log("operator<=(cString) ");		// uses compare(cString) --> only basic tests here
-	{
-		ASSERT( String("a")<="b" );
+	TRY // operator<=(cString)			uses compare(cString) --> only basic tests here
+		assert( String("a")<="b" );
 		TRAP  ( String("b")<="a" );
-		ASSERT( String("a")<="a" );
-	}
-	LogOK();
+		assert( String("a")<="a" );
+	END
 
-
-	Log("CString() ");
-	{
+	TRY // CString()
 		TRAP(strcmp(String("anton").CString(),"anton")!=0);
 		TRAP(strcmp(String("").CString(),"")!=0);
 		TRAP(strcmp(String("antons €").CString(),"antons €")!=0);
 		TRAP(strcmp(String("xyzanton").MidString(3).CString(),"anton")!=0);
-	}
-	LogOK();
+	END
 
-
-	Log("NumVal() ");
-	{
+	TRY // NumVal()
 		double f;
 		TRAP(NumVal("123")!=123);
 		TRAP(NumVal("34567890")!=34567890);
@@ -844,14 +709,14 @@ void TestStringClass()
 		TRAP(NumVal("+123.00e-00")!=123);
 		TRAP(NumVal("-123.00e+00")!=-123);
 		TRAP(NumVal("47.5")!=47.5);
-		TRAP(NumVal("47.12")!=(double)47.12);
-		TRAP(NumVal("47.12Effe")!=(double)47.12);
+		TRAP(NumVal("47.12")!=47.12);
+		TRAP(NumVal("47.12Effe")!=47.12);
 		TRAP(NumVal("-432e+123")!=-432e123);
 		TRAP(NumVal("-56789056.7890")!=-56789056.7890);
 		TRAP(NumVal("+56789056.7890")!= 56789056.7890);
 		TRAP(NumVal("+432.432e-123")!=432.432e-123);
 		f = NumVal("XXX");	TRAP(errno!=notanumber);
-		ClearError();		TRAP(f==f);
+		errno=0;			TRAP(f==f);
 
 		TRAP(NumVal("'A'")!='A');
 		TRAP(NumVal("'A'xxx")!='A');
@@ -860,13 +725,13 @@ void TestStringClass()
 		TRAP(NumVal("'\\x'")!='x');
 		TRAP(NumVal("'\\017'")!=15);
 		TRAP(NumVal("'\\017\\100'")!=15*256+8*8);
-		TRAP(NumVal("'ABCD'")!=(ulong)0x41424344);
+		TRAP(NumVal("'ABCD'")!=0x41424344u);
 		f = NumVal("''");	TRAP(errno!=notanumber);
-		ClearError();		TRAP(f==f);
+		errno=0;			TRAP(f==f);
 		f = NumVal("'12");	TRAP(errno!=notanumber);
-		ClearError();		TRAP(f==f);
+		errno=0;			TRAP(f==f);
 		f = NumVal("'12\\");TRAP(errno!=notanumber);
-		ClearError();		TRAP(f==f);
+		errno=0;			TRAP(f==f);
 
 		TRAP(NumVal("$1234")!=0x1234);
 		TRAP(NumVal("$1234ggg")!=0x1234);
@@ -875,7 +740,7 @@ void TestStringClass()
 		TRAP(NumVal("$1")!=0x1);
 		TRAP(NumVal("+$1")!=0x1);
 		f = NumVal("+$");	TRAP(errno!=notanumber);
-		ClearError();		TRAP(f==f);
+		errno=0;			TRAP(f==f);
 
 		TRAP(NumVal("%1010101001011010")!=0xAA5A);
 		TRAP(NumVal("%10101010222")!=0xAA);
@@ -884,7 +749,7 @@ void TestStringClass()
 		TRAP(NumVal("%1")!=0x1);
 		TRAP(NumVal("+%1")!=0x1);
 		f = NumVal("+%");	TRAP(errno!=notanumber);
-		ClearError();		TRAP(f==f);
+		errno=0;			TRAP(f==f);
 
 		String s="xyz123";
 		TRAP(NumVal(s.MidString(3))!=123);
@@ -892,12 +757,9 @@ void TestStringClass()
 		TRAP(NumVal(s.MidString(3))!=123);
 		TRAP(NumVal("  +123")!=123);
 		TRAP(NumVal("  +123€")!=123);
-	}
-	LogOK();
+	END
 
-
-	Log("Find(UCS4Char,long) ");
-	{
+	TRY // Find(UCS4Char,long)
 		TRAP(String("12345").Find('6')!=-1);
 		TRAP(String("").Find('6')!=-1);
 		TRAP(String("12345").Find('1')!=0);
@@ -917,12 +779,9 @@ void TestStringClass()
 		TRAP(String("12325").Find('2',4)!=-1);
 		String s="00012325";
 		TRAP(s.MidString(3).Find('2',3)!=3);
-	}
-	LogOK();
+	END
 
-
-	Log("RFind(UCS4Char,long) ");
-	{
+	TRY // RFind(UCS4Char,long)
 		TRAP(String("12345").RFind('6')!=-1);
 		TRAP(String("").RFind('6')!=-1);
 		TRAP(String("12345").RFind('1')!=0);
@@ -942,12 +801,9 @@ void TestStringClass()
 		TRAP(String("12325").RFind('2',4)!=3);
 		String s="00012325";
 		TRAP(s.MidString(3).RFind('2',4)!=3);
-	}
-	LogOK();
+	END
 
-
-	Log("Find(cString,long) ");
-	{
+	TRY // Find(cString,long)
 		TRAP(String("ABCBCD34CDE").Find(String(""))!=0);
 		TRAP(String("").Find(String(""))!=0);
 		TRAP(String("").Find(String(""),0)!=0);
@@ -973,12 +829,9 @@ void TestStringClass()
 		TRAP(String("ABCBCD3BCDCDE").Find(String("BCD"),8)!=-1);
 		String s="xxxABCBCD3BCDCDE";
 		TRAP(s.MidString(3).Find(String("BCD"),6)!=7);
-	}
-	LogOK();
+	END
 
-
-	Log("RFind(cString,long) ");
-	{
+	TRY // RFind(cString,long)
 		TRAP(String("ABCBCD34CDE").RFind(String(""))!=11);
 		TRAP(String("").RFind(String(""))!=0);
 		TRAP(String("").RFind(String(""),0)!=0);
@@ -1004,12 +857,9 @@ void TestStringClass()
 		TRAP(String("ABCBCD3BCDCDE").RFind(String("BCD"),8)!=7);
 		String s = "xxxABCBCD3BCDCDE";
 		TRAP(s.MidString(3).RFind(String("BCD"),8)!=7);
-	}
-	LogOK();
+	END
 
-
-	Log("Find(cUTF8Str,long) ");
-	{
+	TRY // Find(cUTF8Str,long)
 		TRAP(String("ABCBCD34CDE").Find("")!=0);
 		TRAP(String("").Find("")!=0);
 		TRAP(String("").Find("",0)!=0);
@@ -1035,12 +885,9 @@ void TestStringClass()
 		TRAP(String("ABCBCD3BCDCDE").Find("BCD",8)!=-1);
 		String s="xxxABCBCD3BCDCDE";
 		TRAP(s.MidString(3).Find("BCD",6)!=7);
-	}
-	LogOK();
+	END
 
-
-	Log("RFind(cUTF8Str,long) ");
-	{
+	TRY // RFind(cUTF8Str,long)
 		TRAP(String("ABCBCD34CDE").RFind("")!=11);
 		TRAP(String("").RFind("")!=0);
 		TRAP(String("").RFind("",0)!=0);
@@ -1066,12 +913,9 @@ void TestStringClass()
 		TRAP(String("ABCBCD3BCDCDE").RFind("BCD",8)!=7);
 		String s = "xxxABCBCD3BCDCDE";
 		TRAP(s.MidString(3).RFind("BCD",8)!=7);
-	}
-	LogOK();
+	END
 
-
-	Log("Replace(UCS4Char,UCS4Char) ");
-	{
+	TRY // Replace(UCS4Char,UCS4Char)
 		String s;
 		s = " Stetes Klopfen hört das Schwein. ";
 		s.Replace(' ','X');
@@ -1094,12 +938,9 @@ void TestStringClass()
 		s = s.MidString(7);
 		s.Replace(' ','X');
 		TRAP(s!="XStetesXKlopfenXhörtXdasXSchwein.X");
-	}
-	LogOK();
+	END
 
-
-	Log("Swap(UCS4Char,UCS4Char) ");
-	{
+	TRY // Swap(UCS4Char,UCS4Char)
 		String s;
 		s = " Stetes Klopfen hört das Schwein. ";
 
@@ -1127,12 +968,9 @@ void TestStringClass()
 		s = s.MidString(7);
 		s.Swap(' ','X');
 		TRAP(s!="XStetesXKlopfenXhörtXdas Schwein. ");
-	}
-	LogOK();
+	END
 
-
-	Log("ToUpper() ");
-	{
+	TRY // ToUpper()
 		String s;
 		s = "AnTönchenöäüßÖÄÜß";
 		TRAP(s.ToUpper()!="ANTÖNCHENÖÄÜßÖÄÜß");
@@ -1144,12 +982,9 @@ void TestStringClass()
 		TRAP(s.MidString(6).ToUpper()!="ANTÖNCHENÖÄÜßÖÄÜß");
 		s = "xxx€xxAnTönchenöäüßÖÄÜß";
 		TRAP(s.MidString(6).ToUpper()!="ANTÖNCHENÖÄÜßÖÄÜß");
-	}
-	LogOK();
+	END
 
-
-	Log("ToLower() ");
-	{
+	TRY // ToLower()
 		String s;
 		s = "AnTönchenöäüßÖÄÜß";
 		TRAP(s.ToLower()!="antönchenöäüßöäüß");
@@ -1161,24 +996,18 @@ void TestStringClass()
 		TRAP(s.MidString(6).ToLower()!="antönchenöäüßöäüß");
 		s = "xxx€xxAnTönchenöäüßÖÄÜß";
 		TRAP(s.MidString(6).ToLower()!="antönchenöäüßöäüß");
-	}
-	LogOK();
+	END
 
+	TRY // ToHtml()
+		TRAP(String("").ToHtml()!="");
+		TRAP(String("Antons Äffchen").ToHtml()!="Antons Äffchen");
+		TRAP(String("< > & \"").ToHtml()!="&lt; &gt; &amp; &quot;");
+		TRAP(String("<€>").ToHtml()!="&lt;€&gt;");
+		String s = "xxx<€>";
+		TRAP(s.MidString(3).ToHtml()!="&lt;€&gt;");
+	END
 
-	Log("ToHtml() ");
-	{
-		Log("."); TRAP(String("").ToHtml()!="");
-		Log("."); TRAP(String("Antons Äffchen").ToHtml()!="Antons Äffchen");
-		Log("."); TRAP(String("< > & \"").ToHtml()!="&lt; &gt; &amp; &quot;");
-		Log("."); TRAP(String("<€>").ToHtml()!="&lt;€&gt;");
-		Log("."); String s = "xxx<€>";
-		Log("."); TRAP(s.MidString(3).ToHtml()!="&lt;€&gt;");
-	}
-	LogOK();
-
-
-	Log("FromHtml() ");
-	{
+	TRY // FromHtml()
 		TRAP(String("").FromHtml()!="");
 		TRAP(String("Antons Äffchen").FromHtml()!="Antons Äffchen");
 		TRAP(String("&lt; &gt; &amp; &quot;").FromHtml()!="< > & \"");
@@ -1198,12 +1027,9 @@ void TestStringClass()
 		TRAP(s.MidString(3).FromHtml()!="< > & \"");
 		s = "x€x&lt; &gt; &amp; &quot;";
 		TRAP(s.MidString(3).FromHtml()!="< > & \"");
-	}
-	LogOK();
+	END
 
-
-	Log("ToEscaped(bool) ");		// ***TODO*** ToEscaped(UCS4Char)
-	{
+	TRY // ToEscaped(bool)					***TODO*** ToEscaped(UCS4Char)
 		TRAP(ToEscaped("anton")!="anton");
 		TRAP(ToEscaped("anton€")!="anton€");
 		TRAP(ToEscaped("anton\n",1)!="\"anton\\n\"");
@@ -1218,12 +1044,9 @@ void TestStringClass()
 		TRAP(s.MidString(3).ToEscaped(1)!="\"\\177Eanton\\n\"");
 		s = "xxx\177€anton\n";
 		TRAP(s.MidString(3).ToEscaped(1)!="\"\\177€anton\\n\"");
-	}
-	LogOK();
+	END
 
-
-	Log("FromEscaped(bool) ");		// ***TODO*** FromEscaped(UCS4Char)
-	{
+	TRY // FromEscaped(bool)				***TODO*** FromEscaped(UCS4Char)
 		TRAP(FromEscaped("anton")!="anton");
 		TRAP(FromEscaped("anton€")!="anton€");
 		TRAP(FromEscaped("\"anton\\n\"",1)!="anton\n");
@@ -1242,30 +1065,30 @@ void TestStringClass()
 		TRAP(s.MidString(3).FromEscaped(1)!="\177Eanton\n");
 		s = "xxx\"\\x7f€anton\\n\"";
 		TRAP(s.MidString(3).FromEscaped(1)!="\177€anton\n");
-	}
-	LogOK();
+	END
 
-
-	Log("String::ToUTF8() / FromUTF8() ");			// 2005-06-11 kio	added. does a full 32 bit char test.
-	{
+	TRY // String::ToUTF8() / FromUTF8()
 		for( int bu=0; bu<=32; bu++ )				// max num of bits
 		{
 			for( int nu=0; nu<300; nu+=1+nu/2 )		// str.len
 			{
 				UCS4Char u4[300];
-				for( int j=0; j<nu; j++ ) u4[j] = (random()+random()*0x10000) & RMASK(bu);
-				String su = String((ptr)u4,nu,csz4);
-				su = su.ToUTF8();	  
-				TRAP(su.Csz()!=csz1); 
-				su = su.FromUTF8();	  
-				TRAP(su.Len()!=nu);
+				for( int j=0; j<nu; j++ )
+				{
+					u4[j] = (uint32(random())+uint32(random())*0x10000u);
+					if (bu<32) u4[j] &= RMASK(bu);
+				}
+				String su = String(ptr(u4),nu,csz4);
+				su = su.ToUTF8();
+				assert(su.Csz() == csz1);
+				su = su.FromUTF8();
+				assert(su.Len() == nu);
 				su.ResizeCsz(csz4);
-				TRAP(memcmp(u4,su.Text(),nu*4)!=0);
+				assert(memcmp(u4,su.Text(),uint(nu)*4) == 0);
 			}
 		}
-	}
-	LogOK();
-			
+	END
+
 	//	TODO		ToUCS1			( ) const;
 	//	TODO		FromUCS1		( ) const;
 	//	TODO		ToUCS2			( ) const;
@@ -1273,17 +1096,12 @@ void TestStringClass()
 	//	TODO		ToUCS4			( ) const;
 	//	TODO		FromUCS4		( ) const;
 
-
-	Log("CharString(UCS4Char) ");
-	{
+	TRY // CharString(UCS4Char)
 		TRAP(CharString('a')!="a");
 		TRAP(CharString(8364)!="€");
-	}
-	LogOK();
+	END
 
-
-	Log("SpaceString(long,UCS4Char) ");
-	{
+	TRY // SpaceString(long,UCS4Char)
 		TRAP(SpaceString(10     )!="          ");
 		TRAP(SpaceString(10,'X' )!="XXXXXXXXXX");
 		TRAP(SpaceString(10,8364)!="€€€€€€€€€€");
@@ -1293,12 +1111,9 @@ void TestStringClass()
 		TRAP(SpaceString(-5,'X' )!="");
 		TRAP(SpaceString(1      )!=" ");
 		TRAP(SpaceString(1,'X'  )!="X");
-	}
-	LogOK();
+	END
 
-
-	Log("NumString(double) ");
-	{
+	TRY // NumString(double)
 		TRAP(NumString(0.0)!="0");
 		TRAP(NumString(26473246.0)!="26473246");
 		TRAP(NumString(2147483647.0)!="2147483647");
@@ -1313,24 +1128,18 @@ void TestStringClass()
 		TRAP(NumString(1e200/3)!="3.3333333333333e+199");
 		TRAP(NumString(1e200/-3)!="-3.3333333333333e+199");
 		TRAP(NumString(1e-200/-3)!="-3.3333333333333e-201");
-	}
-	LogOK();
+	END
 
-
-	Log("NumString(ulong) ");
-	{
+	TRY // NumString(ulong)
 		TRAP(NumString(0u)!="0");
 		TRAP(NumString(88u)!="88");
 		TRAP(NumString(26473246u)!="26473246");
 		TRAP(NumString(2147483647u)!="2147483647");
 		TRAP(NumString(0x80000000u)!="2147483648");
 		TRAP(NumString(0xFFFFFFFFu)!="4294967295");
-	}
-	LogOK();
+	END
 
-
-	Log("NumString(long) ");
-	{
+	TRY // NumString(long)
 		TRAP(NumString(0)!="0");
 		TRAP(NumString(-0)!="0");
 		TRAP(NumString(88)!="88");
@@ -1338,66 +1147,53 @@ void TestStringClass()
 		TRAP(NumString(-1)!="-1");
 		TRAP(NumString(-26473246)!="-26473246");
 		TRAP(NumString(26473246)!="26473246");
-		TRAP(NumString((long)0x7FFFFFFF)!= "2147483647");
-		TRAP(NumString((long)0x80000000)!="-2147483648");
-	}
-	LogOK();
+		TRAP(NumString(0x7FFFFFFF)!= "2147483647");
+		TRAP(NumString(int32(0x80000000))!="-2147483648");
+	END
 
+	TRY // HexString(ulong,int)
+		TRAP(HexString(0x444333u,0)!="00444333");
+		TRAP(HexString(0x444333u,-3)!="");
+		TRAP(HexString(0x2342d2u,2)!="D2");
+		TRAP(HexString(0x2342d2f1u,8)!="2342D2F1");
+		TRAP(HexString(0xE342d2f1u,8)!="E342D2F1");
+		TRAP(HexString(0x2342d2f1u,9)!="02342D2F1");
+	END
 
-	Log("HexString(ulong,int) ");
-	{
-		TRAP(HexString(0x444333,0)!="00444333");
-		TRAP(HexString(0x444333,-3)!="");
-		TRAP(HexString(0x2342d2,2)!="D2");
-		TRAP(HexString(0x2342d2f1,8)!="2342D2F1");
-		TRAP(HexString(0xE342d2f1,8)!="E342D2F1");
-		TRAP(HexString(0x2342d2f1,9)!="02342D2F1");
-	}
-	LogOK();
-
-	Log("allocation test 1 ");
-	{
+	TRY // allocation test
 		const uint SZ=5000;
 		String* v = new String[SZ];
 		for (uint i=0;i<SZ;i++) { v[i]=v[0]; }
 		for (uint i=0;i<SZ;i++) { v[i]=SpaceString(33,33); }
 		for (uint i=0;i<SZ;i++) { v[i]=v[0]; }
-		delete[]v;
-	}
-	LogOK();
+		delete[] v;
+	END
 
-	Log("allocation test 2 ");
-	{
-		srandom(time(NULL));
-		const uint SZ=10000;
+	TRY // allocation test
+		srandom(uint(time(nullptr)));
+		const uint SZ=5000;
 		String* v[SZ];
-		for (uint i=0;i<SZ;i++) v[i]=NULL;
+		for (uint i=0;i<SZ;i++) v[i]=nullptr;
 
 		int i,j;
-		CharSize csz;
-		long count;
-		const uint SZ2=200000;
-		
-		double abort_time = FloatCurrentTime() + 60 * 5;		// 5 Minuten
 
-		for( uint ii=0; ii<SZ2 && FloatCurrentTime()<abort_time; ii++ )
+		for( uint ii=0; ii<50000; ii++ )
 		{
-			if(ii%(SZ2/100)==0)Log("[%i%%]",(int)ii/(SZ2/100));
-			i = random(NELEM(v));
-			j = random(NELEM(v));
+			i = int(random(NELEM(v)));
+			j = int(random(NELEM(v)));
 
 			if(v[i])
 			{
 				if(v[j])
 				{
 					*v[i] += *v[j];
-					*v[i] = v[i]->MidString(random(v[i]->Len()),random(100000));
-					delete v[j]; v[j]=NULL;
+					*v[i] = v[i]->MidString(int(random(uint(v[i]->Len()))),int(random(100000)));
+					delete v[j]; v[j]=nullptr;
 				}
 				else
 				{
 					*v[i] += *v[i];
-					*v[i] = v[i]->MidString(random(v[i]->Len()),random(100000));
+					*v[i] = v[i]->MidString(int(random(uint(v[i]->Len()))),int(random(100000)));
 				}
 			}
 			else
@@ -1408,21 +1204,20 @@ void TestStringClass()
 				}
 				else
 				{
-					csz = random(5) ? csz1 : random(5) ? csz2 : csz4;
-					count = random(10000);
+					CharSize csz = random(5) ? csz1 : random(5) ? csz2 : csz4;
+					int32 count = int32(random(10000));
 					v[i] = new String(count,csz);
 				}
 			}
 		}
 
 		for (uint ii=0;ii<NELEM(v);ii++) delete v[ii];
-	}
-	LogOK();
+	END
 }
 
 
 
 
 
-#endif		// INCLUDE_STRING_TEST_SUITE
+
 

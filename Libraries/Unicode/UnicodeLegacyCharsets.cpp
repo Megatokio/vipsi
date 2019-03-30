@@ -29,9 +29,6 @@
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define SAFE	3
-#define	LOG		0
-
 #include	"Unicode.h"
 
 INIT_MSG

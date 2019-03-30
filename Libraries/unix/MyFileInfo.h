@@ -1,4 +1,5 @@
-/*	Copyright  (c)	Günter Woigk 2001 - 2015
+#pragma once
+/*	Copyright  (c)	Günter Woigk 2001 - 2019
   					mailto:kio@little-bat.de
 
 	This file is free software
@@ -29,10 +30,6 @@
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef MyFileInfo_h
-#define	MyFileInfo_h
-
-
 #include "s_type.h"
 #include "../Templates/Array.h"
 
@@ -54,8 +51,8 @@ public:
 
 		MyFileInfo	()								{ memset(this,0,sizeof(*this)); }
 		~MyFileInfo	()								{ delete[]name; }
-		MyFileInfo	(MyFileInfo&q)					{ memcpy(this,&q,sizeof(q)); name = newcopy(name); }
-		MyFileInfo& operator=(const MyFileInfo&q) 	{ if(this!=&q) { delete[]name; memcpy(this,&q,sizeof(q)); name=newcopy(name);} return *this; }
+		MyFileInfo	(MyFileInfo const& q)			{ memcpy(this,&q,sizeof(q)); name = newcopy(name); }
+		MyFileInfo& operator=(MyFileInfo const& q) 	{ if(this!=&q) { delete[]name; memcpy(this,&q,sizeof(q)); name=newcopy(name);} return *this; }
 
 		bool		is_dir()						const	{ return type==s_dir;  }
 		bool		is_file()						const	{ return type==s_file; }
@@ -69,15 +66,11 @@ public:
 };
 
 
-class MyFileInfoArray : public Array<MyFileInfo>
-{
-public:			~MyFileInfoArray()				{ while(cnt) { data[--cnt].~MyFileInfo(); } }
-		void	remove			(uint idx)		{ assert(idx<cnt); data[idx].~MyFileInfo(); Array<MyFileInfo>::remove(idx); }
-};
+typedef Array<MyFileInfo> MyFileInfoArray;
 
 
 
-#endif
+
 
 
 

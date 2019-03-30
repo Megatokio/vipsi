@@ -1,4 +1,5 @@
-/*	Copyright  (c)	Günter Woigk 1995 - 2015
+#pragma once
+/*	Copyright  (c)	Günter Woigk 1995 - 2019
   					mailto:kio@little-bat.de
 
 	This file is free software
@@ -32,10 +33,6 @@
 	swap halves of int
 */
 
-
-#ifndef _swap_h_
-#define _swap_h_
-
 #include "kio/kio.h"
 
 
@@ -47,8 +44,8 @@ INL int32  swap	(int32 n)	{ return swap(uint32(n)); }
 INL int64  swap	(int64 n)	{ return swap(uint64(n)); }
 
 
-#endif
-	
+
+
 
 
 

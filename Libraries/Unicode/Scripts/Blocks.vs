@@ -1,4 +1,4 @@
-#!/usr/bin/vipsi
+#!/usr/local/bin/vipsi
 
 var Sources = { "Blocks.txt" }
 var Targets = { "Blocks.h" }

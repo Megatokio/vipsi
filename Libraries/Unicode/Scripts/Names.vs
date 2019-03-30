@@ -1,4 +1,4 @@
-#!/usr/bin/vipsi
+#!/usr/local/bin/vipsi
 
 var Sources = { "UnicodeData.txt" }
 var Targets = { "Names.h", "CodePointRanges.h", "CodePointRanges_UCS4.h" }
@@ -6,7 +6,7 @@ var Targets = { "Names.h", "CodePointRanges.h", "CodePointRanges_UCS4.h" }
 var r = include( env._[to rfind(env._,"/")] # "Tools.vh" ); if r end r then
 ParseArguments()
 QuickExitTest()
-include "/usr/lib/vipsi/TEXT.vl"
+include "/usr/local/lib/vipsi/TEXT.vl"
 
 
 

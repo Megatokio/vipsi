@@ -1,4 +1,5 @@
-/*	Copyright  (c)	Günter Woigk 2007 - 2019
+#pragma once
+/*	Copyright  (c)	Günter Woigk 2007 - 2013
 					mailto:kio@little-bat.de
 
 	This file is free software
@@ -31,11 +32,6 @@
 	used in vipsi.Compiler.cpp
 */
 
-
-
-typedef unsigned int uint;
-
-
 template<class T>
 class Stack
 {
@@ -45,7 +41,7 @@ class Stack
 
 	void	Resize		( );
 public:
-			Stack		( )					{ size=0; used=0; liste=nullptr; }
+			Stack		( )					{ size=0; used=0; liste=NULL; }
 			~Stack		( )					{ delete[] liste; }
 	void	Push		( const T & item )	{ if(used==size) Resize(); liste[used++] = item; }
 	T &		Pop			( )					{ return liste[--used]; }

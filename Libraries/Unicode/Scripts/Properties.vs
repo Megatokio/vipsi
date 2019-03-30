@@ -1,4 +1,4 @@
-#!/usr/bin/vipsi
+#!/usr/local/bin/vipsi
 
 var Sources = { "PropertyAliases.txt", "PropertyValueAliases.txt" }
 var Targets = { "Property_ShortName.h", "Property_LongName.h", "Property_Enum.h", "Property_Group.h", "PropertyGroup_Name.h", "PropertyGroup_Enum.h", 

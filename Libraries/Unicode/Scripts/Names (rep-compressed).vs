@@ -1,10 +1,10 @@
-#!/usr/bin/vipsi
+#!/usr/local/bin/vipsi
 
 var Target = "Names"
 var r = include( env._[to rfind(env._,"/")] # "Tools.vh" ); if r end r then
 ParseArguments()
 
-include "/usr/lib/vipsi/TEXT.vl"
+include "/usr/local/lib/vipsi/TEXT.vl"
 
 
 

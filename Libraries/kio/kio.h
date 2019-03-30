@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1994 - 2019
                     mailto:kio@little-bat.de
 
@@ -32,20 +33,18 @@
 
     required files in project:
         config.h			the unix-style MY_COMPILER_HAS_THIS_OR_THAT #defines
-        custom_errors.h		if HAVE_CUSTOM_ERRORS: 	custom error number/message pair macros
         settings.h			project settings, must exist, may be empty
 
     includes minimal set of headers from my libraries/
         kio/standard_types.h"
-        kio/log.h
+        kio/log.h			#ifdef(LOGFILE)
         kio/abort.h
-        kio/errors.h
         cstrings/cstrings.h
 
 
     asserted macros:
-        safety level:		SAFE
-        log level:			LOG
+		security level:		NDEBUG, XSAFE, XXSAFE, assert et.al.
+        log level:			XLOG, XXLOG, log et.al.
         major platform:		_UNIX  or  _WINDOWS
         minor platform:		_WINDOWS  or  _LINUX  or  _BSD  or  _MINIX  or  _SOLARIS
         compiler:			_METROWERKS  or  _GCC  or  _MPW
@@ -75,9 +74,6 @@
         char const nl;		line break character			(dep. on target platform)
         #define no_index	dummy index for empty arrays	(dep. on compiler)
 */
-
-#ifndef	kio_h
-#define	kio_h
 
 
 #define	myName				"Günter Woigk"
@@ -579,93 +575,133 @@ static_assert(sizeof(off_t)==8,"sizeof(off_t) wrong!");
 
 
 
-/* ----	#define SAFE and LOG ---------------------------
-        guaranteed macros.
-        • ifndef LOG then LOG is set to 1
-        • ifndef SAFE then compiling is aborted via #error
-        • ifdef FINAL then SAFE is decremented by 1 and LOG is cleared to 0
-        • ifdef RELEASE ""
-        • ifdef DEBUG then SAFE is incremented by 1
+/* ---- define __printflike(fmtarg, firstvararg) ----------------
+        this is how it is defined on my MacOS
 */
-#ifndef LOG
-    #define	LOG		1
-    //	Log()		final:	errors, asserts
-    //	XLog()				rare events, statistics, warnings, debug info
-    //	XXLog()				initialization, more events
-    //	XXXLog()	debug:	global procs: entry & exit, opt. results
-#endif
-#ifndef SAFE
-    #warning 'SAFE' not defined!
-    #define SAFE    3
-    //	TRAP()		final:	rare tests and onetime asserts: system, environment, data types
-    //	XTRAP()				low-impact tests: critical positions, basic check external call arguments
-    //	XXTRAP()			mid-impact tests: check external call args, basic check internal call args
-    //	XXXTRAP()	debug:	high-impact tests: check arguments, check internal state of module
+#ifndef __printflike
+#define __printflike(A,B) __attribute__((__format__(printf,A,B)))
 #endif
 
 
 
-// command line option -DFINAL
-// no logging, less error checking
-#if defined(FINAL) || defined(RELEASE) || defined(NDEBUG)
-    #if LOG>2
-        #undef 		LOG
-        #define		LOG		2
-    #elif LOG>1
-        #undef 		LOG
-        #define		LOG		1
-    #else
-        #undef 		LOG
-        #define		LOG		0
-    #endif
+/* ----	LOGGING and SAFETY ---------------------------
+*/
 
-    #if SAFE>2
-        #undef 		SAFE
-        #define		SAFE	2
-    #elif SAFE>1
-        #undef 		SAFE
-        #define		SAFE	1
-    #else
-        #undef 		SAFE
-        #define		SAFE	0
-    #endif
-#endif
+// in log.cpp or kio.cpp:
+typedef char const *cstr;
+extern void logline(cstr, ...)		__printflike(1,2);
+extern void logline(cstr, va_list)  __printflike(1,0);
+extern void log(cstr, ...)			__printflike(1,2);
+extern void log(cstr, va_list)		__printflike(1,0);
+extern void logNl();
 
-// command line option -DDEBUG
-// more error checking
-#ifdef DEBUG
-    #if SAFE<1
-        #undef		SAFE
-        #define		SAFE	1
-    #elif SAFE<2
-        #undef		SAFE
-        #define		SAFE	2
-    #elif SAFE<3
-        #undef		SAFE
-        #define		SAFE	3
-    #endif
-#endif
+// indent logging for the lifetime of a function:
+struct LogIndent { LogIndent(cstr fmt, ...) __printflike(2,3); ~LogIndent(); };
+#define logIn  LogIndent _z_log_ident	// usage:  logIn("format/message", ...)
 
-
-//	log message at start
-//	INIT_MSG -> print filename
-//	• during statics initialization
-//	• depending on log level
-//
-#if XLOG
-#define INIT_MSG static struct _iMSG { _iMSG(cstr f){ Log( "%s: ",strrchr(f,'/')+1 ); } } _imsg("/" __FILE__);
+#ifdef NDEBUG
+  #undef  LOGLEVEL
+  #define LOGLEVEL 0
+  #undef  SAFETY
+  #define SAFETY   0
 #else
-#define INIT_MSG
+  #ifndef SAFETY
+	#define SAFETY   1
+  #endif
+  #ifndef LOGLEVEL
+	#define LOGLEVEL 0
+  #endif
 #endif
 
 
+#define likely(x)      __builtin_expect(!!(x), 1)
+#define unlikely(x)    __builtin_expect(!!(x), 0)
+
+#if SAFETY==0
+  #undef  NDEBUG
+  #define NDEBUG
+  #define IFDEBUG(X)
+  #define IFNDEBUG(X)	X
+  #undef  debugstr
+  #define debugstr(...)	((void)0)
+  #undef  assert
+  #define assert(X) ((void)0)
+#else
+  #undef  NDEBUG
+  #define IFDEBUG(X)	X
+  #define IFNDEBUG(X)
+  #undef  debugstr
+  #define debugstr(FMT,...)	vfprintf(stderr,FMT,__VA_ARGS__)
+  #undef  assert
+  #define assert(X)		do{ if(unlikely(!(X))) abort("%s:%u: assert failed: %s\n",__FILE__, __LINE__, #X); }while(0)
+#endif
+
+#define XSAFE  (SAFETY>=1)
+#define XXSAFE (SAFETY>=2)
+
+#if SAFETY>=1
+  #define xassert		assert
+#else
+  #define xassert(X)	((void)0)
+#endif
+#if SAFETY>=2
+  #define xxassert		assert
+#else
+  #define xxassert(X)	((void)0)
+#endif
+
+#define XLOG  (LOGLEVEL>=1)
+#define XXLOG (LOGLEVEL>=2)
+
+#if LOGLEVEL>=1
+  #define xlog			log
+  #define xlogline		logline
+  #define xlogNl		logNl
+  #define xdebugstr		debugstr
+  #define xlogIn		logIn
+#else
+  #define xlog(...)		 ((void)0)
+  #define xlogline(...)  ((void)0)
+  #define xlogNl(...)	 ((void)0)
+  #define xdebugstr(...) ((void)0)
+  #define xlogIn(...)	 ((void)0)
+#endif
+
+#if LOGLEVEL>=2
+  #define xxlog			log
+  #define xxlogline		logline
+  #define xxlogNl		logNl
+  #define xxdebugstr	debugstr
+  #define xxlogIn		logIn
+#else
+  #define xxlog(...)	  ((void)0)
+  #define xxlogline(...)  ((void)0)
+  #define xxlogNl(...)	  ((void)0)
+  #define xxdebugstr(...) ((void)0)
+  #define xxlogIn(...)	  ((void)0)
+#endif
+
+//	Test Macros:
+//	must not be called from a function registered with atexit()
 #ifndef NDEBUG
-#define IFDEBUG(X) X
-#define IFNDEBUG(X)
+  #define IERR()		abort("%s line %u: INTERNAL ERROR",__FILE__,__LINE__)
+  #define TODO()		abort("%s line %u: TODO",__FILE__,__LINE__)
 #else
-#define IFDEBUG(X)
-#define IFNDEBUG(X) X
+  #define IERR()		throw internal_error(__FILE__, __LINE__,internalerror)
+  #define TODO()		throw internal_error(__FILE__,__LINE__,notyetimplemented)
 #endif
+
+//	abort application with exit(2)
+//	must not be called from a function registered with atexit()!
+extern void abort( cstr format, va_list )	__attribute__((__noreturn__)) __printflike(1,0);
+extern void abort( cstr formatstring, ... )	__attribute__((__noreturn__)) __printflike(1,2);
+extern void abort( int error_number )		__attribute__((__noreturn__));
+
+
+// get current time:
+extern double	now();		// in kio/kio.cpp
+
+
 
 
 //	new() / delete() library to use
@@ -684,14 +720,32 @@ static_assert(sizeof(off_t)==8,"sizeof(off_t) wrong!");
 //	  by other modules/classes before it is initialized.
 //	  else use a 'virgin' test in constructors et.al.
 //	  or use pthread pthread_once_t.
-//	• note: ACTION is the function name only, no '()' !
+//	• use:  -->  ON_INIT(function_to_call);
+//	• use:  -->  ON_INIT([]{...});
+//	• note: because the brackets are not part of the macro, the body can extend over multiple lines.
+//	  e.g.: -->  ON_INIT([]{
+//					init_foo();
+//					init_bar();
+//				 });
 //
-#define ON_INIT(ACTION) static struct _OnInitStruct { _OnInitStruct( void(*f)() ){f();} } z(ACTION)
+struct on_init { on_init(void(*f)()){f();} };
+	#define KITTY(X,Y) X ## Y
+	#define CAT(X,Y) KITTY(X,Y)
+	#define ON_INIT static on_init CAT(z,__LINE__)
+
+
+// log filename during statics initialization
+#if XLOG
+  #define INIT_MSG  ON_INIT( []{logline( "%s:", strrchr("/" __FILE__, '/')+1);} );
+#else
+  #define INIT_MSG
+#endif
 
 
 #define VIR	virtual
 #define	INL	inline
 #define EXT extern
+#define throws noexcept(false)
 
 
 // define custom error numbers:
@@ -703,14 +757,18 @@ enum
 #include "error_emacs.h"
 };
 
+extern cstr errorstr(int err);	// get error string for system or custom error number
+inline cstr errorstr() { return errorstr(errno); }
+
 
 //	other standard headers
 //
 #include "standard_types.h"
 #include "exceptions.h"
-#include "errors.h"
 #include "peekpoke.h"
-#include "unix/log.h"
+#ifdef LOGFILE
+#include "../unix/log.h"
+#endif
 #include "cstrings/cstrings.h"
 
 
@@ -729,13 +787,18 @@ template <class T> INL void	limit  ( T a, T&n, T e )	{ if(n<a) n=a; else if(n>e)
 #define	NELEM(feld)		(sizeof(feld)/sizeof((feld)[0]))	// UNSIGNED !!
 
 
+//	for refactoring:
+//
+enum Foo{foo};
+
+
 /* copy&paste templates:
 #define BITMASK(i,n)	((0xFFFFFFFF<<(i)) ^ (0xFFFFFFFF<<((i)+(n))))		// mask to select bits ]i+n .. i]
 #define RMASK(n)		(~(0xFFFFFFFF<<(n)))								// mask to select n bits from the right
 #define LMASK(i)		(0xFFFFFFFF<<(i))									// mask to select all but the i bits from right
 #define	LOL				fprintf(stderr,"LOL> \"%s\" - %d\n",__FILE__,__LINE__);
 double random(double r)	{ return ldexp(random() * r, -31); }				// #include <math.h>
-uint   random(uint n)	{ return ((uint32)n * (uint16)random()) >> 16; }	// 16 bit random number in range [0 ... [n
+uint   random(uint n)	{ return (uint32(n) * uint16(random())) >> 16; }	// 16 bit random number in range [0 ... [n
 */
 
 
@@ -750,9 +813,7 @@ namespace kio
 
 
 
-#define throws noexcept(false)
 
-#endif		// kio_h
 
 
 

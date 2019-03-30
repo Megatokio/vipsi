@@ -1,4 +1,4 @@
-/*	Copyright  (c)	Günter Woigk 1999 - 2015
+/*	Copyright  (c)	Günter Woigk 1999 - 2019
   					mailto:kio@little-bat.de
 
 	This file is free software
@@ -27,54 +27,100 @@
 	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+	error handling
+
+note:
+	include errors.cp:  support for cstrings only, does not require class String
+	_or_    serrors.cp: support for cstrings and class String strings
+
+
+	2003-12-06 kio	derived this file from errors.cp
 */
 
+#define	SAFE	2
+#define	LOG		1
 
-#define SAFE 3
-#define LOG 1
-#include "errors.h"
+#include	<string.h>
+#include	"kio/kio.h"
+#include 	"VString/String.h"
+#include	<sys/stat.h>
 
 
-/*  ___________________________________________________________________
-	deprecated old Error stuff:
+cstr ETEXT[] = {
+#define		EMAC(a,b)	b
+#include	"kio/error_emacs.h"
+};
 
-	problem: errno is per thread,
-	but custom_error and custom_errmsg[] are global
+
+int 	custom_error = 0;
+String 	custom_errmsg;
+
+
+
+
+/* ----	get default error text for error ------------------------------------------------
 */
-
-
-char custom_errmsg[256];
-int	 custom_error = 0;
-
-
-cstr ErrorStr(int err, bool custom)
+cstr ErrorStr ( int/*OSErr*/ err, bool custom )
 {
-    if(custom && err==custom_error)	return custom_errmsg;
-    else return errorstr(err);
-}
-
-//	set error unconditionally:
-//
-void ForceError( int err, cstr msg )
-{
-    strncpy(custom_errmsg,msg,255);
-    errno = custom_error = err;
-}
-
-//	set error conditionally:
-//
-void SetError( int err, cstr msg )
-{
-    if(!errno) ForceError(err,msg);
+	if (err==0)  return "no error";
+	if (err==-1) return "unknown error (-1)";
+	if (custom && err==custom_error)	return CString(custom_errmsg);
+	if (err>=EBAS && err<EBAS+(int)NELEM(ETEXT)) return ETEXT[err-EBAS];
+	return usingstr("%s (%i)",strerror(err),(int)err);
 }
 
 
-
-/*  ___________________________________________________________________
-	new stuff:
+/* ----	get error text for current error ------------------------------------------------
 */
+String ErrorString ( )
+{
+	return custom_error ? custom_errmsg : errorstr(errno);
+}
 
 
+
+/* ----	set error code & text ------------------------------------------------
+*/
+void ForceError ( int err, cString& msg )
+{
+	errno			= err;
+	custom_errmsg	= msg;
+	custom_error	= 1;
+}
+
+void ForceError ( int err, cstr msg )
+{
+	errno			= err;
+	custom_errmsg	= msg;
+	custom_error	= 1;
+}
+
+void SetError ( int err, cstr msg )
+{
+	if(!errno) ForceError( err, msg );
+}
+
+
+
+// ------------------------------------
+
+
+void AppendToError ( cString& msg )
+{
+	custom_errmsg	= ErrorString() + msg;
+	custom_error	= 1;
+}
+
+void PrependToError ( cString& msg )
+{
+	custom_errmsg	= msg + ErrorString();
+	custom_error	= 1;
+}
+
+
+#if 0
 /*	get error string for system or custom error number:
 */
 cstr errorstr( int err )
@@ -91,5 +137,16 @@ cstr errorstr( int err )
 	if(uint(err-EBAS)<NELEM(ETEXT)) return ETEXT[err-EBAS];
 	else							return strerror(err);
 }
+#endif
+
+
+
+
+
+
+
+
+
+
 
 

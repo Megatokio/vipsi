@@ -50,6 +50,16 @@
 
 INIT_MSG
 
+// serrors.cpp:
+inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
+extern	String	ErrorString	( );
+extern	void	ForceError	( int/*OSErr*/e, cString& msg );
+inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
+inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
+inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
+extern	void	AppendToError	( cString& msg );
+extern	void	PrependToError	( cString& msg );
+
 Var* root;
 
 
@@ -381,7 +391,7 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 
 // ----	get arguments ----
 
-	str content_type = getenv("CONTENT_TYPE");
+	cstr content_type = getenv("CONTENT_TYPE");
 	if ( !content_type )
 	{
 	// no CONTENT_TYPE => assume application/x-www-form-urlencoded
@@ -389,7 +399,7 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 	}
 
 
-	else if ( findStr(content_type,"multipart/form-data;") )
+	else if ( find(content_type,"multipart/form-data;") )
 	{
 	//	CONTENT_TYPE = multipart/form-data; boundary=---------------------------147461239920539999321264095060
 
@@ -416,7 +426,7 @@ void VScript::get_cgi_arguments ( Var* globals, cstr request_method )
 		<uploadfilename> is not encoded and MAY CONTAIN «"<0d><0a>»  OR  «"; »  !!!
 	*/
 
-		content_type = findStr(content_type,"boundary=");
+		content_type = find(content_type,"boundary=");
 		if (content_type==nullptr) goto uct;	// unknown content type
 		String multipart_boundary = String("--") + (content_type+9);
 

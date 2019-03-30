@@ -1,4 +1,4 @@
-#!/usr/bin/vipsi
+#!/usr/local/bin/vipsi
 
 var Sources = { "Scripts.txt" }
 var Targets = { "Scripts.h", "Scripts_UCS4.h" }

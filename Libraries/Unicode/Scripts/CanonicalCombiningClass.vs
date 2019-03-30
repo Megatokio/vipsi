@@ -1,4 +1,4 @@
-#!/usr/bin/vipsi
+#!/usr/local/bin/vipsi
 
 var Sources = { "UnicodeData.txt" }
 var Targets = { "CanonicalCombiningClass.h", "CanonicalCombiningClass_UCS4.h" }

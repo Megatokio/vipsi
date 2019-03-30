@@ -36,9 +36,7 @@
 */
 
 
-#define	SAFE	2
-#define	LOG		1
-
+#include <thread>
 #include	"../kio/kio.h"
 
 #ifdef HAVE_TIME_H
@@ -72,6 +70,13 @@
 
 #ifdef HAVE_SYS_WAIT_H
 #include	<sys/wait.h>
+#endif
+
+#ifdef _MACOSX
+//#include "/usr/include/mach/i386/kern_return.h"		NOT PRESENT IN SIERRA
+#define panic __mach_panic
+#include <mach/mach.h>
+#undef panic
 #endif
 
 #include	"os_utilities.h"
@@ -122,17 +127,21 @@ cstr hostName()
 #endif
 }
 
-int numCPUs()
+uint numCPUs()
 {
+#if 1
+	uint n = std::thread::hardware_concurrency();
+	return n?n:1;
+#else
 #ifdef _BSD
     int    n;
     size_t size = sizeof(n);
     int mib[4] = { CTL_HW, HW_AVAILCPU };
-    sysctl( mib, 2, &n, &size, nullptr, 0);
+    sysctl( mib, 2, &n, &size, NULL, 0);
     if(n>=1) return n;
 
     mib[1] = HW_NCPU;
-    sysctl( mib, NELEM(mib), &n, &size, nullptr, 0 );
+    sysctl( mib, NELEM(mib), &n, &size, NULL, 0 );
 
     return n>=1 ? n : 1;
 
@@ -141,48 +150,85 @@ int numCPUs()
 #else
     #fixme!
 #endif
+#endif
 }
 
-void sysLoad ( double load[3] )			// ranges: 1, 5, and 15 minutes
+// get sysload values
+// ranges: 1, 5, and 15 minutes
+//
+// returns the number of processes in the system run queue (waiting for) execution.
+// kio 2016-02-20: i have never seen values below 1.0 on OS X 10.9 and assume that
+// the sysload is updated on a user thread which doesn't subtract itself.
+//
+void sysLoad ( double load[3] )
 {
-#ifdef _BSD
-    int mib[4] = { CTL_VM, VM_LOADAVG };
-    struct loadavg data;
-    size_t size = sizeof(data);
-    sysctl ( mib, 2, &data, &size, nullptr, 0 );
-
-    load[0] = double(data.ldavg[0])/data.fscale;
-    load[1] = double(data.ldavg[1])/data.fscale;
-    load[2] = double(data.ldavg[2])/data.fscale;
-
-#elif defined(_LINUX)||defined(_SOLARIS)
-    // new: 2003-08-08 kio
-    // new: 2004-06-09 thor	now also for Solaris.
-    int n = getloadavg ( load, 3 );
-    if(n!=3)
-    {
-        LogLine("SysLoad(): getloadavg() returned %i",n);
-        if(n<1)load[0]=1.0;
-        if(n<2)load[1]=load[0];
-        load[2]=load[1];
-    }
-#else
-    #fixme!
+	int n = getloadavg(load, 3);
+	if(n<3)
+	{
+        if(n<1) load[0] = 1.0;
+        if(n<2) load[1] = load[0];
+                load[2] = load[1];
+	}
+#ifdef _MACOSX
+	static bool fixit = true;
+	if(fixit)
+	{
+		if(load[0]<0.99) fixit = false;
+		else { load[0]--; load[1]--; load[2]--; }
+	}
 #endif
 }
 
 
+#ifdef _MACOSX
+// get the CPU load
+// returned value 0.0 .. 1.0
+// normalized (independent) uf num CPUs
+double cpuLoad()
+{
+	static double old_busy  = 0;
+	static double old_total = 0;
+
+    natural_t num_cpus;
+    processor_info_array_t cpu_info;
+    mach_msg_type_number_t info_cnt;
+	kern_return_t err;
+
+    err = host_processor_info(mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &num_cpus, &cpu_info, &info_cnt);
+    if(err != KERN_SUCCESS) { logline("host_processor_info returned %u", uint(err)); return 0; }
+
+	double new_busy  = 0;
+	double new_total = 0;
+
+	for(uint cpu = 0; cpu < num_cpus; ++cpu)
+	{
+		integer_t* info = &cpu_info[cpu*CPU_STATE_MAX];
+		new_busy  += info[CPU_STATE_USER] + info[CPU_STATE_SYSTEM] + info[CPU_STATE_NICE];
+		new_total += new_busy + info[CPU_STATE_IDLE];
+	}
+
+	size_t info_size = sizeof(*cpu_info) * info_cnt;
+	vm_deallocate(mach_task_self(), vm_address_t(cpu_info), info_size);
+
+	double rval = (new_busy-old_busy) / (new_total-old_total);
+	old_busy = new_busy;
+	old_total = new_total;
+	return rval / num_cpus;
+}
+#endif
+
+
 time_t intCurrentTime()
 {
-    struct timeval tv;
-    gettimeofday ( &tv, nullptr );
-    return tv.tv_sec;
+	struct timespec tv;
+	clock_gettime(CLOCK_REALTIME, &tv);
+	return tv.tv_sec;
 }
 
 //double now()			now in log.cpp
 //{
 //    struct timeval tv;
-//    gettimeofday ( &tv, nullptr );
+//    gettimeofday ( &tv, NULL );
 //    return tv.tv_sec + tv.tv_usec/1000000.0;
 //}
 
@@ -202,7 +248,7 @@ time_t bootTime ( )
     // time being will read /proc/uptime
     FILE *fp;
     long ut;
-    if((fp=fopen("/proc/uptime","r"))==nullptr)
+    if((fp=fopen("/proc/uptime","r"))==NULL)
     {
         printf("Cannot open file /proc/uptime\n");	// -> FILE Stdout
         return(-1);
@@ -292,13 +338,13 @@ size_t memoryUsage (bool resident)
 /* ----	execute external command ----------------------------
         argv[]  must be a 0-terminated list
         argv[0]	hard path to command
-        envv[]  is either nullptr or a 0-terminated list of environment variables
-                in case of nullptr the current global environ[] list is passed
+        envv[]  is either NULL or a 0-terminated list of environment variables
+                in case of NULL the current global environ[] list is passed
         returns	stdout output of command called
                 returned string must be delete[]ed
                 output to stderr is still printed to stderr
                 return code is passed implicitely in errno
-        returns nullptr if exec failed
+        returns NULL if exec failed
                 then errno is set
         errno:	noerr: ok
                 errno: exec() failed
@@ -307,7 +353,7 @@ size_t memoryUsage (bool resident)
 */
 str execCmd ( str const argv[], str const envv[] )
 {
-    XXASSERT(argv && argv[0] && *argv[0]);
+    assert(argv && argv[0] && *argv[0]);
 
     errno=ok;
 
@@ -315,7 +361,7 @@ str execCmd ( str const argv[], str const envv[] )
     int pipout[2];
     if ( pipe(pipout) != 0 )
     {
-        XXXASSERT(errno!=ok);
+        assert(errno!=ok);
         return nullptr;
     }
 
@@ -339,7 +385,7 @@ str execCmd ( str const argv[], str const envv[] )
     case -1:// error happened:
             close(pipout[R]);
             close(pipout[W]);
-            XXXASSERT(errno!=ok);
+            assert(errno!=ok);
             break;
 
     case 0:	// child process:
@@ -350,7 +396,7 @@ str execCmd ( str const argv[], str const envv[] )
             close(pipout[W]);	// close unused dup
 
             // call cmd:
-            XXLogLine("ExecCmd(): exec %s",argv[0]);
+            xlogline("ExecCmd(): exec %s",argv[0]);
             execve(argv[0],argv,envv?envv:(str const *)environ);
 
             // call failed. try path completion
@@ -365,14 +411,14 @@ str execCmd ( str const argv[], str const envv[] )
                     if(dp==path) break;						// end of env.PATH reached: finally no success
 
                     str cmd = catstr(substr(path,dp),"/",argv[0]);
-                    XXLogLine("ExecCmd(): exec %s",cmd);
+                    xlogline("ExecCmd(): exec %s",cmd);
                     execve(cmd,argv,envv?envv:(str const *)environ);	// no return if success
                     path = dp;
                 }
             }
 
-            XLogLine( "ExecCmd(%s) failed: %s", quotedstr(argv[0]), strerror(errno) );
-            if(errno==EFAULT) {XLogLine("ExecCmd(): HINT: make shure the argv[] is nullptr terminated!");}	// kio 2013-03-31
+            xlogline( "ExecCmd(%s) failed: %s", quotedstr(argv[0]), strerror(errno) );
+            if(errno==EFAULT) {xlogline("ExecCmd(): HINT: make shure the argv[] is NULL terminated!");}	// kio 2013-03-31
             exit(errno);
         }
 
@@ -389,13 +435,13 @@ str execCmd ( str const argv[], str const envv[] )
                 if (result_used+100>result_size)
                 {
                     result_size += result_size/8 + 4000;
-                    char* newbu = newstr((int)result_size);
+                    char* newbu = newstr(int(result_size));
                     memcpy ( newbu,result,result_used );
                     delete[] result;
                     result = newbu;
                 }
 
-                ssize_t n = read ( pipout[R], result+result_used, result_size-result_used-1 ); //Log("[%i]",(int)n);
+                ssize_t n = read ( pipout[R], result+result_used, result_size-result_used-1 ); //log("[%i]",int(n));
 
                 if(n>0)		  { result_used += n; }
                 else if(n==0) { if(waitpid(child_id,&status,0)==child_id) { errno=ok; break; } }
@@ -413,7 +459,7 @@ str execCmd ( str const argv[], str const envv[] )
 						errno = childreturnederror;
 //                        SetError
 //                        (	childreturnederror,
-//                            usingstr( "%s returned exit code %i", quotedstr(argv[0]), (int)WEXITSTATUS(status) )
+//                            usingstr( "%s returned exit code %i", quotedstr(argv[0]), int(WEXITSTATUS(status)) )
 //                        );
                     }
                 }
@@ -422,7 +468,7 @@ str execCmd ( str const argv[], str const envv[] )
 						errno = childterminatedbysignal;
 //                        SetError
 //                        (	childterminatedbysignal,
-//                            usingstr( "%s terminated by signal %i", quotedstr(argv[0]), (int)WTERMSIG(status) )
+//                            usingstr( "%s terminated by signal %i", quotedstr(argv[0]), int(WTERMSIG(status)) )
 //                        );
                 }
                 else IERR();
@@ -433,8 +479,8 @@ str execCmd ( str const argv[], str const envv[] )
     }
 
 // restore stream settings
-    if (restore_stderr) { tcsetattr(2,TCSADRAIN,&old_stderr_termios); XXLogLine("ExecCmd(): restored stderr"); }
-    if (restore_stdin)  { tcsetattr(0,TCSADRAIN,&old_stdin_termios);  XXLogLine("ExecCmd(): restored stdin");  }
+    if (restore_stderr) { tcsetattr(2,TCSADRAIN,&old_stderr_termios); xlogline("ExecCmd(): restored stderr"); }
+    if (restore_stdin)  { tcsetattr(0,TCSADRAIN,&old_stdin_termios);  xlogline("ExecCmd(): restored stdin");  }
 
 // return result
     return result;
@@ -444,7 +490,7 @@ str execCmd ( cstr cmd, ... )
 {
     cstr* argv = new cstr[100];
     argv[0] = cmd;
-    int argc = 1;
+    uint argc = 1;
 
     va_list va;
     va_start(va,cmd);

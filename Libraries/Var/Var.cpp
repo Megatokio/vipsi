@@ -64,7 +64,15 @@
 #include	"Unicode/Unicode.h"
 #include	"Templates/Stack.h"
 
-;
+// serrors.cpp:
+inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
+extern	String	ErrorString	( );
+extern	void	ForceError	( int/*OSErr*/e, cString& msg );
+inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
+inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
+inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
+extern	void	AppendToError	( cString& msg );
+extern	void	PrependToError	( cString& msg );
 
 #ifndef NAN
 const Double NAN = 0.0/0.0;
@@ -112,14 +120,14 @@ Var**  Var::pool		= (&no_var)+1;
 
 Var*   Var::grow_pool ( )
 {
-	XXLogIn("Var::grow_pool()");
+	xlogIn("Var::grow_pool()");
 
 	if(pool!=&no_var) delete[] pool;
 
 	uint n = 500 + pool_size/2;
 	pool = new Var*[pool_size+=n];
 	Var* var = reinterpret_cast<Var*>(new char[n*sizeof(Var)]);
-	XXASSERT((size_t(var) % _MAX_ALIGNMENT) == 0);
+	xxassert((size_t(var) % _MAX_ALIGNMENT) == 0);
 
 	*pool++ = nullptr;
 	while(n--) *pool++ = var++;
@@ -176,10 +184,10 @@ void Var::validate ( cstr file, uint line ) const
 	#undef VTRAP
 }
 
-#define XXXXCHECK(v)if(XXXXSAFE)(v)->validate(__FILE__,__LINE__)
-#define XXXCHECK(v)	if(XXXSAFE) (v)->validate(__FILE__,__LINE__)
-#define XXCHECK(v)	if(XXSAFE)  (v)->validate(__FILE__,__LINE__)
-#define XCHECK(v)	if(XSAFE)   (v)->validate(__FILE__,__LINE__)
+#define XXXXCHECK(v)if(SAFE>=4) (v)->validate(__FILE__,__LINE__)
+#define XXXCHECK(v)	if(SAFE>=3) (v)->validate(__FILE__,__LINE__)
+#define XXCHECK(v)	if(SAFE>=2) (v)->validate(__FILE__,__LINE__)
+#define XCHECK(v)	if(SAFE>=1) (v)->validate(__FILE__,__LINE__)
 #define CHECK(v)	            (v)->validate(__FILE__,__LINE__)
 
 
@@ -199,7 +207,7 @@ void Var::set_error_locked ( )
 
 void Var::init_handle ( BPObj* obj, int type )
 {
-	XXASSERT(obj->varptr==nullptr);
+	xassert(obj->varptr==nullptr);
 
 	handle().next = handle().prev = this;
 	handle().data = obj;
@@ -213,7 +221,7 @@ void Var::init_handle ( const Var& q )
 {
 	handle().next = q.handle().next;
 	handle().prev = handle().next->handle().prev;
-	XXXASSERT(handle().prev==&q);
+	xxassert(handle().prev==&q);
 	handle().next->handle().prev = handle().prev->handle().next = this;
 	handle().data = q.handle().data;
 }
@@ -245,8 +253,8 @@ void Var::kill_handle ( )
 */
 inline void Var::init_link ( Var* par, uint idx )
 {
-	XXXASSERT( par!=nullptr && par->IsList() );
-	XXXASSERT( par->list().used>idx && par->list().array[idx]==nullptr );
+	xxassert( par!=nullptr && par->IsList() );
+	xxassert( par->list().used>idx && par->list().array[idx]==nullptr );
 
 	parent=par; index=idx; par->list().array[idx]=this;
 }
@@ -258,7 +266,7 @@ inline void Var::init_link ( Var* par, uint idx )
 */
 inline void Var::init_link_grow ( Var* par, uint idx )
 {
-	XXXASSERT( par!=nullptr && par->IsList() );
+	xxassert( par!=nullptr && par->IsList() );
 
 	if (idx>=par->list().used)
 	{
@@ -267,7 +275,7 @@ inline void Var::init_link_grow ( Var* par, uint idx )
 	}
 	else
 	{
-		XXXASSERT(par->list().array[idx]==nullptr);
+		xxassert(par->list().array[idx]==nullptr);
 	}
 
 	parent=par; index=idx; par->list().array[idx]=this;
@@ -280,7 +288,7 @@ inline void Var::init_link_grow ( Var* par, uint idx )
 */
 inline void Var::init_link_force ( Var* par, uint idx )
 {
-	XXXASSERT( par!=nullptr && par->IsList() );
+	xxassert( par!=nullptr && par->IsList() );
 
 	if (idx>=par->list().used)
 	{
@@ -307,8 +315,8 @@ void Var::Link ( Var* par, uint idx )
 {
 	XXXCHECK ( this );
 	XXXCHECK ( par );
-	XXASSERT ( par!=nullptr && par->IsList() );
-	XXASSERT ( (idx>>26)==0 || idx==at_end );
+	xassert ( par!=nullptr && par->IsList() );
+	xassert ( (idx>>26)==0 || idx==at_end );
 
 	if(IsList()&&Contains(par)) goto xl;
 	if( par->data_is_locked() ) goto xp;
@@ -340,7 +348,7 @@ xp:	par->set_error_locked();  return;
 void Var::Unlink ( )
 {
 	XXXCHECK ( this );
-	XXASSERT ( parent!=nullptr );
+	xassert ( parent!=nullptr );
 
 	Var* par=parent;
 	if( par->data_is_locked() )
@@ -366,7 +374,7 @@ void Var::Unlink ( )
 void Var::Vanish()
 {
 	XXXCHECK ( this );
-	XXASSERT ( parent!=nullptr );
+	xassert ( parent!=nullptr );
 
 	parent->DeleteItem(index);
 }
@@ -380,7 +388,7 @@ void Var::Vanish()
 */
 void Var::setmask ( uint32 mask )
 {
-	XXXASSERT(IsList());
+	xxassert(IsList());
 
 	Var** a = list().array;
 	Var** e = a + list().used;
@@ -399,7 +407,7 @@ void Var::setmask ( uint32 mask )
 */
 void Var::resmask ( uint32 mask )
 {
-	XXXASSERT(IsList());
+	xxassert(IsList());
 
 	Var** a = list().array;
 	Var** e = a + list().used;
@@ -432,7 +440,7 @@ inline void Var::init_list ( )
 */
 void Var::init_list ( cVek& q )
 {
-	XXXLogIn("Var::init_list(Vek)");
+	xxlogIn("Var::init_list(Vek)");
 
 	uint n = q.used;
 	if (n==0)
@@ -467,12 +475,12 @@ void Var::init_list ( cVek& q )
 */
 void Var::kill_list ( )
 {
-	XXXLogIn("Var::kill_list()");
+	xxlogIn("Var::kill_list()");
 
 	if (list().size!=0)
 	{
-		XXXASSERT(list().used <= list().size);
-		XXXASSERT(list().array!=nullptr);
+		xxassert(list().used <= list().size);
+		xxassert(list().array!=nullptr);
 
 		Var** a = list().array;
 		Var** e = a+list().used;
@@ -496,9 +504,9 @@ void Var::kill_list ( )
 */
 void Var::grow_list ( uint newused )
 {
-	XXXLogIn("Var::grow_list()");
+	xxlogIn("Var::grow_list()");
 
-	XXXASSERT((newused>>26)==0);			// oorange security
+	xxassert((newused>>26)==0);			// oorange security
 
 	if (newused>list().size)		// grow array
 	{
@@ -521,9 +529,9 @@ void Var::grow_list ( uint newused )
 */
 void Var::shrink_list ( uint newused )
 {
-	XXXLogIn("Var::shrink_list()");
+	xxlogIn("Var::shrink_list()");
 
-	XXXASSERT(newused <= list().used);
+	xxassert(newused <= list().used);
 
 	if (list().size>newused)		// !subslicer && !already_tight
 	{
@@ -554,8 +562,8 @@ void Var::shrink_list ( uint newused )
 */
 void Var::insert_items ( uint idx, uint n )
 {
-	XXXLogIn("Var::insert_items(idx,n)");
-	XXXASSERT( (n>>26)==0 && (idx>>26)==0 );
+	xxlogIn("Var::insert_items(idx,n)");
+	xxassert( (n>>26)==0 && (idx>>26)==0 );
 
 	if (idx>list().used) { n += idx-list().used; idx=list().used; }
 
@@ -585,8 +593,8 @@ void Var::insert_items ( uint idx, uint n )
 */
 void Var::delete_items ( uint idx, uint n )
 {
-	XXXLogIn("Var::delete_items(idx,n)");
-	XXXASSERT((n>>26)==0);
+	xxlogIn("Var::delete_items(idx,n)");
+	xxassert((n>>26)==0);
 
 	if (n>0 && idx<list().used)				// idx>=used  =>  there's nothing to delete
 	{
@@ -623,7 +631,7 @@ void Var::delete_items ( uint idx, uint n )
 */
 void Var::kill_data ( )
 {
-	XXXLogIn("Var::kill_data()");
+	xxlogIn("Var::kill_data()");
 
 	switch( get_type() )
 	{
@@ -651,7 +659,7 @@ void Var::kill_data ( )
 */
 void Var::init_data ( vtype typ )
 {
-	XXXLogIn("Var::init_data(vtype)");
+	xxlogIn("Var::init_data(vtype)");
 
 	init_type(typ);
 
@@ -671,10 +679,10 @@ void Var::init_data ( vtype typ )
 */
 void Var::init_data ( cVar& q )
 {
-	XXXLogIn("Var::init_data(Var)");
+	xxlogIn("Var::init_data(Var)");
 
-	//XXXASSERT( this && &q );
-	XXXASSERT( &q!=this );
+	//xxassert( this && &q );
+	xxassert( &q!=this );
 
 	vtype typ = q.get_type();
 	init_type(typ);
@@ -703,10 +711,10 @@ void Var::init_data ( cVar& q )
 */
 void Var::move_data ( Var& q )
 {
-	XXXLogIn("Var::move_data(Var)");
+	xxlogIn("Var::move_data(Var)");
 
-	//XXXASSERT( this && &q );
-	XXXASSERT( &q!=this );
+	//xxassert( this && &q );
+	xxassert( &q!=this );
 
 	vtype typ = q.get_type();
 	init_type(typ);
@@ -764,7 +772,7 @@ void Var::move_data ( Var& q )
 */
 void Var::swap_data ( Var& q )
 {
-	XXXLogIn("Var::swap_data(Var)");
+	xxlogIn("Var::swap_data(Var)");
 
 	Var z;
 	z.kill_type();				// nop
@@ -782,7 +790,7 @@ void Var::swap_data ( Var& q )
 */
 Var::Var ( Var* par, uint idx )
 {
-	XXXLogIn("Var::Var(par,idx)");
+	xxlogIn("Var::Var(par,idx)");
 	XXCHECK(par);
 
 	init_name();
@@ -795,7 +803,7 @@ Var::Var ( Var* par, uint idx )
 
 Var::Var ( Var* par, uint idx, vtype typ )
 {
-	XXXLogIn("Var::Var(par,idx,type)");
+	xxlogIn("Var::Var(par,idx,type)");
 	XXCHECK(par);
 
 	init_name();
@@ -808,7 +816,7 @@ Var::Var ( Var* par, uint idx, vtype typ )
 
 Var::Var ( Var* par, uint idx, Double value )
 {
-	XXXLogIn("Var::Var(par,idx,number)");
+	xxlogIn("Var::Var(par,idx,number)");
 	XXCHECK(par);
 
 	init_name();
@@ -821,7 +829,7 @@ Var::Var ( Var* par, uint idx, Double value )
 
 Var::Var ( Var* par, uint idx, cString& text )
 {
-	XXXLogIn("Var::Var(par,idx,text)");
+	xxlogIn("Var::Var(par,idx,text)");
 	XXCHECK(par);
 
 	init_name();
@@ -834,7 +842,7 @@ Var::Var ( Var* par, uint idx, cString& text )
 
 Var::Var ( Var* par, uint idx, cVar& q )
 {
-	XXXLogIn("Var::Var(par,idx,Var)");
+	xxlogIn("Var::Var(par,idx,Var)");
 	XXCHECK(par);
 	XXCHECK(&q);
 
@@ -850,7 +858,7 @@ Var::Var ( Var* par, uint idx, cVar& q )
 
 Var::Var ( Var* par, uint idx, vtype typ, NameHandle nh )
 {
-	XXXLogIn("Var::Var(par,idx,type,name)");
+	xxlogIn("Var::Var(par,idx,type,name)");
 	XXCHECK(par);
 
 	init_name(nh);
@@ -863,7 +871,7 @@ Var::Var ( Var* par, uint idx, vtype typ, NameHandle nh )
 
 Var::Var ( Var* par, uint idx, Double value, NameHandle nh )
 {
-	XXXLogIn("Var::Var(par,idx,number,name)");
+	xxlogIn("Var::Var(par,idx,number,name)");
 	XXCHECK(par);
 
 	init_name(nh);
@@ -876,7 +884,7 @@ Var::Var ( Var* par, uint idx, Double value, NameHandle nh )
 
 Var::Var ( Var* par, uint idx, cString& text, NameHandle nh )
 {
-	XXXLogIn("Var::Var(par,idx,text,name)");
+	xxlogIn("Var::Var(par,idx,text,name)");
 	XXCHECK(par);
 
 	init_name(nh);
@@ -889,7 +897,7 @@ Var::Var ( Var* par, uint idx, cString& text, NameHandle nh )
 
 Var::Var ( Var* par, uint idx, Stream* stream, NameHandle nh )
 {
-	XXXLogIn("Var::Var(par,idx,stream,name)");
+	xxlogIn("Var::Var(par,idx,stream,name)");
 	XXCHECK(par);
 
 	init_name(nh);
@@ -902,7 +910,7 @@ Var::Var ( Var* par, uint idx, Stream* stream, NameHandle nh )
 
 Var::Var ( Var* par, uint idx, cVar& q, NameHandle nh )
 {
-	XXXLogIn("Var::Var(par,idx,Var,name)");
+	xxlogIn("Var::Var(par,idx,Var,name)");
 	XXCHECK(par);
 	XXCHECK(&q);
 
@@ -918,7 +926,7 @@ Var::Var ( Var* par, uint idx, cVar& q, NameHandle nh )
 
 Var::Var ( vtype typ )
 {
-	XXXLogIn("Var::Var(type)");
+	xxlogIn("Var::Var(type)");
 
 	init_name();
 	init_link();
@@ -929,7 +937,7 @@ Var::Var ( vtype typ )
 
 Var::Var ( Double value )
 {
-	XXXLogIn("Var::Var(number)");
+	xxlogIn("Var::Var(number)");
 
 	init_name();
 	init_link();
@@ -940,7 +948,7 @@ Var::Var ( Double value )
 
 Var::Var ( cString& text )
 {
-	XXXLogIn("Var::Var(text)");
+	xxlogIn("Var::Var(text)");
 
 	init_name();
 	init_link();
@@ -952,7 +960,7 @@ Var::Var ( cString& text )
 /*
 Var::Var ( cVar& q )
 {
-	XXXLogIn("Var::Var(Var)");
+	xxlogIn("Var::Var(Var)");
 
 	init_name();
 	init_link();
@@ -965,7 +973,7 @@ Var::Var ( cVar& q )
 
 Var::Var ( vtype typ, NameHandle name )
 {
-	XXXLogIn("Var::Var(type,name)");
+	xxlogIn("Var::Var(type,name)");
 
 	init_name(name);
 	init_link();
@@ -976,7 +984,7 @@ Var::Var ( vtype typ, NameHandle name )
 
 Var::Var ( Double value, NameHandle name )
 {
-	XXXLogIn("Var::Var(number,name)");
+	xxlogIn("Var::Var(number,name)");
 
 	init_name(name);
 	init_link();
@@ -987,7 +995,7 @@ Var::Var ( Double value, NameHandle name )
 
 Var::Var ( cString& text, NameHandle name )
 {
-	XXXLogIn("Var::Var(text,name)");
+	xxlogIn("Var::Var(text,name)");
 
 	init_name(name);
 	init_link();
@@ -998,7 +1006,7 @@ Var::Var ( cString& text, NameHandle name )
 
 Var::Var ( cVar& q, NameHandle name )
 {
-	XXXLogIn("Var::Var(Var,name)");
+	xxlogIn("Var::Var(Var,name)");
 
 	init_name(name);
 	init_link();
@@ -1014,7 +1022,7 @@ Var::Var ( cVar& q, NameHandle name )
 */
 Var::Var ( char const*const* argv, uint n )
 {
-	XXLogIn("Var::Var(argv[],argc)");
+	xlogIn("Var::Var(argv[],argc)");
 
 	init_name();
 	init_link();
@@ -1067,7 +1075,7 @@ Var::Var ( char const*const* argv, uint n )
 
 Var& Var::operator= ( Var& q )
 {
-	XXXLogIn("Var::operator=(Var)");
+	xxlogIn("Var::operator=(Var)");
 
 	if (this!=&q)
 	{
@@ -1103,12 +1111,12 @@ Var& Var::operator= ( Var& q )
 */
 void Var::CopyData ( Var& q )
 {
-	XXXLogIn("Var::CopyData(Var)");
+	xxlogIn("Var::CopyData(Var)");
 
 	XXCHECK ( this );
 	XXCHECK ( &q );
-	XASSERT (   IsNoList() ||   !Contains(q)    );
-	XASSERT ( q.IsNoList() || !q.Contains(this) );
+	assert (   IsNoList() ||   !Contains(q)    );
+	assert ( q.IsNoList() || !q.Contains(this) );
 
 	if( type_or_data_locked() && (data_is_locked() || q.get_type()!=get_type()) )
 	{
@@ -1129,13 +1137,13 @@ void Var::CopyData ( Var& q )
 */
 void Var::MoveData ( Var& q )
 {
-	XXXLogIn("Var::MoveData(Var)");
+	xxlogIn("Var::MoveData(Var)");
 
 	XXCHECK ( this );
 	XXCHECK ( &q );
-	XASSERT (   IsNoList() ||   !Contains(q)    );
-	XASSERT ( q.IsNoList() || !q.Contains(this) );
-	XASSERT ( !q.type_or_data_locked() || (!q.data_is_locked() && q.get_type()==isNumber  ) );
+	assert (   IsNoList() ||   !Contains(q)    );
+	assert ( q.IsNoList() || !q.Contains(this) );
+	assert ( !q.type_or_data_locked() || (!q.data_is_locked() && q.get_type()==isNumber  ) );
 
 	if( type_or_data_locked() && (data_is_locked() || q.get_type()!=get_type()) )
 	{
@@ -1158,7 +1166,7 @@ void Var::MoveData ( Var& q )
 */
 void Var::SwapData ( Var& q )
 {
-	XXXLogIn("Var::SwapData(Var)");
+	xxlogIn("Var::SwapData(Var)");
 
 	XXCHECK ( this );
 	XXCHECK ( &q );
@@ -1190,10 +1198,10 @@ void Var::SwapData ( Var& q )
 */
 void Var::ResizeList ( uint newused )
 {
-	XXXLogIn("Var::ResizeList()");
+	xxlogIn("Var::ResizeList()");
 
 	XXCHECK(this);
-	XASSERT(IsList());
+	assert(IsList());
 
 	if(data_is_locked())
 	{
@@ -1214,10 +1222,10 @@ void Var::ResizeList ( uint newused )
 */
 Var& Var::operator[] ( uint idx )
 {
-	XXXLogIn("Var::operator[]");
+	xxlogIn("Var::operator[]");
 
 	XXXCHECK(this);
-	XASSERT(IsList());
+	assert(IsList());
 
 	if (idx>=list().used)
 	{
@@ -1227,7 +1235,7 @@ Var& Var::operator[] ( uint idx )
 			return *this;
 		}
 		if(idx==at_end) idx=list().used;
-		XXASSERT((idx>>26)==0);
+		xassert((idx>>26)==0);
 		grow_list(idx+1);
 	}
 
@@ -1245,7 +1253,7 @@ Var& Var::operator[] ( uint idx )
 */
 Var* Var::FindItem ( NameHandle namehandle ) const
 {
-	XXXLogIn("Var::FindItem(name)");
+	xxlogIn("Var::FindItem(name)");
 	XXXCHECK(this);
 
 	if (IsList())
@@ -1286,7 +1294,7 @@ Var* Var::FindItem ( cstr name ) const
 */
 int32 Var::Find ( cVar& v, int32 startidx ) const
 {
-	XXXLogIn("Var::Find(Var)");
+	xxlogIn("Var::Find(Var)");
 
 	XXCHECK(this);
 	XXXCHECK(&v);
@@ -1313,7 +1321,7 @@ int32 Var::Find ( cVar& v, int32 startidx ) const
 
 int32 Var::RFind ( cVar& v, int32 startidx ) const
 {
-	XXXLogIn("Var::RFind(Var)");
+	xxlogIn("Var::RFind(Var)");
 
 	XXCHECK(this);
 	XXXCHECK(&v);
@@ -1346,13 +1354,13 @@ int32 Var::RFind ( cVar& v, int32 startidx ) const
 */
 void Var::InsertItems ( uint idx, uint n )
 {
-	XXXLogIn("Var::InsertItems(idx,n)");
+	xxlogIn("Var::InsertItems(idx,n)");
 
 	XXCHECK(this);
-	XASSERT(IsList());
+	assert(IsList());
 
 	if(idx==at_end) idx=list().used;
-	XXASSERT((idx>>26)==0 && (n>>26)==0);
+	xassert((idx>>26)==0 && (n>>26)==0);
 
 	if(data_is_locked())
 	{
@@ -1371,15 +1379,15 @@ void Var::InsertItems ( uint idx, uint n )
 */
 void Var::InsertItem ( uint idx, Var* q )
 {
-	XXXLogIn("Var::InsertItem(idx,Var)");
+	xxlogIn("Var::InsertItem(idx,Var)");
 
 	XXCHECK ( this );
 	XXCHECK ( q );
-	XXASSERT( q->IsNoList() || !q->Contains(this) );
-	XASSERT ( IsList() );
+	xassert( q->IsNoList() || !q->Contains(this) );
+	assert ( IsList() );
 
 	if(idx==at_end) idx=list().used;
-	XXASSERT((idx>>26)==0);
+	xassert((idx>>26)==0);
 
 	if(data_is_locked())
 	{
@@ -1401,10 +1409,10 @@ void Var::InsertItem ( uint idx, Var* q )
 
 void Var::AppendItems ( Var* a, Var* b, Var* c, Var* d )
 {
-	XXLogIn("Var::AppendItems(4)");
+	xlogIn("Var::AppendItems(4)");
 	XXCHECK (this);
-	XASSERT(IsList());
-	XXXASSERT(
+	assert(IsList());
+	xxassert(
 		!d || !d->IsStream() || (d->GetStream()->InputEncoding()>=ucs1 && d->GetStream()->InputEncoding()<=utf8 &&
 							     d->GetStream()->OutputEncoding()>=ucs1 && d->GetStream()->OutputEncoding()<=utf8) );
 
@@ -1415,7 +1423,7 @@ void Var::AppendItems ( Var* a, Var* b, Var* c, Var* d )
 	else
 	{
 #define APPEND(V)													\
-	if(V) { XXASSERT(!V->Contains(this)); XXASSERT(!V->is_linked());		\
+	if(V) { xassert(!V->Contains(this)); xassert(!V->is_linked());		\
 			V->kill_link_nop(); V->init_link(this,n++); V->lock(); }
 
 		uint n = list().used;
@@ -1428,7 +1436,7 @@ void Var::AppendItems ( Var* a, Var* b, Var* c, Var* d )
 		XXXCHECK(this);
 	}
 
-	XXXASSERT(
+	xxassert(
 		!d || !d->IsStream() || (d->GetStream()->InputEncoding()>=ucs1 && d->GetStream()->InputEncoding()<= utf8 &&
 							     d->GetStream()->OutputEncoding()>=ucs1 && d->GetStream()->OutputEncoding()<=utf8));
 }
@@ -1444,10 +1452,10 @@ void Var::AppendItems ( Var* a, Var* b, Var* c, Var* d, Var* e, Var* f, Var* g, 
 */
 void Var::DeleteItems ( uint idx, uint n )
 {
-	XXXLogIn("Var::DeleteItems(idx,n)");
+	xxlogIn("Var::DeleteItems(idx,n)");
 
 	XXCHECK (this);
-	XASSERT(IsList());
+	assert(IsList());
 
 	if(data_is_locked())
 	{
@@ -1466,10 +1474,10 @@ void Var::DeleteItems ( uint idx, uint n )
 */
 void Var::DeleteLastItem ( )
 {
-	XXXLogIn("Var::DeleteLastItem()");
+	xxlogIn("Var::DeleteLastItem()");
 
 	XXCHECK (this);
-	XASSERT(IsList());
+	assert(IsList());
 
 
 	if(list().used>0)
@@ -1499,11 +1507,11 @@ void Var::DeleteLastItem ( )
 */
 void Var::AppendListItems ( Var& q )
 {
-	XXXLogIn("Var::AppendList(Var)");
+	xxlogIn("Var::AppendList(Var)");
 
 	XXXCHECK(&q);
 	XXXCHECK(this);
-	XXASSERT( !q.Contains(this) );
+	xassert( !q.Contains(this) );
 
 	if(data_is_locked()) { set_error_locked(); goto x; }
 
@@ -1565,7 +1573,7 @@ x:	;
 */
 Double Var::compare ( cVar& q ) const
 {
-	XXXLogIn("Var::compare(Var)");
+	xxlogIn("Var::compare(Var)");
 
 	XXXCHECK(this);
 	XXXCHECK(&q);
@@ -1615,20 +1623,24 @@ Double Var::compare ( cVar& q ) const
 
 /* ----	sort list -------------------------------------------------------
 */
+#undef TYPE
+#undef GT
 #define TYPE		Var*
-#define CMP(A,B)	(*(A)>*(B))
-#define SORTER		Var::Sort
-#include "Templates/sort.h"
+#define GT(A,B) 	(*(A)>*(B))
+void Var::Sort(TYPE* a, TYPE* e)
+#include "Templates/sorter.h"
 
+#undef TYPE
+#undef GT
 #define TYPE		Var*
-#define CMP(A,B)	(*(A)<*(B))
-#define SORTER		Var::RSort
-#include "Templates/sort.h"
+#define GT(A,B)	(*(A)<*(B))
+void Var::RSort(TYPE* a, TYPE* e)
+#include "Templates/sorter.h"
 
 
 void Var::sort( SortProcPtr sorter )
 {
-	XXXLogIn("Var::sort()");
+	xxlogIn("Var::sort()");
 	XXCHECK(this);
 
 	if( IsList() && list().used>=2 )
@@ -1647,7 +1659,7 @@ void Var::sort( SortProcPtr sorter )
 		// doit
 			// use temp array, if compare() performs CHECK()
 			// because sorter() only swaps pointers and not also item.index
-			#if XXXSAFE
+			#if SAFE >= 3
 				Var** zlist = new Var*[n];
 				memcpy(zlist,qlist,n*sizeof(Var*));
 				(*sorter)(zlist,zlist+n);
@@ -1676,7 +1688,7 @@ void Var::sort( SortProcPtr sorter )
 */
 void Var::Shuffle()
 {
-	XXXLogIn("Var::Shuffle()");
+	xxlogIn("Var::Shuffle()");
 	XXCHECK(this);
 
 	if( IsList() && list().used>=2 )
@@ -1927,7 +1939,7 @@ String Var::ToString ( bool quotestring, DisassProcPtr disass ) const
 	default: 		if(!disass) return "void<>";
 					return (*disass)(*this);
 	case isList:
-		XXLogIn("Var::ToString(List)");
+		xlogIn("Var::ToString(List)");
 		String s = '{', sep = ' ', sep2 = ", ";
 
 		for ( uint i=0; i<list().used; i++ )
@@ -2174,7 +2186,7 @@ void Var::SplitLines ( )
 Var& Var::list_op ( Var&(Var::*op)(Double), Double q )
 {
 	XXXCHECK(this);
-	XXXASSERT(IsList());
+	xxassert(IsList());
 	//if (data_is_locked()) { set_error_locked(); }		<-- nicht, weil die liste selbst nicht verändert wird.
 
 	Var** a = list().array;
@@ -2295,7 +2307,7 @@ Var& Var::list_op ( Var&(Var::*op)(Double), cVar& q)
 {	Var **qa,**za,*qp,*zp;
 	uint n,m;
 
-	XXXASSERT(q.IsList());
+	xxassert(q.IsList());
 
 	qa = q.list().array;
 	n  = q.list().used;
@@ -2387,7 +2399,7 @@ Var& Var::append_list ( cVar& q, DisassProcPtr disass_proc )
 {	Var **qa,**za,*qp,*zp;
 	uint n,m;
 
-	XXXASSERT(q.IsList());
+	xxassert(q.IsList());
 
 	qa = q.list().array;
 	n  = q.list().used;

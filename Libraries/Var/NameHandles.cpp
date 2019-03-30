@@ -98,9 +98,9 @@ static struct { uint size; HashData* data; } HashRing[hr_size];
 void InitHR()
 {
 	static int done=0; if(done) return; else done++;
-	XXLogIn("init HashRing[0]");
-	XXASSERT(emptyString.CalcHash()==0);
-	XXASSERT(HashRing[0].size==0);		// NH==0 already used?
+	xlogIn("init HashRing[0]");
+	xassert(emptyString.CalcHash()==0);
+	xassert(HashRing[0].size==0);		// NH==0 already used?
 // manual setup:
 // NewNameHandle() calls cstring.cp which may be not yet initialized
 	HashData* hd;
@@ -133,9 +133,9 @@ void UnlockNameHandle( NameHandle handle )
 	HashData* hd = HashRing[idx].data;
 	uint       i = handle & hd_mask;		// hd[i]
 
-	XASSERT(i<HashRing[idx].size);
-	XXXASSERT(hd!=nullptr);
-	XASSERT(hd[i].usage>0);
+	assert(i<HashRing[idx].size);
+	xxassert(hd!=nullptr);
+	assert(hd[i].usage>0);
 
 	hd[i].usage--;							// may become 0
 }
@@ -152,9 +152,9 @@ void LockNameHandle ( NameHandle handle )
 	HashData* hd = HashRing[idx].data;
 	uint       i = handle & hd_mask;		// hd[i]
 
-	XASSERT(i<HashRing[idx].size);			// bogus NH
-	XXXASSERT(hd!=nullptr);					// internal error
-	XASSERT(hd[i].usage>0);					// try to lock an old but no longer valid NH
+	assert(i<HashRing[idx].size);			// bogus NH
+	xxassert(hd!=nullptr);					// internal error
+	assert(hd[i].usage>0);					// try to lock an old but no longer valid NH
 
 	hd[i].usage++;
 }
@@ -170,9 +170,9 @@ cString& GetNameForHandle ( NameHandle handle )
 	HashData* hd = HashRing[idx].data;
 	uint       i = handle & hd_mask;		// hd[i]
 
-	XASSERT(i<HashRing[idx].size);
-	XXXASSERT(hd!=nullptr);
-	XASSERT(hd[i].usage>0);
+	assert(i<HashRing[idx].size);
+	xxassert(hd!=nullptr);
+	assert(hd[i].usage>0);
 
 	return hd[i].name;
 }
@@ -208,7 +208,7 @@ NameHandle NewNameHandle ( cString& s )
 {
 	if (s.Len()==0) return 0;
 
-	XXLogIn("NewNameHandle(\"%s\")",s.CString());
+	xlogIn("NewNameHandle(\"%s\")",s.CString());
 
 #if XXXSAFE
 	NameHandleCheck();
@@ -220,7 +220,7 @@ NameHandle NewNameHandle ( cString& s )
 	HashData* hd;
 	uint	   i;
 
-	XXLog("#%lu#",idx);
+	xlog("#%lu#",idx);
 
 // first name for this slot?  =>  handle == hash
 	if (sz==0)
@@ -228,12 +228,12 @@ NameHandle NewNameHandle ( cString& s )
 		HashRing[idx].size = 1;
 		HashRing[idx].data = hd = new HashData[1];
 		i = 0;
-		XXLog("{+}");
+		xlog("{+}");
 		goto i;		// --> HashRing[idx].data[i]
 	}
 
 // already exists?
-	hd = HashRing[idx].data;	XXXASSERT(hd!=nullptr);
+	hd = HashRing[idx].data;	xxassert(hd!=nullptr);
 	for (i=0;i<sz;i++)
 	{
 		if (hd[i].hash==hash && hd[i].usage && hd[i].name==s)
@@ -248,7 +248,7 @@ NameHandle NewNameHandle ( cString& s )
 	{
 		if (hd[i].usage==0)
 		{
-			XXLog("{o}");
+			xlog("{o}");
 	i:		hd[i].usage = 1;
 			hd[i].hash  = hash;
 			hd[i].name  = s;
@@ -260,7 +260,7 @@ NameHandle NewNameHandle ( cString& s )
 	HashData* ohd = hd;
 	uint      osz = sz;
 
-	if(XXLOG) { static int n=0; Log("{*%i*}",++n); }
+	if(XXLOG) { static int n=0; log("{*%i*}",++n); }
 
 	HashRing[idx].size = sz = sz*4/3+1;
 	HashRing[idx].data = hd = new HashData[sz];

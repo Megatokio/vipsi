@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1999 - 2019
                     mailto:kio@little-bat.de
 
@@ -34,10 +35,6 @@
     integer size: one of the prominent examples, why leaving central points of
     a language specification as an option to the implementer totally sucks.
 */
-
-
-#ifndef _standard_types_h_
-#define _standard_types_h_
 
 #include "config.h"
 
@@ -96,6 +93,7 @@
     typedef float		float32,*f32ptr;	typedef float32 const	cfloat32, *cf32ptr;
     typedef double		float64,*f64ptr;	typedef float64 const	cfloat64, *cf64ptr;
     typedef long double	float128,*f128ptr;	typedef float128 const	cfloat128, *cf128ptr;
+    typedef long double longdouble;
 
 //	typedef intptr_t	size_t;
 //	typedef uintptr_t
@@ -146,6 +144,30 @@
     typedef const String		cString;
 
 
+// cast shortenders:
+
+//#define _int(N)    static_cast<int>(N)		the static casts can all use the function style cast
+//#define _uint(N)   static_cast<uint>(N)		e.g. int(N)
+//#define _long(N)   static_cast<long>(N)
+//#define _ulong(N)  static_cast<ulong>(N)
+//#define _int8(N)   static_cast<int8>(N)
+//#define _uint8(N)  static_cast<uint8>(N)
+//#define _int16(N)  static_cast<int16>(N)
+//#define _uint16(N) static_cast<uint16>(N)
+//#define _int32(N)  static_cast<int32>(N)
+//#define _uint32(N) static_cast<uint32>(N)
+//#define _int64(N)  static_cast<int64>(N)
+//#define _uint64(N) static_cast<uint64>(N)
+//#define _char(N)   static_cast<char>(N)
+//#define _float(N)  static_cast<float>(N)
+//#define _double(N) static_cast<double>(N)
+//#define _long_double(N) static_cast<long double>(N)
+
+#define _ptr(N)    reinterpret_cast<ptr>(N)
+#define _cptr(N)   reinterpret_cast<cptr>(N)
+#define _str(N)    reinterpret_cast<str>(N)
+#define _cstr(N)   reinterpret_cast<cstr>(N)
+
 
 // ----	constants ------------------------------------------------------------
 #ifndef NULL
@@ -176,7 +198,8 @@ const OSErr	error		=	-1;
 #define GB					*0x40000000
 
 
-#endif
+
+
 
 
 

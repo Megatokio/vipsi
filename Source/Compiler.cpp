@@ -67,6 +67,12 @@ static struct INIT_HR { INIT_HR(){InitHR();} } dummyname;
 // serrors.cpp:
 inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
 extern	String	ErrorString	( );
+extern	void	ForceError	( int/*OSErr*/e, cString& msg );
+inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
+inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
+inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
+extern	void	AppendToError	( cString& msg );
+extern	void	PrependToError	( cString& msg );
 
 
 #ifndef TABWIDTH
@@ -393,7 +399,7 @@ cstr Compiler::tostr(Token*tok)
 //	case tNOP:	return usingstr("(%u,%u)",Row(tok->rowcol),Col(tok->rowcol));
 	case tNUM0:	return "0";
 	case tNUM1: return "1";
-	case tNUM:  return numstr((*constants)[tok->argument.index].Value());
+	case tNUM:  return ::tostr((*constants)[tok->argument.index].Value());
 	case tSTR:  return quotedstr(CString((*constants)[tok->argument.index].Text()));
 	case tIDF:	return CString(GetNameForHandle(tok->argument.namehandle));
  	default:	return CString(tokenname[tok->token]);
@@ -2486,10 +2492,10 @@ struct xref
 };
 
 
-#define TYPE		xref
-#define CMP(A,B)	((A).ID>(B).ID)
-#define SORTER		SortXref
-#include "Templates/sort.h"
+#define GT(A,B)	((A).ID>(B).ID)
+#define TYPE xref
+static void SortXref(TYPE* a, TYPE* e)
+#include "Templates/sorter.h"
 
 
 void Compiler::Assemble()
@@ -2733,7 +2739,7 @@ void Compiler::Assemble()
 			xxlog(">");
 			assert(a->ID==ID);
 
-			ssize_t d = a->pointer-dp;
+			displacement d = displacement(a->pointer-dp);
 
 			if (sizeof(displacement)==4)
 			{
@@ -2742,7 +2748,7 @@ void Compiler::Assemble()
 			else if (sizeof(displacement)==2)
 			{
 				poke2(dp,d);
-				if( (displacement)d == d ) continue;
+				if( displacement(d) == d ) continue;
 				errno = branchtoofar;
 				rowcol = xrefbu[dp-destbu]; break;	// error & exit
 			}

@@ -72,7 +72,7 @@ INL	cstr	ErrorStr	( )		{ return ErrorStr(errno,1); }
 INL	void	ClearError	( )		__attribute__ ((deprecated));		// use errno=ok
 INL	void	ClearError	( )		{ custom_error=0; errno = ok; }
 
-INL	void	SetError	( int )		__attribute__ ((deprecated));	// use if(!errno) errno=err
+//INL	void	SetError	( int )		__attribute__ ((deprecated));	// use if(!errno) errno=err
 INL	void	SetError	( int e )	{ if(!errno) errno = e; }
 
 EXT	void	SetError	( int, cstr ) __attribute__ ((deprecated));	// use if(!errno) erno=err and custom_errors.h
@@ -80,10 +80,11 @@ EXT	void	SetError	( int, cstr ) __attribute__ ((deprecated));	// use if(!errno) 
 INL	void	SetError	( cstr )	__attribute__ ((deprecated));	// use erno=err and custom_errors.h
 INL	void	SetError	( cstr s )	{ SetError(customerror,s); }
 
-INL	void	ForceError	( int )		__attribute__ ((deprecated));	// use errno=err
+//INL	void	ForceError	( int )		__attribute__ ((deprecated));	// use errno=err
 INL	void	ForceError	( int e )	{ errno = e; }
 
-EXT	void	ForceError	( int, cstr ) __attribute__ ((deprecated));	// use erno=err and custom_errors.h
+//EXT	void	ForceError	( int, cstr ) __attribute__ ((deprecated));	// use erno=err and custom_errors.h
+EXT	void	ForceError	( int, cstr );	// use erno=err and custom_errors.h
 
 INL	void	ForceError	( cstr )	__attribute__ ((deprecated));
 INL	void	ForceError	( cstr s )	{ ForceError(customerror,s); }

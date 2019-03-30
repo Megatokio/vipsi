@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1999 - 2019
 					mailto:kio@little-bat.de
 
@@ -27,48 +28,13 @@
 	WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-	error handling
-
-this file provides:
-
-	exception classes
-		bad_alloc		alias for std::bad_alloc
-		any_error		base class for below error classes
-		file_error		"unix/file_utilities.h"
-		index_error		"kio/abort.h"		macro INDEX()
-		limit_error		"kio/abort.h"		macro LIMIT()
-		data_error							for data parsers, e.g. for input data from file
-
-
-	raising, reading and clearing of errors.
-	uses the global errno.
-
-	cstr ErrorStr	(int errorcode)			returns error text for an OS or application defined error
-	cstr ErrorStr	()						returns the user-readable text for the current error
-	void SetError	(cstr custommessage)	sets an error with an arbitrary error text
-	void SetError	(int errorcode)			sets an OS or application defined error
-	int  GetError	()						gets the current error  ((same as errno))
-	void ClearError ()						clears the current error
-
-
-	extending the error code list:
-
-	1:	simply use SetError("custommessage") to set arbitrary errors.
-		disadvantage: you can't use errno to detect which error exactly happened.
-	2:	define custom errors in "custom_errors.h"
-	3:	use SetError(err,msg) to set errno to known error number and msg to arbitrary text.
 */
 
 
-
-#ifndef	_exceptions_h_
-#define	_exceptions_h_
-
 #include <new>
 #include "kio/kio.h"
-extern str usingstr( cstr, ... );		// #include "cstrings/cstrings.h"
+extern str usingstr( cstr, ... ) noexcept;		// #include "cstrings/cstrings.h"
+class FD;
 
 #ifndef __cplusplus
 	#error	C und nicht C++  !!
@@ -86,9 +52,9 @@ extern str usingstr( cstr, ... );		// #include "cstrings/cstrings.h"
 /*
 	class std::exception			// #include <exception>
 	{
-		public:			exception	()			throw(){}
-		virtual			~exception	()			throw();
-		virtual cstr	what		() const	throw();
+		public:			exception	()			noexcept{}
+		virtual			~exception	()			noexcept;
+		virtual cstr	what		() const	noexcept;
 	};
 
 hierarchy:
@@ -99,9 +65,8 @@ hierarchy:
 		std::bad_exception			// #include <exception>		unexpected()
 
 		any_error;					//							base class for own errors: includes error code
-			internal_error			// #include "kio/abort.h"	ABORT, TRAP, ASSERT, IERR, TODO
-				index_error;		// "kio/abort.h"			macro INDEX()	index outside array
-				limit_error;		// "kio/abort.h"			macro LIMIT()	array too large
+			internal_error			// #include "kio/abort.h"	ABORT, TRAP, assert, IERR, TODO
+			limit_error;			//							Array<T>: array too large
 			data_error;				//							data parsers, e.g. for input data from file
 			file_error;				// "unix/file_utilities.h"
 
@@ -133,15 +98,22 @@ typedef	std::bad_alloc	bad_alloc;
 class any_error : public std::exception
 {
 public:
-	int		error;			// errno
-	cstr	text;			// custom error message: const, temp or nullptr
+	int		error;		// errno
+	cstr	text;		// allocated
 
-public:		any_error		(cstr msg)					throw()	:error(customerror),text(msg){}
-			any_error		(int error)					throw()	:error(error), text(nullptr){}
-			any_error		(int error, cstr msg)		throw()	:error(error), text(msg){}
-VIR			~any_error		()							throw()	{}
+public:
+	explicit any_error (cstr msg, ...)		noexcept __printflike(2,3);
+	any_error (cstr msg, va_list va)		noexcept __printflike(2,0);
+	explicit any_error (int error)			noexcept :error(error), text(nullptr){}
+	any_error (int error, cstr msg)			noexcept;
+	~any_error ()							noexcept override;
 
-VIR	cstr	what			() const					throw();
+	cstr what () const						noexcept override;
+
+	any_error(any_error const&)				noexcept;
+	any_error(any_error&&)					noexcept;
+	any_error& operator= (any_error const&) = delete;
+	any_error& operator= (any_error&&)		= delete;
 };
 
 
@@ -153,13 +125,15 @@ VIR	cstr	what			() const					throw();
 class internal_error : public any_error
 {
 public:
-	cstr  file;			// source line: const or temp
-	uint line;			// source line number
+	cstr file;			// source file: const or temp;  assumed: __FILE__
+	uint line;			// source line number;			assumed: __LINE__
 
-public:	 internal_error	(cstr file, uint line)			 throw() :any_error(internalerror),file(file),line(line){}
-		 internal_error	(cstr file, uint line, int err)	 throw() :any_error(err),file(file),line(line){}
-		 internal_error	(cstr file, uint line, cstr msg) throw() :any_error(internalerror,msg),file(file),line(line){}
-	cstr what			() const						 throw();
+public:
+	internal_error (cstr file, uint line)			 noexcept :any_error(internalerror),file(file),line(line){}
+	internal_error (cstr file, uint line, int err)	 noexcept :any_error(err),file(file),line(line){}
+	internal_error (cstr file, uint line, cstr msg)	 noexcept :any_error(internalerror,msg),file(file),line(line){}
+
+	cstr what () const								 noexcept override;
 };
 
 
@@ -168,42 +142,25 @@ public:	 internal_error	(cstr file, uint line)			 throw() :any_error(internalerr
 //			limit_error
 // ---------------------------------------------
 
-class limit_error : public internal_error
+class limit_error : public any_error
 {
-	uint 	sz,max;
-
-public:	 limit_error (cstr file, uint line, uint sz, uint max)	throw() :internal_error(file,line,limiterror),sz(sz),max(max){}
-
-	cstr what		 () const									throw();
+public:
+	limit_error (cstr where, ulong sz, ulong max)	noexcept;
 };
 
 
 
 // ---------------------------------------------
-//			index_error
-// ---------------------------------------------
-
-class index_error : public internal_error
-{
-	uint idx,max;
-
-public:	 index_error (cstr file, uint line, uint idx, uint max)	throw() :internal_error(file,line,indexerror),idx(idx),max(max){}
-
-	cstr what		 () const									throw();
-};
-
-
-
-// ---------------------------------------------
-//			data_error								--> md5, backup_daemon.client
+//			data_error
 // ---------------------------------------------
 
 class data_error : public any_error
 {
 public:
-		 data_error	()								throw()	:any_error(dataerror){}
-		 data_error	(cstr msg)						throw()	:any_error(dataerror,msg){}
-		 data_error	(int error, cstr msg)			throw()	:any_error(error,msg){}
+	 data_error	()								noexcept :any_error(dataerror){}
+	 data_error	(cstr msg, ...)					noexcept __printflike(2,3);
+	 data_error	(int error, cstr msg)			noexcept :any_error(error,msg){}
+	 data_error	(int error)						noexcept :any_error(error){}
 };
 
 
@@ -216,22 +173,25 @@ class file_error : public any_error
 {
 public:
 	cstr filepath;
-	int	 fd;
 
-public:	 file_error(class FD&, int error)					throw();
-		 file_error(class FD&, int error, cstr msg)			throw();
-		 file_error(cstr path, int fd, int error)			throw()	: any_error(error),filepath(path),fd(fd){}
-		 file_error(cstr path, int fd, int error, cstr msg)	throw()	: any_error(error,msg),filepath(path),fd(fd){}
-//		 file_error(class FD&, cstr msg)					throw();
-//		 file_error(cstr fpath, int fd)						throw()	: any_error(errno),filepath(fpath),fd(fd){}
-//		 file_error(cstr fpath, int fd, cstr msg)			throw()	: any_error(errno,msg),filepath(fpath),fd(fd){}
+public:
+	file_error(cstr path, int error)			noexcept;
+	file_error(cstr path, int error, cstr msg)	noexcept;
+	file_error(const FD&, int error)			noexcept;
+	file_error(const FD&, int error, cstr msg)	noexcept;
+	~file_error ()								noexcept override;
 
-	cstr what() const										throw();
+	cstr what() const							noexcept override;
+
+	file_error(file_error const&)				noexcept;
+	file_error(file_error&&)					noexcept;
+	file_error& operator= (file_error const&)	= delete;
+	file_error& operator= (file_error&&)		= delete;
 };
 
 
 
-#endif
+
 
 
 

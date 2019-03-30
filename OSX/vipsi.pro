@@ -31,6 +31,8 @@ SOURCES +=  \
     Source/Thread.cpp \
     Source/VScript.cpp \
     Source/freeze.cpp \
+    Source/serrors.cpp \
+    Libraries/kio/kio.cpp \
     Libraries/kio/exceptions.cpp \
     Libraries/cstrings/cstrings.cpp \
     Libraries/Var/NameHandles.cpp \
@@ -42,7 +44,6 @@ SOURCES +=  \
     Libraries/Unicode/UnicodeLegacyCharsets.cpp \
     Libraries/Unicode/UTF-8.cpp \
     Libraries/unix/os_utilities.cpp \
-    Libraries/VString/serrors.cpp
 
 HEADERS += \
     Source/BPObj.h \
@@ -63,7 +64,6 @@ HEADERS += \
     Source/VScript.h \
     Source/compress_errors.h \
     Source/freeze.h \
-    Source/errors.h \
     config.h \
     Libraries/kio/error_emacs.h \
     Libraries/kio/exceptions.h \
@@ -82,7 +82,6 @@ HEADERS += \
     Libraries/Unicode/UTF-8.h \
     Libraries/unix/os_utilities.h \
     Libraries/kio/standard_types.h \
-    Libraries/kio/errors.h \
     Libraries/Unicode/Includes/Blocks.h \
     Libraries/Unicode/Includes/CanonicalCombiningClass.h \
     Libraries/Unicode/Includes/CanonicalCombiningClassUCS4.h \
@@ -131,7 +130,10 @@ HEADERS += \
     Libraries/Templates/Array.h \
     Libraries/unix/s_type.h \
     Libraries/unix/FD.h \
-    Libraries/unix/files.h
+    Libraries/Templates/template_helpers.h \
+    Libraries/Templates/relational_operators.h \
+    Libraries/Templates/sorter.h \
+    Libraries/unix/MyFileInfo.h
 
 DISTFILES += \
     ../Libs/test_suite/brokenNames.tar.gz \

@@ -38,150 +38,151 @@ note:
     2011-01-17	modified to allow simple clearing of errno in most cases
 */
 
-
-#define	SAFE	1
-#define	LOG		1
-
 #include "config.h"
-#include "kio/kio.h"
-#include "unix/s_type.h"
+#include "Libraries/kio/kio.h"
+#include "Libraries/unix/s_type.h"
+#include "Libraries/unix/FD.h"
 
-
-
-#if 0
-char custom_errmsg[256];
-int	 custom_error = 0;
-
-
-cstr ETEXT[] =
-{
-#define		EMAC(a,b)	b
-#include	"error_emacs.h"
-};
-
-
-/* ===================================================
-        Get Error Text:
-        does not allocate memory
-   =================================================== */
-
-cstr ErrorStr(int err, bool custom)
-{
-    if(err==0)						return "no error";
-    if(err==-1)						return "unknown error (-1)";
-    if(custom && err==custom_error)	return custom_errmsg;
-    if(uint(err-EBAS)<NELEM(ETEXT)) return ETEXT[err-EBAS];
-    else							return strerror(err);
-}
-
-
-/* ===================================================
-        Set Error:
-   =================================================== */
-
-// unconditional:
-//
-void ForceError( int err, cstr msg )
-{
-    strncpy(custom_errmsg,msg,255);
-    errno = custom_error = err;
-}
-
-// conditional:
-//
-void SetError( int err, cstr msg )
-{
-    if(!errno) ForceError(err,msg);
-}
-#endif
-
-
-
-/* ===================================================
-        Exception Messages:
-   =================================================== */
-
-#include "../unix/FD.h"
-file_error::file_error(class FD& fd, int error) throw() : any_error(error),filepath(fd.filepath()),fd(fd.file_id()) {}
-//file_error::file_error(class FD& fd, cstr msg) throw()	: any_error(errno?errno:customerror,msg),filepath(fd.filepath()),fd(fd.file_id()){}
-file_error::file_error(class FD& fd, int error, cstr msg) throw() : any_error(error,msg),filepath(fd.filepath()),fd(fd.file_id()){}
 
 // helper
-static
-cstr filename(cstr file) throw()
+static cstr filename(cstr file) noexcept
 {
     cstr p = strrchr(file,'/');
     return p ? p+1 : file;
 }
 
-//virtual
-cstr internal_error::what() const throw()
+
+// ---------------------------------------------
+//			any_error
+// ---------------------------------------------
+
+any_error::any_error(cstr format, ...) noexcept
+: error(customerror)
+{
+	va_list va;
+	va_start(va,format);
+	text = newcopy(usingstr(format,va));
+	va_end(va);
+}
+
+any_error::any_error (cstr msg, va_list va)	noexcept
+: error(customerror),
+  text(newcopy(usingstr(msg,va)))
+{}
+
+any_error::any_error (int error, cstr msg) noexcept
+: error(error),
+  text(newcopy(msg))
+{}
+
+any_error::any_error (any_error&& q) noexcept
+: std::exception(q),
+  error(q.error),
+  text(q.text)
+{
+	q.text=nullptr;
+}
+
+any_error::any_error(any_error const& q) noexcept
+: std::exception(q),
+  error(q.error),
+  text(newcopy(q.text))
+{}
+
+any_error::~any_error () noexcept
+{
+	delete[] text;
+}
+
+cstr any_error::what() const noexcept
+{
+	return text ? text : errorstr(error);
+}
+
+
+// ---------------------------------------------
+//			internal_error
+// ---------------------------------------------
+
+cstr internal_error::what() const noexcept
 {
     return usingstr( "%s line %u: %s",
         filename(file), line, text ? text : errorstr(error) );
 }
 
-//virtual
-cstr limit_error::what() const throw()
+
+// ---------------------------------------------
+//			limit_error
+// ---------------------------------------------
+
+limit_error::limit_error (cstr where, ulong sz, ulong max) noexcept
+: any_error(limiterror)
 {
-    return usingstr( "%s line %u: size %u exceeds maximum of %u",
-        filename(file), line, sz, max );
+	text = newcopy(usingstr( "%s: size %lu exceeds maximum of %lu", where, sz, max ));
 }
 
-//virtual
-cstr index_error::what() const throw()
+
+// ---------------------------------------------
+//			data_error
+// ---------------------------------------------
+
+data_error::data_error (cstr msg, ...) noexcept
+: any_error(dataerror)
 {
-    return usingstr( "%s line %u: index %u exceeds array size of %u",
-        filename(file), line, idx, max );
+    va_list va;
+    va_start(va,msg);
+    text = newcopy(usingstr(msg,va));
+    va_end(va);
 }
 
-//virtual
-//	error 	-> errorstr
-//	text	-> text
-// 	beides	-> errorstr (text)
-//
-// 			wenn error und text angegeben sind, wird angenommen,
-//			dass der text zusätzlicher ein hinweis ist
-//
-cstr any_error::what() const throw()
+
+// ---------------------------------------------
+//			file_error
+// ---------------------------------------------
+
+file_error::file_error (cstr path, int error) noexcept
+: any_error(error),
+  filepath(newcopy(path))
+{}
+
+file_error::file_error (cstr path, int error, cstr msg) noexcept
+: any_error(error,msg),
+  filepath(newcopy(path))
+{}
+
+file_error::file_error (const FD& fd, int error) noexcept
+: any_error(error),
+  filepath(newcopy(fd.filepath()))
+{}
+
+file_error::file_error (const FD& fd, int error, cstr msg) noexcept
+: any_error(error,msg),
+  filepath(newcopy(fd.filepath()))
+{}
+
+file_error::file_error(file_error const& q) noexcept
+: any_error(q),
+  filepath(newcopy(q.filepath))
+{}
+
+file_error::file_error(file_error&& q) noexcept
+: any_error(q),
+  filepath(q.filepath)
 {
-    return text
-        ? error==customerror || error==-1
-            ? text
-            : usingstr("%s (%s)",errorstr(error),text)
-        : errorstr(error);
+	q.filepath = nullptr;
 }
 
-//virtual
-// text==0	-> errorstr: file="filepath"
-// text!=0	-> errorstr: file="filepath" (text)
-//
-// 			wenn auch ein text angegeben ist, wird angenommen,
-//			dass dieser zusätzlicher ein hinweis ist
-//
-cstr file_error::what() const throw()
+file_error::~file_error () noexcept
 {
-    return usingstr( text ? "%s: file = \"%s\" (%s)"
-                          : "%s: file = \"%s\"",
-        errorstr(error), filepath, text );
+	delete[] filepath;
 }
 
-#if 0
-cstr file_error::what() const throw()
+cstr file_error::what() const noexcept
 {
-	static cstr typelist[16] = {0/*UNKN*/,"Pipe","Ser",0,"Dir",0,"Blk",0,"File",0,"Link",0,"Socket",0,"Erased file",0};
-
-	struct stat data;
-	cstr typestr = nullptr;
-	if(_fd!=-1 && fstat(_fd, &data)==0) typestr = typelist[data.st_mode>>12];
-
-	cstr msg = any_error::what();
-
-	if(typestr)
-		 return file ? usingstr("%s %s: %s",typestr,file,msg) : usingstr("%s %i: %s",typestr,_fd,msg);
-	else return file ? usingstr("File %s: %s",file,msg) : _fd!=-1 ? usingstr("File %i: %s",_fd,msg) : msg;
+	if(text) return usingstr("%s in file \"%s\" (%s)",errorstr(error),filepath,text);
+	else	 return usingstr("%s in file \"%s\"",     errorstr(error),filepath);
 }
-#endif
+
 
 
 

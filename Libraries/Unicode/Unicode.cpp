@@ -29,8 +29,6 @@
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define LOG	 1
-#define SAFE 3
 static_assert(1,"");
 
 #include "kio/kio.h"
@@ -42,11 +40,11 @@ static_assert(1,"");
 static const float NAN (0.0/0.0);
 #endif
 
-struct	UCS2_Short { UCS2Char Code; int16 Value; };
-struct	UCS4_Short { UCS4Char Code; int16 Value; };
+struct UCS2_Short { UCS2Char Code; int16 Value; };
+struct UCS4_Short { UCS4Char Code; int32 Value; };  // int32 instead of int16 wg. alignment
 
-struct	UCS2Range_Short { UCS2Char StartCode; UCS2Char EndCode; int16 Value; };
-struct	UCS4Range_Short { UCS4Char StartCode; UCS4Char EndCode; int16 Value; };
+struct UCS2Range_Short { UCS2Char StartCode; UCS2Char EndCode; int16 Value; };
+struct UCS4Range_Short { UCS4Char StartCode; UCS4Char EndCode; int32 Value; };  // int32 wg. alignment
 
 
 /*	UP: retrieve PropertyValue from UCS2 Character Table
@@ -55,7 +53,7 @@ struct	UCS4Range_Short { UCS4Char StartCode; UCS4Char EndCode; int16 Value; };
 inline U_PropertyValue UCS2_GetPropertyValue ( UCS2Char n, UCS2_Short const* Table, int e )
 {
 	int a=0; do { int i=(a+e)/2; if( n<Table[i].Code ) e=i; else a=i; } while (a<e-1);
-	return (U_PropertyValue)Table[a].Value;
+	return U_PropertyValue(Table[a].Value);
 }
 
 /*	UP: retrieve PropertyValue from UCS4 Character Table
@@ -64,7 +62,7 @@ inline U_PropertyValue UCS2_GetPropertyValue ( UCS2Char n, UCS2_Short const* Tab
 inline U_PropertyValue UCS4_GetPropertyValue ( UCS4Char n, UCS4_Short const* Table, int e )
 {
 	int a=0; do { int i=(a+e)/2; if( n<Table[i].Code ) e=i; else a=i; } while (a<e-1);
-	return (U_PropertyValue)Table[a].Value;
+	return U_PropertyValue(Table[a].Value);
 }
 
 
@@ -98,21 +96,21 @@ U_PropertyValue UCS1CharEAWidthProperty ( UCS1Char n )
 {
 	if (n<0xa1) return uchar_in_range(0x20,n,0x7e) ? U_ea_na : U_ea_n;
 	int i = UCS2_FindEAIndex(n,U_EA_UCS1);
-	return n <= UCS2_EA_Table[i].EndCode ? (U_PropertyValue)UCS2_EA_Table[i].Value : U_ea_n;
+	return n <= UCS2_EA_Table[i].EndCode ? U_PropertyValue(UCS2_EA_Table[i].Value) : U_ea_n;
 }
 
 U_PropertyValue UCS2CharEAWidthProperty ( UCS2Char n )
 {
 	if (n<0xa1) return uchar_in_range(0x20,n,0x7e) ? U_ea_na : U_ea_n;
 	int i = UCS2_FindEAIndex(n,U_EA_UCS2);
-	return n <= UCS2_EA_Table[i].EndCode ? (U_PropertyValue)UCS2_EA_Table[i].Value : U_ea_n;
+	return n <= UCS2_EA_Table[i].EndCode ? U_PropertyValue(UCS2_EA_Table[i].Value) : U_ea_n;
 }
 
 U_PropertyValue UCS4CharEAWidthProperty ( UCS4Char n )
 {
-	if (!(n>>16)) return UCS2CharEAWidthProperty(n); if (n<U_EA_UCS4_START) return U_ea_n;
+	if (!(n>>16)) return UCS2CharEAWidthProperty(UCS2Char(n)); if (n<U_EA_UCS4_START) return U_ea_n;
 	int i = UCS4_FindEAIndex(n,U_EA_UCS4);
-	return n <= UCS4_EA_Table[i].EndCode ? (U_PropertyValue)UCS4_EA_Table[i].Value : U_ea_n;
+	return n <= UCS4_EA_Table[i].EndCode ? U_PropertyValue(UCS4_EA_Table[i].Value) : U_ea_n;
 }
 
 
@@ -142,7 +140,7 @@ U_PropertyValue UCS4CharEAWidthProperty ( UCS4Char n )
 
 						http://www.unicode.org/reports/tr11/tr11-14.html
 */
-int UCS4CharPrintWidth ( UCS4Char n )
+uint UCS4CharPrintWidth ( UCS4Char n )
 {
 	U_PropertyValue w = UCS4CharEAWidthProperty(n); if (w!=U_ea_n) return w==U_ea_w || w==U_ea_f ? 2 : 1;
 
@@ -173,8 +171,15 @@ int UCS4CharPrintWidth ( UCS4Char n )
 static UCS4_Short const Blocks[U_BLOCKS_UCS4] =
 #include "Includes/Blocks.h"
 
-U_PropertyValue	UCS2CharBlockProperty ( UCS2Char n )	{ return UCS4_GetPropertyValue( n, Blocks, U_BLOCKS_UCS2 ); }
-U_PropertyValue	UCS4CharBlockProperty ( UCS4Char n )	{ return UCS4_GetPropertyValue( n, Blocks, U_BLOCKS_UCS4 ); }
+U_PropertyValue	UCS2CharBlockProperty ( UCS2Char n )
+{
+	return UCS4_GetPropertyValue( n, Blocks, U_BLOCKS_UCS2 );
+}
+
+U_PropertyValue	UCS4CharBlockProperty ( UCS4Char n )
+{
+	return UCS4_GetPropertyValue( n, Blocks, U_BLOCKS_UCS4 );
+}
 
 
 
@@ -193,10 +198,21 @@ static UCS4_Short const UCS4_Scripts[U_SCRIPTS_UCS4] =
 #include "Includes/Scripts_UCS4.h"
 
 
-U_PropertyValue UCS1CharScriptProperty ( UCS1Char n )	{ return UCS2_GetPropertyValue( n, UCS2_Scripts, U_SCRIPTS_UCS1 ); }
-U_PropertyValue UCS2CharScriptProperty ( UCS2Char n )	{ return UCS2_GetPropertyValue( n, UCS2_Scripts, n>>8 ? U_SCRIPTS_UCS2 : U_SCRIPTS_UCS1 ); }
-U_PropertyValue UCS4CharScriptProperty ( UCS4Char n )	{ return n>>16 ? UCS4_GetPropertyValue( n, UCS4_Scripts, U_SCRIPTS_UCS4 )
-																	   : UCS2_GetPropertyValue( n, UCS2_Scripts, U_SCRIPTS_UCS2 ); }
+U_PropertyValue UCS1CharScriptProperty ( UCS1Char n )
+{
+	return UCS2_GetPropertyValue( n, UCS2_Scripts, U_SCRIPTS_UCS1 );
+}
+
+U_PropertyValue UCS2CharScriptProperty ( UCS2Char n )
+{
+	return UCS2_GetPropertyValue( n, UCS2_Scripts, n>>8 ? U_SCRIPTS_UCS2 : U_SCRIPTS_UCS1 );
+}
+
+U_PropertyValue UCS4CharScriptProperty ( UCS4Char n )
+{
+	return n>>16 ? UCS4_GetPropertyValue( n, UCS4_Scripts, U_SCRIPTS_UCS4 )
+	: UCS2_GetPropertyValue( UCS2Char(n), UCS2_Scripts, U_SCRIPTS_UCS2 );
+}
 
 
 
@@ -216,11 +232,20 @@ static UCS2_Short const UCS2_Ccc[U_CCC_UCS2] =
 static UCS4_Short const UCS4_Ccc[U_CCC_UCS4] =
 #include "Includes/CanonicalCombiningClassUCS4.h"
 
-U_PropertyValue	UCS2CharCccProperty ( UCS2Char n )	{ return n<U_CCC_UCS2_START ? U_ccc_0 : UCS2_GetPropertyValue( n, UCS2_Ccc, U_CCC_UCS2 ); }
+U_PropertyValue	UCS2CharCccProperty ( UCS2Char n )
+{
+	return n<U_CCC_UCS2_START ? U_ccc_0 : UCS2_GetPropertyValue( n, UCS2_Ccc, U_CCC_UCS2 );
+}
+
 U_PropertyValue	UCS4CharCccProperty ( UCS4Char n )
 {
-	return n>>16 ? n<U_CCC_UCS4_START||n>=U_CCC_UCS4_END ? U_ccc_defaultvalue : UCS4_GetPropertyValue( n, UCS4_Ccc, U_CCC_UCS4 )
-				 : n<U_CCC_UCS2_START||n>=U_CCC_UCS2_END ? U_ccc_defaultvalue : UCS2_GetPropertyValue( n, UCS2_Ccc, U_CCC_UCS2 );
+	return n>>16 ?
+		n<U_CCC_UCS4_START || n>=U_CCC_UCS4_END ?
+			U_ccc_defaultvalue
+			: UCS4_GetPropertyValue( n, UCS4_Ccc, U_CCC_UCS4 )
+		: n<U_CCC_UCS2_START || n>=U_CCC_UCS2_END ?
+			U_ccc_defaultvalue
+			: UCS2_GetPropertyValue( UCS2Char(n), UCS2_Ccc, U_CCC_UCS2 );
 }
 
 
@@ -246,19 +271,24 @@ static UCS4_Short const UCS4_GC_Table[U_GC_UCS4] =
 #include "Includes/GeneralCategory_UCS4.h"
 
 
-U_PropertyValue	UCS1CharGeneralCategory ( UCS1Char n )		{ return UCS2_GetPropertyValue( n, UCS2_GC_Table, U_GC_UCS1 ); }
+U_PropertyValue	UCS1CharGeneralCategory ( UCS1Char n )
+{
+	return UCS2_GetPropertyValue( n, UCS2_GC_Table, U_GC_UCS1 );
+}
+
 U_PropertyValue	UCS2CharGeneralCategory ( UCS2Char n )
 {
 	if (!(n>>8)) return UCS2_GetPropertyValue( n, UCS2_GC_Table, U_GC_UCS1 );
 	U_PropertyValue v = UCS2_GetPropertyValue( n, UCS2_GC_Table, U_GC_UCS2 );
-	return (signed char)v>=0 ? v : (signed char)v==U_gc_luello&&n&1 ? U_gc_ll : U_gc_lu;
+	return int8(v) >= 0 ? v : int8(v) == U_gc_luello && n&1 ? U_gc_ll : U_gc_lu;
 }
+
 U_PropertyValue	UCS4CharGeneralCategory ( UCS4Char n )
 {
-	if (!(n>>8)) return UCS2_GetPropertyValue( n, UCS2_GC_Table, U_GC_UCS1 );
+	if (!(n>>8)) return UCS2_GetPropertyValue( UCS2Char(n), UCS2_GC_Table, U_GC_UCS1 );
 	if ( n>>16 ) return UCS4_GetPropertyValue( n, UCS4_GC_Table, U_GC_UCS4 );
-	U_PropertyValue v = UCS2_GetPropertyValue( n, UCS2_GC_Table, U_GC_UCS2 );
-	return (signed char)v>=0 ? v : (signed char)v==U_gc_luello&&n&1 ? U_gc_ll : U_gc_lu;
+	U_PropertyValue v = UCS2_GetPropertyValue( UCS2Char(n), UCS2_GC_Table, U_GC_UCS2 );
+	return int8(v) >= 0 ? v : int8(v) == U_gc_luello && n&1 ? U_gc_ll : U_gc_lu;
 }
 
 
@@ -301,8 +331,8 @@ static UCS4_Short const UCS4_SLC_Table[] =
 #define N4(C)	C,C+1,C+2,C+3
 #define N7(C)	N4(C),N3(C+4)
 #define N8(C)	N4(C),N4(C+4)
-#define N16(C)	N8(C),N8(C+4)
-#define N32(C)	N16(C),N16(C+4)
+#define N16(C)	N8(C),N8(C+8)
+#define N32(C)	N16(C),N16(C+16)
 UCS1Char const UCS1_SUC_Table[0x100] = {
 	N32(0), N32(0x20), N32(0x40),
 	0x60, N7(0x41), N8(0x48),
@@ -328,21 +358,36 @@ inline UCS4Char ucs4_simple_uc ( UCS4Char n )
 #if U_SUC_UCS4 != 3
 {	return n + UCS4_GetPropertyValue( n, UCS4_SUC_Table, U_SUC_UCS4 ); }
 #else
-{	return uint32(n-U_SUC_UCS4_START) < uint32(U_SUC_UCS4_END-U_SUC_UCS4_START) ? n-40 : n; }
+{	return ulong(n-U_SUC_UCS4_START) < ulong(U_SUC_UCS4_END-U_SUC_UCS4_START) ? n-40 : n; }
 #endif
 
 inline UCS4Char ucs4_simple_lc ( UCS4Char n )
 #if U_SLC_UCS4 != 3
 {	return n + UCS4_GetPropertyValue( n, UCS4_SLC_Table, U_SLC_UCS4 ); }
 #else
-{	return uint32(n-U_SLC_UCS4_START) < uint32(U_SLC_UCS4_END-U_SLC_UCS4_START) ? n+40 : n; }
+{	return ulong(n-U_SLC_UCS4_START) < ulong(U_SLC_UCS4_END-U_SLC_UCS4_START) ? n+40 : n; }
 #endif
 
 
-UCS2Char ucs2_simple_uppercase ( UCS2Char n )	{ return ucs2_simple_uc(n); }
-UCS4Char ucs4_simple_uppercase ( UCS4Char n )	{ return n>>16 ? ucs4_simple_uc(n) : ucs2_simple_uc(n); }
-UCS2Char ucs2_simple_lowercase ( UCS2Char n )	{ return ucs2_simple_lc(n); }
-UCS4Char ucs4_simple_lowercase ( UCS4Char n )	{ return n>>16 ? ucs4_simple_lc(n) : ucs2_simple_lc(n); }
+UCS2Char ucs2_simple_uppercase ( UCS2Char n )
+{
+	return ucs2_simple_uc(n);
+}
+
+UCS4Char ucs4_simple_uppercase ( UCS4Char n )
+{
+	return n>>16 ? ucs4_simple_uc(n) : ucs2_simple_uc(UCS2Char(n));
+}
+
+UCS2Char ucs2_simple_lowercase ( UCS2Char n )
+{
+	return ucs2_simple_lc(n);
+}
+
+UCS4Char ucs4_simple_lowercase ( UCS4Char n )
+{
+	return n>>16 ? ucs4_simple_lc(n) : ucs2_simple_lc(UCS2Char(n));
+}
 
 UCS2Char ucs2_simple_titlecase ( UCS2Char n )
 {
@@ -362,7 +407,7 @@ UCS2Char ucs2_simple_titlecase ( UCS2Char n )
 UCS4Char ucs4_simple_titlecase ( UCS4Char n )
 {
 	return n>>16 ? ucs4_simple_uc(n)				// solange es keine TC im UCS4-Bereich gibt ((wird im Script geprüft))
-				 : ucs2_simple_titlecase(n);
+				 : ucs2_simple_titlecase(UCS2Char(n));
 }
 
 
@@ -375,8 +420,8 @@ UCS4Char ucs4_simple_titlecase ( UCS4Char n )
 	Count>1								->	Value[i] = (BBBBBBBB+i) * 10eEEEE / DDDD
 */
 
-struct UCS2_NumVal { UCS2Char StartCode; uchar GeneralCategory; uchar Count; int16 CodedValue; };
-struct UCS4_NumVal { UCS4Char StartCode; uchar GeneralCategory; uchar Count; int16 CodedValue; };
+struct UCS2_NumVal { UCS2Char StartCode; uchar GeneralCategory; uchar Count; uint16 CodedValue; };
+struct UCS4_NumVal { UCS4Char StartCode; uchar GeneralCategory; uchar Count; uint16 CodedValue; };
 
 static UCS2_NumVal const UCS2_NumVal_Table[U_NUMERIC_UCS2] =
 #include "Includes/NumericValue.h"
@@ -385,12 +430,15 @@ static UCS4_NumVal const UCS4_NumVal_Table[U_NUMERIC_UCS4] =
 #include "Includes/NumericValue_UCS4.h"
 
 
-inline int UCS2_GetNumValIndex ( UCS2Char n, int e )
-{	int a=0; do { int i=(a+e)/2; if( n<UCS2_NumVal_Table[i].StartCode ) e=i; else a=i; } while (a<e-1);
+inline uint UCS2_GetNumValIndex ( UCS2Char n, uint e )
+{
+	uint a=0; do { uint i=(a+e)/2; if( n<UCS2_NumVal_Table[i].StartCode ) e=i; else a=i; } while (a+1<e);
 	return a;
 }
-inline int UCS4_GetNumValIndex ( UCS4Char n, int e )
-{	int a=0; do { int i=(a+e)/2; if( n<UCS4_NumVal_Table[i].StartCode ) e=i; else a=i; } while (a<e-1);
+
+inline uint UCS4_GetNumValIndex ( UCS4Char n, uint e )
+{
+	uint a=0; do { uint i=(a+e)/2; if( n<UCS4_NumVal_Table[i].StartCode ) e=i; else a=i; } while (a+1<e);
 	return a;
 }
 
@@ -399,18 +447,18 @@ inline int UCS4_GetNumValIndex ( UCS4Char n, int e )
 	Nur für Dezimalziffern gedacht: GC=Nd. No Checking.
 	Non-Digits, auch GC=No und Nl, resultieren idR. in sinnlosen Rückgabewerten.
 */
-int ucs2_get_digitvalue ( UCS2Char n )
+uint ucs2_get_digitvalue ( UCS2Char n )
 {
-	int i = UCS2_GetNumValIndex( n, U_NUMERIC_UCS2 );
-	int d = n - UCS2_NumVal_Table[i].StartCode;
+	uint i = UCS2_GetNumValIndex( n, U_NUMERIC_UCS2 );
+	uint d = n - UCS2_NumVal_Table[i].StartCode;
 	return (UCS2_NumVal_Table[i].CodedValue>>8) + d;
 }
 
-int ucs4_get_digitvalue ( UCS4Char n )
+uint ucs4_get_digitvalue( UCS4Char n )
 {
-	if(!(n>>16)) return ucs2_get_digitvalue((UCS2Char)n);
-	int i = UCS4_GetNumValIndex( n, U_NUMERIC_UCS4 );
-	int d = n - UCS4_NumVal_Table[i].StartCode;
+	if(!(n>>16)) return ucs2_get_digitvalue(UCS2Char(n));
+	uint i = UCS4_GetNumValIndex( n, U_NUMERIC_UCS4 );
+	uint d = n - UCS4_NumVal_Table[i].StartCode;
 	return (UCS4_NumVal_Table[i].CodedValue>>8) + d;
 }
 
@@ -422,28 +470,40 @@ int ucs4_get_digitvalue ( UCS4Char n )
 		  0x2183 = ROMAN NUMERAL REVERSED ONE HUNDRED
 		  beide haben CodedValue = 0x0000 und Count=1
 		  => decoded_value() wird NaN zurückgeben
+	note: there is one negative value:
+		  TIBETAN DIGIT HALF ZERO {0x0F33, U_gc_no, 1,  0xFF02}
+		  which equals -0.5
 */
 static int const dec[] = { 1,10,100,1000,10000 };
-inline float decoded_value ( int coded_value, int offset )
+
+inline float decoded_value ( uint coded_value, uint offset )
 {
-	int D = coded_value&0x0F, N = coded_value>>8, E = uchar(coded_value)>>4;
-	return (N+offset) * dec[E] / float(D);
+	int N = int8(coded_value >> 8);
+	float rval = N + int(offset);
+
+	uint E = coded_value & 0x00F0;
+	if (E!=0) rval *= dec[E>>4];
+
+	uint D = coded_value & 0x000F;
+	if (D!=1) rval /= D;
+
+	return rval;
 }
 
 float ucs2_get_numericvalue ( UCS2Char n )		// returns Value or NaN
 {
-	int i = UCS2_GetNumValIndex( n, U_NUMERIC_UCS2 );
-	int d = n - UCS2_NumVal_Table[i].StartCode;
-	if( d >= (int)UCS2_NumVal_Table[i].Count ) return NAN;
+	uint i = UCS2_GetNumValIndex( n, U_NUMERIC_UCS2 );
+	uint d = n - UCS2_NumVal_Table[i].StartCode;
+	if (d >= UCS2_NumVal_Table[i].Count) return NAN;
 	return decoded_value(UCS2_NumVal_Table[i].CodedValue,d);
 }
 
 float ucs4_get_numericvalue ( UCS4Char n )		// returns Value or NaN
 {
-	if(!(n>>16)) return ucs2_get_numericvalue((UCS2Char)n);
-	int i = UCS4_GetNumValIndex( n, U_NUMERIC_UCS4 );
-	int d = n - UCS4_NumVal_Table[i].StartCode;
-	if( d >= (int)UCS4_NumVal_Table[i].Count ) return NAN;
+	if (!(n>>16)) return ucs2_get_numericvalue(UCS2Char(n));
+	uint i = UCS4_GetNumValIndex( n, U_NUMERIC_UCS4 );
+	uint d = n - UCS4_NumVal_Table[i].StartCode;
+	if (d >= UCS4_NumVal_Table[i].Count) return NAN;
 	return decoded_value(UCS4_NumVal_Table[i].CodedValue,d);
 }
 

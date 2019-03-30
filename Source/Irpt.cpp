@@ -98,7 +98,7 @@ void Irpt::AsyncTrigger ( int n )
 	}
 
 // if we come here the interrupt is lost
-	LogLine( "Irpt::AsyncTrigger(): too many interrupts pending" );
+	logline( "Irpt::AsyncTrigger(): too many interrupts pending" );
 }
 
 

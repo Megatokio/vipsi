@@ -1,6 +1,6 @@
 
 // Code Point UCS2 -> Numeric Value
-// struct { UCS2Char StartCode, uchar GeneralCategory, uchar Count, int16 CodedValue };
+// struct { UCS2Char StartCode, uchar GeneralCategory, uchar Count, signed short CodedValue };
 // CodedValue = %BBBB.BBBB.EEEE.DDDD
 // -> Value = BBBBBBBB * 10eEEEE / DDDD
 // CodedValue == 0 -> NaN (kommt 2x vor)
@@ -41,7 +41,7 @@
 {0x0F30, U_gc_no, 1,  0x0D02},
 {0x0F31, U_gc_no, 1,  0x0F02},
 {0x0F32, U_gc_no, 1,  0x1102},
-{0x0F33, U_gc_no, 1,  static_cast<int16>(0xFF02)},
+{0x0F33, U_gc_no, 1,  0xFF02},
 {0x1040, U_gc_nd, 10, 0x0001},
 {0x1369, U_gc_no, 10, 0x0101},
 {0x1373, U_gc_no, 9,  0x0211},

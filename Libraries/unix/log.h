@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 1999 - 2019
 					mailto:kio@little-bat.de
 
@@ -36,22 +37,27 @@
 
 */
 
-; // don't ask why...
 
-#ifndef _log_h_
-#define _log_h_
+//	–––––––––––––––––––––––––––––––––––––––––––––––––––
+//	Logfile:
+//	–––––––––––––––––––––––––––––––––––––––––––––––––––
 
 #include "kio/kio.h"
+#ifndef LOGFILE
+#error define LOGFILE in settings.h if you include log.h/log.cpp
+// else don't include log.h/log.cpp and logging will be done in kio.cpp
+#endif
 
 
-// get current time:
-extern double	now();
+// the following #defines can be set in settings.h:
+//   #define LOGFILE_ROTATION				default: NEVER
+//   #define LOGFILE_TIMESTAMP_WITH_DATE  	default: (LOGFILE_ROTATION != DAILY)
+//   #define LOGFILE_TIMESTAMP_WITH_MSEC 	default: yes
+//   #define LOGFILE_LOG_TO_CONSOLE			default: NDEBUG ? no : yes
+//   #define LOGFILE_MAX_LOGFILES			default: 10
+//   #define LOGFILE_BASE_DIRECTORY			default: "/var/log/"
+//   #define LOGFILE_AUX_DIRECTORY			default: "/tmp/"
 
-
-
-//	–––––––––––––––––––––––––––––––––––––––––––––––––––
-//	Logging:
-//	–––––––––––––––––––––––––––––––––––––––––––––––––––
 
 enum LogRotation { NEVER,DAILY,WEEKLY,MONTHLY };	// value for uint logrotate in openLogfile(..)
 extern bool log2console;                            // write access allowed. default: log to console = true.
@@ -65,87 +71,8 @@ extern bool timestamp_with_msec;					// typically set by openLogfile(…); defau
 extern void openLogfile(cstr dirpath, LogRotation, uint max_logfiles, bool log2console, bool with_date, bool with_msec);
 extern void openLogfile(cstr dirpath, LogRotation, uint max_logfiles, bool log2console);
 
-// log to stderr and/or logfile:
-//
-extern void LogLine ( cstr format, ... );			// log line with timestamp etc.
-extern void Log 	( cstr format, ... );			// incrementally build log string, requires a final LogNL()
-extern void LogNL 	( );							// finalize incremental log string or log an empty line
-#define logline LogLine
 
 
-// indented logging for the lifetime of a function:
-//
-struct LogIndent
-{
-	LogIndent	(cstr format, ...);
-	~LogIndent	();
-};
-
-#define LogIn	LogIndent _z_log_ident				// usage:  LogIn("format/message", ...)
-
-
-
-//	–––––––––––––––––––––––––––––––––––––––––––––––––––
-//	Conditional Versions:
-//	–––––––––––––––––––––––––––––––––––––––––––––––––––
-
-#define	XLOG		(LOG>=1)
-#define	XXLOG		(LOG>=2)
-#define	XXXLOG		(LOG>=3)
-#define	XXXXLOG		(LOG>=4)
-
-#define	XLogNL		if( LOG<1 )	{} else LogNL
-#define	XXLogNL		if( LOG<2 )	{} else LogNL
-#define	XXXLogNL	if( LOG<3 )	{} else LogNL
-#define	XXXXLogNL	if( LOG<4 )	{} else LogNL
-
-#define	XLog		if( LOG<1 )	{} else Log
-#define	xlog		if( LOG<1 )	{} else Log
-#define	XXLog		if( LOG<2 )	{} else Log
-#define	xxlog		if( LOG<2 )	{} else Log
-#define	XXXLog		if( LOG<3 )	{} else Log
-#define	XXXXLog		if( LOG<4 )	{} else Log
-
-#define	XLogLine    if( LOG<1 )	{} else LogLine
-#define	xlogline    if( LOG<1 )	{} else LogLine
-#define	XXLogLine	if( LOG<2 )	{} else LogLine
-#define	xxlogline	if( LOG<2 )	{} else LogLine
-#define	XXXLogLine	if( LOG<3 )	{} else LogLine
-#define	XXXXLogLine	if( LOG<4 )	{} else LogLine
-
-
-#if XLOG
-#define XLogIn		LogIn
-#define xlogIn		LogIn
-#else
-#define XLogIn		XLog
-#define xlogIn		XLog
-#endif
-
-#if XXLOG
-#define XXLogIn		LogIn
-#define xxlogIn		LogIn
-#else
-#define XXLogIn		XXLog
-#define xxlogIn		XXLog
-#endif
-
-#if XXXLOG
-#define XXXLogIn	LogIn
-#else
-#define XXXLogIn	XXXLog
-#endif
-
-#if XXXXLOG
-#define XXXXLogIn	LogIn
-#else
-#define XXXXLogIn	XXXXLog
-#endif
-
-
-
-
-#endif
 
 
 

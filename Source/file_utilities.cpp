@@ -49,7 +49,7 @@
 #include	<termios.h>
 #include	<new>
 #include	"file_utilities.h"
-//#include "errors.h"
+#include "errors.h"
 INIT_MSG
 
 
@@ -478,9 +478,9 @@ cstr FullPath( cstr path, bool follow_symlink )
 					str latin1path = new char[l_end-lpath];
 					memcpy(latin1path,lpath,k1-lpath);
 					strcpy(latin1path+(k1-lpath),k2);
-					errno=ok;
+					errno = noerror;
 					lstat(latin1path,&statdata);
-					if (NoError())	// success! => latin1 übernehmen
+					if (errno == noerror)	// success! => latin1 übernehmen
 					{				// copy text & update l_end
 						for( l_end=k1; *k2; ) { *l_end++ = *k2++; }
 					}
@@ -753,7 +753,7 @@ int/*err*/ close_file ( nothrow_t, int fd ) throw()
 int open_file ( cstr path, int flags, int mode ) noexcept(false)
 {
 	int fd = open_file( nothrow, path, flags, mode );
-	if(fd!=-1) return fd; else throw(file_error(path,fd,errno));
+	if(fd!=-1) return fd; else throw(file_error(path,errno));
 }
 
 int open_file_r ( cstr path )				noexcept(false)	{ return open_file(path,O_RDONLY); }
@@ -770,7 +770,7 @@ off_t clip_file ( int fd ) noexcept(false)
 {
 	errno=ok;							// clear errno and custom_error
 	off_t fpos = lseek( fd, 0, SEEK_CUR );
-	if( fpos<0 || ftruncate( fd, fpos )!=0 ) throw file_error("(unkn.)",fd,errno);
+	if( fpos<0 || ftruncate( fd, fpos )!=0 ) throw file_error("(unkn.)",errno);
 	errno = ok; return fpos;
 }
 
@@ -786,7 +786,7 @@ void close_file ( int fd ) noexcept(false)
 	{ if( close(fd)==0 ) { errno=noerror; return; }
 	} while (errno==EINTR);					// slow device only
 
-	throw file_error("(unkn.)",fd,errno);
+	throw file_error("(unkn.)",errno);
 }
 
 
@@ -803,7 +803,7 @@ void clip_and_close ( int fd ) noexcept(false)
 off_t seek_fpos( int fd, off_t fpos, int whence ) noexcept(false)
 {
 	fpos = lseek( fd, fpos, whence );
-	if( fpos==-1 ) throw file_error("(unkn.)",fd,errno);
+	if( fpos==-1 ) throw file_error("(unkn.)",errno);
 	return fpos;
 }
 
@@ -818,7 +818,7 @@ r:	uint32 n = read( fd, p, m );
 	if (n<m)	{ p+=n; m-=n; goto r; }		// n<m  <=>  n!=-1
 	if (errno==EINTR) goto r;				// slow device only
 //	if (errno==EAGAIN) goto r;				// non-blocking dev only
-	throw file_error("(unkn.)",fd,errno);
+	throw file_error("(unkn.)",errno);
 }
 
 
@@ -831,7 +831,7 @@ w:	uint32 n = write( fd, p, m );
 	if (n<m)	{ p+=n; m-=n; goto w; }		// n<m  <=>  n!=-1
 	if (errno==EINTR) goto w;				// slow device only
 //	if (errno==EAGAIN) goto w;				// non-blocking dev only
-	throw file_error("(unkn.)",fd,errno);
+	throw file_error("(unkn.)",errno);
 }
 
 
@@ -1052,7 +1052,7 @@ off_t file_size ( int fd ) noexcept(false)
 {
 	struct stat fs;
 	//if( fd<0 ) throw(file_error(EBADF));
-	if( fstat(fd,&fs) ) throw(file_error("(unkn.)",fd,errno));
+	if( fstat(fd,&fs) ) throw(file_error("(unkn.)",errno));
 	return fs.st_size;
 }
 

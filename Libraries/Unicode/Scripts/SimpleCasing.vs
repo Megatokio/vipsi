@@ -1,4 +1,4 @@
-#!/usr/bin/vipsi
+#!/usr/local/bin/vipsi
 
 var Sources = { "UnicodeData.txt" }
 var Targets = { "SimpleUppercase_UCS4.h", "SimpleTitlecase.h", "SimpleLowercase_Even.h", "SimpleUppercase_Even.h",

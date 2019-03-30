@@ -1,4 +1,5 @@
-/*	Copyright  (c)	Günter Woigk 1995 - 2015
+#pragma once
+/*	Copyright  (c)	Günter Woigk 1995 - 2019
   					mailto:kio@little-bat.de
 
 	This file is free software
@@ -28,10 +29,6 @@
 	OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-
-#ifndef _count1bits_h_
-#define _count1bits_h_
 
 #include "kio/kio.h"
 
@@ -120,7 +117,7 @@ INL uint32 count1bitsR( cu8ptr p, uint32 bits )
 
 
 
-#endif
+
 
 
 

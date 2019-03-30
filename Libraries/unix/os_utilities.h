@@ -1,3 +1,4 @@
+#pragma once
 /*	Copyright  (c)	Günter Woigk 2001 - 2019
   					mailto:kio@little-bat.de
 
@@ -29,10 +30,6 @@
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef os_utilities_h
-#define	os_utilities_h
-
-
 #include	<time.h>
 #include	"kio/kio.h"
 
@@ -40,11 +37,12 @@
 /* ----	system info ----------------------
 */
 extern	cstr	hostName		();
-extern	int		numCPUs			();
+extern	uint	numCPUs			();
 extern	time_t	bootTime		();
 
 extern	void	sysLoad			(double load[3]);			// ranges: 1, 5, and 15 minutes
 extern	size_t 	memoryUsage		(bool resident = true);
+extern	double	cpuLoad			();
 
 extern	time_t	intCurrentTime	();
 extern	double	now				();		// was: floatCurrentTime
@@ -58,11 +56,11 @@ extern	cstr	getUser			( );
 extern	cstr	getEffUser		( );
 
 
-extern	str		execCmd			( /* cmd = argv[0] */ str const argv[], str const envv[]=nullptr );
-extern	str		execCmd			( cstr cmd, ... /* argv[1] ... nullptr */ );
+extern	str		execCmd			( /* cmd = argv[0] */ str const argv[], str const envv[]=NULL );
+extern	str		execCmd			( cstr cmd, ... /* argv[1] ... NULL */ );
 
 
-#endif
+
 
 
 

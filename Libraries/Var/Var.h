@@ -253,8 +253,8 @@ friend class BPObj;
 
 static Var**		pool;
 static Var*			grow_pool		( );
-static Var*			new_var			( )					{ XXXXLog("+"); Var* v = *--pool; return v ? v : grow_pool(); }
-static void			delete_var		( Var* v )			{ XXXXLog("-"); *pool++ = v; }
+static Var*			new_var			( )					{ Var* v = *--pool; return v ? v : grow_pool(); }
+static void			delete_var		( Var* v )			{ *pool++ = v; }
 
 
 // ----	private functions ------------------------------
@@ -319,9 +319,9 @@ static bool		is_unlocked			( uint32 lock )		{ return lock          <  var_lock_b
 	void		kill_link_nop 	( )						{ /* parent==0 or parent->list().array is mangled manually */ }
 	bool		is_linked		( )						{ return parent!=nullptr; }
 	bool		is_unlinked		( )						{ return parent==nullptr; }
-	void		link			( Var* par, uint idx )	{ XXXASSERT(!is_linked()); kill_link_nop(); init_link(par,idx); lock(); }
-	void		unlink			( )						{ XXXASSERT(!is_unlinked()); kill_link(); init_link(); unlock(); }
-	void		relink			( Var* par, uint idx )	{ XXXASSERT(!is_unlinked()); kill_link(); init_link(par,idx); }
+	void		link			( Var* par, uint idx )	{ xxassert(!is_linked()); kill_link_nop(); init_link(par,idx); lock(); }
+	void		unlink			( )						{ xxassert(!is_unlinked()); kill_link(); init_link(); unlock(); }
+	void		relink			( Var* par, uint idx )	{ xxassert(!is_unlinked()); kill_link(); init_link(par,idx); }
 
 // access data:
 	Double&		value			( )						{ return double_value; }
@@ -429,16 +429,16 @@ public:
 	#define		Validate()		validate(__FILE__,__LINE__)
 
 	void*		operator new	( size_t )			{ return new_var(); }
-	void		operator delete	( void* p, size_t )	{ XXASSERT(!(static_cast<Var*>(p))->is_locked()); delete_var(static_cast<Var*>(p)); }
+	void		operator delete	( void* p, size_t )	{ xassert(!(static_cast<Var*>(p))->is_locked()); delete_var(static_cast<Var*>(p)); }
 	void*		operator new	( size_t, void* p )	{ return p; }
 
-				~Var			( )							{ XXXLogIn("~Var()"); XXASSERT(!is_locked()); kill_data(); kill_link_nop(); kill_name(); }
+				~Var			( )							{ xxlogIn("~Var()"); xassert(!is_locked()); kill_data(); kill_link_nop(); kill_name(); }
 				Var				( )							{ init_name(); init_link(); init_data_and_lock(); }
 
 				Var				( vtype );
 				Var				( Double value );
 				Var				( cString& text );
-				Var				( cVar& q )					{ XXXLogIn("Var(Var)"); init_name(); init_link(); init_data_and_lock(q); }
+				Var				( cVar& q )					{ xxlogIn("Var(Var)"); init_name(); init_link(); init_data_and_lock(q); }
 
 				Var				( vtype v,  NameHandle );
 				Var				( Double n, NameHandle );
@@ -571,23 +571,23 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	void		SetName			( cstr newname )		{ set_name(newname); }
 	void		SetName			( NameHandle newname )	{ set_name(newname); }
 
-	cDouble&	Value			( )	const				{ XXASSERT(IsNumber()); return value(); }
-	Double&		Value			( )						{ XXASSERT(IsNumber()); return value(); }
+	cDouble&	Value			( )	const				{ xassert(IsNumber()); return value(); }
+	Double&		Value			( )						{ xassert(IsNumber()); return value(); }
 	int32		LongValue		( )	const				{ return int32(Value()); }
 	int64		LLongValue		( )	const				{ return int64(Value()); }
 
-	String&		Text			( )						{ XXASSERT(IsText());   return text(); }
-	cString&	Text			( ) const				{ XXASSERT(IsText());   return text(); }
-	ptr			TextAddr		( )						{ XXASSERT(IsText());   return text().Text(); }
-	UCS1Char*	Ucs1Addr		( )						{ XXASSERT(IsText());   return text().Ucs1(); }
-	UCS2Char*	Ucs2Addr		( )						{ XXASSERT(IsText());   return text().Ucs2(); }
-	UCS4Char*	Ucs4Addr		( )						{ XXASSERT(IsText());   return text().Ucs4(); }
-	uint		TextLen			( )						{ XXASSERT(IsText());   return text().Len(); }
+	String&		Text			( )						{ xassert(IsText());   return text(); }
+	cString&	Text			( ) const				{ xassert(IsText());   return text(); }
+	ptr			TextAddr		( )						{ xassert(IsText());   return text().Text(); }
+	UCS1Char*	Ucs1Addr		( )						{ xassert(IsText());   return text().Ucs1(); }
+	UCS2Char*	Ucs2Addr		( )						{ xassert(IsText());   return text().Ucs2(); }
+	UCS4Char*	Ucs4Addr		( )						{ xassert(IsText());   return text().Ucs4(); }
+	uint		TextLen			( )						{ xassert(IsText());   return text().Len(); }
 
-	Proc&		GetProc			( )						{ XXASSERT(IsProc());   return proc(); }
-	cProc&		GetProc			( ) const				{ XXASSERT(IsProc());   return proc(); }
-	uptr		ProcStart		( )						{ XXASSERT(IsProc());   return proc().ip; }
-	Var*		ProcBundle		( )						{ XXASSERT(IsProc());   return proc().bundle; }
+	Proc&		GetProc			( )						{ xassert(IsProc());   return proc(); }
+	cProc&		GetProc			( ) const				{ xassert(IsProc());   return proc(); }
+	uptr		ProcStart		( )						{ xassert(IsProc());   return proc().ip; }
+	Var*		ProcBundle		( )						{ xassert(IsProc());   return proc().bundle; }
 	Var&		ProcBundle		( uint i )				{ return (*ProcBundle())[i]; }
 	Var**		ProcConstants	( )						{ return ProcBundle(bundle_constants).List().array; }
 	cString&	ProcSourcefile	( )						{ return ProcBundle(bundle_sourcefile).Text(); }
@@ -598,15 +598,15 @@ explicit		Var				( Stream* s )			{ init_name(); init_link(); init_data_and_lock(
 	cString&	ProcCore		( )						{ return ProcBundle(bundle_core).Text(); }
 	uptr		ProcCoreBase	( )						{ return ProcBundle(bundle_core).Text().UCS1Text(); }
 
-	Var*		GetVarRef		( )						{ XXASSERT(IsVarRef());	return varptr(); }
+	Var*		GetVarRef		( )						{ xassert(IsVarRef());	return varptr(); }
 
-	Thread*		GetThread		( )						{ XXASSERT(IsThread()); return thread(); }
-	Irpt*		GetIrpt			( )						{ XXASSERT(IsIrpt()); 	return irpt(); }
-	Sema*		GetSema			( )						{ XXASSERT(IsSema()); 	return sema(); }
-	Stream*		GetStream		( )						{ XXASSERT(IsStream());	return stream(); }
+	Thread*		GetThread		( )						{ xassert(IsThread()); return thread(); }
+	Irpt*		GetIrpt			( )						{ xassert(IsIrpt()); 	return irpt(); }
+	Sema*		GetSema			( )						{ xassert(IsSema()); 	return sema(); }
+	Stream*		GetStream		( )						{ xassert(IsStream());	return stream(); }
 
-	Vek&		List			( )						{ XXASSERT(IsList());   return list(); }
-	uint		ListSize		( )						{ XXASSERT(IsList());   return list().used; }
+	Vek&		List			( )						{ xassert(IsList());   return list(); }
+	uint		ListSize		( )						{ xassert(IsList());   return list().used; }
 	Var&		operator[]		( uint i );
 	cVar&		operator[]		( uint i )  const		{ return (*const_cast<Var*>(this))[i]; }
 	Var&		LastItem		( )						{ return (*this)[list().used-1]; }
@@ -779,7 +779,7 @@ inline void		Kill		( Var*& ptr )			{ if(ptr) ptr->Unlock(); }
 
 inline			Proc::Proc	( cProc& q )			{ (bundle=q.bundle)->lock(); ip=q.ip; }
 inline			Proc::Proc	( Var* v, uptr p )		{ (bundle=v)->lock(); ip=p; }
-inline			Proc::~Proc	( )						{ if(bundle->is_not_double_locked()) Log("((purge NH in proc core))"); bundle->unlock(); }
+inline			Proc::~Proc	( )						{ if(bundle->is_not_double_locked()) logline("((purge NH in proc core))"); bundle->unlock(); }
 
 inline 	void	Proc::init	( cProc& q )			{ (bundle=q.bundle)->lock(); ip=q.ip; }
 inline 	void	Proc::init	( Var*r,uptr p )		{ (bundle=r)->lock();  ip=p;  }

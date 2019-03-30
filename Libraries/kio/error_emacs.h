@@ -30,7 +30,7 @@
 
 
 	error number and error text definitions
-	this file is included in "kio/errors.h"
+	this file is included in "kio/kio.h", "kio/kio.cpp" and "kio/exceptions.cpp"
 
 	extending the error code list:
 	file "custom_errors.h"
@@ -39,16 +39,29 @@
 */
 
 
+#ifndef EMAC
+ #define NO_EMAC
+ #define EMAC(A,B)	A
+ enum {
+#endif
+
+#ifndef EBAS
+ #define EBAS 4711
+#endif
+
+
 // basic errors:
 	EMAC( customerror=EBAS, "custom error"				),	// kio/errors.h: custom error message
 	EMAC( notanumber,		"not a number"				),	// cstrings/cstrings.h:	0.0/0.0 or string is not a number
 	EMAC( unexpectedfup,	"utf-8 char started with fup"),	// cstrings/cstrings.h
+	EMAC( truncatedchar,	"utf-8 char truncated"		),	// cstrings/cstrings.h
+	EMAC( notindestcharset,	"character not in destination charset" ), // utf-8, cstrings/utf8
+	EMAC( brokenescapecode,	"broken escape code in string"),// cstrings/utf8.cpp
 	EMAC( endoffile,		"end of file"				),	// unix/FD.h
 #define   outofmemory		ENOMEM							// kio/errors.h: macro OMEM(), <=> std::bad_alloc : exception
 	EMAC( internalerror,	"internal error"			),	// kio/errors.h: macro NIMP(),  class internal_error
 	EMAC( notyetimplemented,"not yet implemented"		),	// kio/errors.h: macro TODO(),  class internal_error
-	EMAC( indexerror,		"index out of range"		),	// kio/errors.h: macro INDEX(), class index_error : internal_error
-	EMAC( limiterror,		"size out of range"			),	// kio/errors.h: macro LIMIT(), class limit_error : internal_error
+	EMAC( limiterror,		"size exceeds limit"		),	// kio/errors.h: class limit_error : internal_error
 //	EMAC( anyerror,			"unspecified error"			),	// kio/errors.h:
 	EMAC( dataerror,		"data error"				),	// kio/errors.h:
 
@@ -59,9 +72,15 @@
 	EMAC( wrongfiletype,			"wrong file type" ),
 
 #ifdef CUSTOM_ERRORS
-#include CUSTOM_ERRORS
+ #include CUSTOM_ERRORS
 #endif
+
 #undef EMAC
+
+#ifdef NO_EMAC
+ #undef NO_EMAC
+ };
+#endif
 
 
 
