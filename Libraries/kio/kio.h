@@ -750,6 +750,8 @@ namespace kio
 
 
 
+#define throws noexcept(false)
+
 #endif		// kio_h
 
 

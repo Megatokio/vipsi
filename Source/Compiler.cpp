@@ -64,7 +64,9 @@ static struct INIT_HR { INIT_HR(){InitHR();} } dummyname;
 #include	"SystemIO.h"
 
 
-
+// serrors.cpp:
+inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
+extern	String	ErrorString	( );
 
 
 #ifndef TABWIDTH

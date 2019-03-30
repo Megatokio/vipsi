@@ -36,7 +36,7 @@
 
 */
 
-
+; // don't ask why...
 
 #ifndef _log_h_
 #define _log_h_
@@ -70,7 +70,7 @@ extern void openLogfile(cstr dirpath, LogRotation, uint max_logfiles, bool log2c
 extern void LogLine ( cstr format, ... );			// log line with timestamp etc.
 extern void Log 	( cstr format, ... );			// incrementally build log string, requires a final LogNL()
 extern void LogNL 	( );							// finalize incremental log string or log an empty line
-
+#define logline LogLine
 
 
 // indented logging for the lifetime of a function:

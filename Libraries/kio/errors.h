@@ -29,6 +29,7 @@
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+; // don't ask why...
 
 #ifndef _errors_h_
 #define _errors_h_
@@ -130,6 +131,19 @@ extern void panic( int error_number )		__attribute__((__noreturn__));
 
 EXT	cstr	errorstr	(int err);
 INL	cstr	errorstr	()							{ return errorstr(errno); }
+
+
+// serrors.cpp:
+class String;
+extern	void	ForceError	( int/*OSErr*/e, cString& msg );
+inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
+inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
+inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
+extern	void	AppendToError	( cString& msg );
+extern	void	PrependToError	( cString& msg );
+
+
+
 
 
 //	–––––––––––––––––––––––––––––––––––––––––––––––––––

@@ -1,4 +1,5 @@
-/*	Copyright  (c)	Günter Woigk 2001 - 2019
+#pragma once
+/*	Copyright  (c)	Günter Woigk 2001 - 2015
   					mailto:kio@little-bat.de
 
 	This file is free software
@@ -41,10 +42,6 @@
 
 ---------------------------------------------------------------------------
 */
-
-
-#ifndef String_h
-#define String_h
 
 #include "kio/kio.h"
 #include "Unicode/Unicode.h"
@@ -135,6 +132,7 @@ class String
 	cUCS2Char&	Ucs2			( int32 i ) const		{ return cucs2_text[i]; }
 	cUCS4Char&	Ucs4			( int32 i ) const		{ return cucs4_text[i]; }
 
+	static size_t calc_data_and_csz ( cptr p, CharSize sz ) { assert(!(size_t(p)&3)); return size_t(p)+sz-1; }
 	ptr			Data			( ) const				{ return ptr(data_and_csz&size_t(~3)); }
 	size_t		DataAndCsz		( )	const				{ return data_and_csz; }
 	void		SetData			( cptr p )				{ assert(!(size_t(p)&3)); data_and_csz = (data_and_csz&3)+size_t(p); }
@@ -143,11 +141,7 @@ class String
 	void		SetDataAndCsz	( size_t q )			{ data_and_csz = q; }
 
 public:
-//	void*		operator new	( size_t );
-//	void*		operator new	( size_t sz, void* p )				{ XXXTRAP(sz!=sizeof(String)); return p; }
-//	void		operator delete	( void*, size_t );
-
-				~String		( );
+				~String			( );
 				String			( );
 
 				String			( UCS4Char c );						// may be 'not writable'
@@ -178,15 +172,15 @@ public:
 	CharSize	Csz				( )	const							{ return CharSize((data_and_csz&3)+1); }
 	void		ResizeCsz		( CharSize );
 	UCS4Char	operator[]  	( int32 i ) const;
-	UCS4Char	LastChar		( ) const;
+	UCS4Char	LastChar		( ) const throws;
 
-	UCS1Char*	UCS1Text		( )									{ XXXASSERT(Csz()==csz1); return Ucs1(); }
-	UCS2Char*	UCS2Text		( )									{ XXXASSERT(Csz()==csz2); return Ucs2(); }
-	UCS4Char*	UCS4Text		( )									{ XXXASSERT(Csz()==csz4); return Ucs4(); }
+	UCS1Char*	UCS1Text		( )									{ assert(Csz()==csz1); return Ucs1(); }
+	UCS2Char*	UCS2Text		( )									{ assert(Csz()==csz2); return Ucs2(); }
+	UCS4Char*	UCS4Text		( )									{ assert(Csz()==csz4); return Ucs4(); }
 	ptr			Text			( )									{ return text; }
-	cUCS1Char*	UCS1Text		( ) const							{ XXXASSERT(Csz()==csz1); return Ucs1(); }
-	cUCS2Char*	UCS2Text		( ) const							{ XXXASSERT(Csz()==csz2); return Ucs2(); }
-	cUCS4Char*	UCS4Text		( ) const							{ XXXASSERT(Csz()==csz4); return Ucs4(); }
+	cUCS1Char*	UCS1Text		( ) const							{ assert(Csz()==csz1); return Ucs1(); }
+	cUCS2Char*	UCS2Text		( ) const							{ assert(Csz()==csz2); return Ucs2(); }
+	cUCS4Char*	UCS4Text		( ) const							{ assert(Csz()==csz4); return Ucs4(); }
 	cptr		Text			( ) const							{ return text; }
 
 	bool		IsWritable  	( ) const							{ return (next==this && (data_and_csz>>2)!=0) || count==0; }
@@ -264,7 +258,7 @@ public:
 
 friend  class   Var;
 friend	class	VarData;
-friend	void	TestStringClass	( );
+friend	void	TestStringClass	(uint&,uint&);
 
 static	void	PurgeCaches		( );
 };
@@ -284,14 +278,14 @@ inline String	CharString	( UCS4Char c )					{ return String(c); }
 inline String	SpaceString	( int32 n, UCS4Char c=' ' )		{ return String(n,c); }
 
 extern String  	NumString	( double n );
-extern String  	NumString	( int32 n );
-extern String  	NumString	( uint32 n );
-//inline String  	NumString	( int n )						{ return NumString((int32)n); }
-//inline String  	NumString	( uint n )						{ return NumString((uint32)n); }
-extern String  	HexString	( uint32 n, int digits=0 );
+extern String  	NumString	( long n );
+extern String  	NumString	( ulong n );
+inline String  	NumString	( int n )						{ return NumString(long(n)); }
+inline String  	NumString	( uint n )						{ return NumString(ulong(n)); }
+extern String  	HexString	( ulong n, int digits=0 );
 extern String	HexString	( double d, int digits=0 );
 extern String	BinString	( double d, int digits=0 );
-//inline String	HexString	( uint n, int digits=0 )		{ return HexString(uint32(n),digits); }
+inline String	HexString	( uint n, int digits=0 )		{ return HexString(ulong(n),digits); }
 
 inline String	SubString	( cString& s, int32 a, int32 e)	{ return s.SubString(a,e); }
 inline String	MidString	( cString& s, int32 a, int32 n)	{ return s.MidString(a,n); }
@@ -315,18 +309,6 @@ extern bool		FNMatch		( cString& filename, cString& pattern, MatchType=fnm_basic
 
 extern void		UCSCopy		( CharSize zcsz, void* z, CharSize qcsz, const void* q, int32 n );
 
-// serrors.cp
-extern	void	ForceError	( int/*OSErr*/e, cString& msg );
-inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
-inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
-inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
-extern	void	AppendToError	( cString& msg );
-extern	void	PrependToError	( cString& msg );
-
-inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
-extern	String	ErrorString	( );
-
-
 
 
 /* ****************************************************************
@@ -335,7 +317,7 @@ extern	String	ErrorString	( );
 
 inline void String::_init ( )
 {
-	XXXLogIn("String::_init()");
+	xxlogIn("String::_init()");
 
 	text   = nullptr;
 	count  = 0;
@@ -347,7 +329,7 @@ inline void String::_init ( )
 
 inline void String::_init ( cString& q )
 {
-	XXXLogIn("String::_init(cString&)");
+	xxlogIn("String::_init(cString&)");
 
 	text   = q.text;
 	count  = q.count;
@@ -360,7 +342,7 @@ inline void String::_init ( cString& q )
 
 inline void String::_init ( CharSize sz, int32 n )
 {
-	XXXLogIn("String::_init(CharSize,n)");
+	xxlogIn("String::_init(CharSize,n)");
 
 	count  = n;
 	text   = new char[sz*n];
@@ -372,7 +354,7 @@ inline void String::_init ( CharSize sz, int32 n )
 
 inline void String::_kill()
 {
-	XXXLogIn("String::_kill()");
+	xxlogIn("String::_kill()");
 
 	if (next==this)
 	{
@@ -386,7 +368,7 @@ inline void String::_kill()
 }
 
 
-#endif
+
 
 
 

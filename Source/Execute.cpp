@@ -50,6 +50,11 @@
 INIT_MSG
 
 
+// serrors.cpp:
+inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
+extern	String	ErrorString	( );
+
+
 #ifdef OPCODE_PROFILING
 uint32	opcodeProfile[256];
 uint32	opcodeTupels[256][256];
