@@ -388,7 +388,7 @@ void ReadLink ( cString& path, String& data )
 		{
 			char bu[MAXPATHLEN];
 			int n = readlink( cpath, bu, MAXPATHLEN );
-			if (n>=0) data = String((cUTF8CharPtr)bu,n);
+			if (n>=0) data = String(cptr(bu),n);
 		}
 		else
 		{
@@ -513,7 +513,7 @@ void ReadDir ( cString& path, Var& v )
 		if(is_dir)
 		{
 			n = 0;
-			assert(filenamestring.LastChar()!=UCS1Char('/'));
+			assert(filenamestring.LastChar()!=ucs1char('/'));
 			filenamestring+='/';
 			DIR* D = opendir(filepath);
 			if (D)

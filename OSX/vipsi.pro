@@ -42,9 +42,9 @@ SOURCES +=  \
     Libraries/VString/String.cpp \
     Libraries/unix/log.cpp \
     Libraries/unix/tempmem.cpp \
-    Libraries/Unicode/Unicode.cpp \
-    Libraries/Unicode/UnicodeLegacyCharsets.cpp \
-    Libraries/unix/os_utilities.cpp
+    Libraries/unix/os_utilities.cpp \
+    Libraries/cstrings/8bit/legacy_charsets.cpp \
+    Libraries/cstrings/ucs1.cpp
 
 HEADERS += \
     Source/BPObj.h \
@@ -78,9 +78,6 @@ HEADERS += \
     Libraries/VString/String.h \
     Libraries/unix/log.h \
     Libraries/unix/tempmem.h \
-    Libraries/Unicode/unicode_errors.h \
-    Libraries/Unicode/Unicode.h \
-    Libraries/Unicode/UTF-8.h \
     Libraries/unix/os_utilities.h \
     Libraries/kio/standard_types.h \
     Libraries/Unicode/Includes/Blocks.h \
@@ -117,14 +114,15 @@ HEADERS += \
     Libraries/Unicode/Includes/SpecialCasing.h \
     Libraries/Unicode/Includes/UnicodeData_Index.h \
     Libraries/Unicode/Includes/UnicodeData_Names.h \
-    Libraries/Unicode/Headers/8859-1.h \
-    Libraries/Unicode/Headers/8859-2.h \
-    Libraries/Unicode/Headers/ascii_ger.h \
-    Libraries/Unicode/Headers/ascii_us.h \
-    Libraries/Unicode/Headers/atari_st.h \
-    Libraries/Unicode/Headers/cp_437.h \
-    Libraries/Unicode/Headers/html.h \
-    Libraries/Unicode/Headers/mac_roman.h \
+    Libraries/cstrings/8bit/legacy_charsets.h \
+    Libraries/cstrings/8bit/8859-1.h \
+    Libraries/cstrings/8bit/8859-2.h \
+    Libraries/cstrings/8bit/ascii_ger.h \
+    Libraries/cstrings/8bit/ascii_us.h \
+    Libraries/cstrings/8bit/atari_st.h \
+    Libraries/cstrings/8bit/cp_437.h \
+    Libraries/cstrings/8bit/html.h \
+    Libraries/cstrings/8bit/mac_roman.h \
     Libraries/Unicode/Headers/rtos.h \
     Libraries/Templates/Stack.h \
     Libraries/Templates/sort.h \

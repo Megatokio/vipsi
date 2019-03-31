@@ -34,13 +34,12 @@
 
 #include "kio/kio.h"
 #include "VString/String.h"
-//#include "unix/file_utilities.h"
 #include "unix/os_utilities.h"
 #include "Stream.h"
 
 
 
-extern uint	VolumeFlags		( cstr path );
+extern uint 	VolumeFlags		( cstr path );
 extern double	VolumeFree		( cstr path );
 extern void		GetVolumeInfo	( Var& v );
 

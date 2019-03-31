@@ -118,23 +118,23 @@ static VT_Color last_tty_attr = VT_normal;			// for automatic text coloring on t
 			diese Bytes sehr wohl schon im Buffer stehen,
 			und für e wird angenommen, dass die fehlenden Bytes noch nicht gelesen wurden.
 */
-inline bool is_stopctl( UCS4Char c, uint32 stopctls )
+inline bool is_stopctl( ucs4char c, uint32 stopctls )
 {
 	return c<' ' && (stopctls&(1<<c));
 }
-inline cUCS1Char* find_stop_ctl ( cUCS1Char* a, cUCS1Char* e, uint32 stopctls )
+inline const ucs1char* find_stop_ctl ( const ucs1char* a, const ucs1char* e, uint32 stopctls )
 {
-	while( a<e ) { UCS1Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
+	while( a<e ) { ucs1char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
 	return nullptr;
 }
-inline cUCS2Char* find_stop_ctl ( cUCS2Char* a, cUCS2Char* e, uint32 stopctls )
+inline const ucs2char* find_stop_ctl ( const ucs2char* a, const ucs2char* e, uint32 stopctls )
 {
-	while( a<e ) { UCS2Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
+	while( a<e ) { ucs2char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
 	return nullptr;
 }
-inline cUCS4Char* find_stop_ctl ( cUCS4Char* a, cUCS4Char* e, uint32 stopctls )
+inline const ucs4char* find_stop_ctl ( const ucs4char* a, const ucs4char* e, uint32 stopctls )
 {
-	while( a<e ) { UCS4Char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
+	while( a<e ) { ucs4char c = *a++; if( c<' ' && (stopctls&(1<<c)) ) return a; }
 	return nullptr;
 }
 
@@ -142,9 +142,9 @@ cptr Stream::find_stop_ctl ( cptr a, cptr e, uint32 stopctls )
 {
 	switch( input.encoding )
 	{
-	default:	return (ptr) ::find_stop_ctl( (UCS1Char*)        a,      (UCS1Char*)        e,      stopctls );
-	case UCS2:	return (ptr) ::find_stop_ctl( (UCS2Char*)(size_t(a)&~1), (UCS2Char*)(size_t(e)&~1), stopctls );
-	case UCS4:	return (ptr) ::find_stop_ctl( (UCS4Char*)(size_t(a)&~3), (UCS4Char*)(size_t(e)&~3), stopctls );
+	default:	return (ptr) ::find_stop_ctl( (ucs1char*)        a,      (ucs1char*)        e,      stopctls );
+	case UCS2:	return (ptr) ::find_stop_ctl( (ucs2char*)(size_t(a)&~1), (ucs2char*)(size_t(e)&~1), stopctls );
+	case UCS4:	return (ptr) ::find_stop_ctl( (ucs4char*)(size_t(a)&~3), (ucs4char*)(size_t(e)&~3), stopctls );
 	}
 }
 
@@ -445,7 +445,7 @@ a:	int32 m = read( fd, p, n );
 	if( input.io_stopctls && (e = find_stop_ctl(p,p+m,input.io_stopctls)) )
 	{
 		assert( input.io_buffer.Len() == 0 );
-		input.io_buffer = String( (UCS1Char*)e, m-(e-p) );
+		input.io_buffer = String( (ucs1char*)e, m-(e-p) );
 		n -= e-p; p = const_cast<ptr>(e);
 	}
 	else
@@ -567,7 +567,7 @@ void Stream::Write ( cstr s )
 	int32 m = Write(s,n);
 	if( errno==EAGAIN )									// async i/o pending
 	{
-		output.string = String((UCS1Char*)s+m,n-m);		// make a durable copy of the data (assuming cstr in qstring pool)
+		output.string = String((ucs1char*)s+m,n-m);		// make a durable copy of the data (assuming cstr in qstring pool)
 		output.io_ptr = output.string.Text();			// and adjust io_ptr for the durable data
 	}
 }
@@ -683,7 +683,7 @@ ie:	errno = state==EAGAIN ? asynciopending : state;
 		errno:	ok:			reading finished. start_io or resume_io: one character returned.
 											  test_io: zero or one character returned if immediately available.
 				EAGAIN:		caller must wait for input.irpt and call GetChar(z,1) until completed
-							bytes read so far are buffered internally. (no need to lock UCS4Char& z)
+							bytes read so far are buffered internally. (no need to lock ucs4char& z)
 				asynciopending: Bummer: GetChar(c,0) was called with async i/o still in progress -> wait & try again.
 				other:		error, e.g. endoffile. no character returned.
 							=> caller may resume trying to read after clearing the error, e.g. for reading a growing file.
@@ -691,7 +691,7 @@ ie:	errno = state==EAGAIN ? asynciopending : state;
 		notes:	incomplete multi-byte characters are always put back before return.
 				if conversion is maliciously changed before GetChar(z,1), then some bytes may be lost.
 */
-bool Stream::GetChar ( UCS4Char& z, ResumeCode resume )
+bool Stream::GetChar ( ucs4char& z, ResumeCode resume )
 {
 	uint32 io,mx;
 	ptr const p  = input.getchar.bu;		// <-- union input.getchar is used as persistent buffer
@@ -773,7 +773,7 @@ a:	if( mx==1 )			// -> at most 1 byte read: utf8 character start byte
 		{
 			putback_or_lseek( e, int32(p+io-e) );
 			errno = input.state = ok;					// clear EAGAIN, endoffile or other error, if any
-			z = UCS4ReplacementChar;
+			z = ucs4::replacementchar;
 			return 1;
 		}
 
@@ -918,7 +918,7 @@ void Stream::GetString ( String& s, ResumeCode resume )
 
 	else
 	{
-		UCS4Char &c1=input.c1, &c2=input.c2, &c3=input.c3, c4;
+		ucs4char &c1=input.c1, &c2=input.c2, &c3=input.c3, c4;
 		String& z = input.string;
 
 		if( resume == resume_io )
@@ -966,14 +966,14 @@ void Stream::GetString ( String& s, ResumeCode resume )
 
 		// repositioning of cursor pending?
 			input.idx_soll = minmax(0,input.idx_soll,(int)z.Len());
-			if( input.idx > input.idx_soll ) { Write( SpaceString( input.idx - input.idx_soll, UCS4Char(8) ) ); input.idx = input.idx_soll; continue; }
+			if( input.idx > input.idx_soll ) { Write( SpaceString( input.idx - input.idx_soll, ucs4char(8) ) ); input.idx = input.idx_soll; continue; }
 			if( input.idx < input.idx_soll ) { PutString( z.SubString( input.idx, input.idx_soll ) ); input.idx = input.idx_soll; continue; }
 
 		// get next character:
 			GetChar(c1,start_io); while(errno) { input.edid=4; return; e4: GetChar(c1,resume_io); }
 
 		// printable character?
-			if ( UCS4CharIsPrintable(c1) )
+			if ( ucs4::is_printable(c1) )
 			{
 				z = z.LeftString(input.idx) + String(c1) + z.MidString(input.idx);
 				input.idx_soll++;
@@ -1141,8 +1141,8 @@ c:	if(p==e) goto x; c = *p++; if(c=='R') goto d;
 	if(no_dec_digit(c)) goto a;
 	col = col*10 + digit_val(c); goto c;
 
-d:	if( p<e  ) input.io_buffer = String((UCS1Char*)p,e-p)  + input.io_buffer;
-	if( pe>a ) input.io_buffer = String((UCS1Char*)a,pe-a) + input.io_buffer;
+d:	if( p<e  ) input.io_buffer = String((ucs1char*)p,e-p)  + input.io_buffer;
+	if( pe>a ) input.io_buffer = String((ucs1char*)a,pe-a) + input.io_buffer;
 	if(errno==EAGAIN) input.state=ok; errno=ok;
 	return;
 

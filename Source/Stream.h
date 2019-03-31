@@ -43,8 +43,6 @@
 #include "VString/String.h"
 #include "Irpt.h"
 #include "Thread.h"
-//#include "unix/s_type.h"
-//#include "unix/fd_throw.h"
 
 
 /*	------------------------------------------
@@ -136,7 +134,7 @@ struct input_data : output_data
 	uint32			io_stopctls;		// stop ctls in use for async io
 	String			io_buffer;			// binary putback buffer for overread bytes after stopctl for serial devices
 
-	union { char bu[6]; UCS1Char c1; UCS2Char c2; UCS4Char c4; }
+	union { char bu[6]; ucs1char c1; ucs2char c2; ucs4char c4; }
 					getchar;			// persistent input buffer for GetChar()
 
 	uint32			getstring_stopctls;	// GetString():		setting: mask of ctl codes which stop input
@@ -145,7 +143,7 @@ struct input_data : output_data
 	int				edid;				// GetString(tty):	editor resume id
 	int				cols;				// GetString(tty):	terminal width
 	int				idx, idx_soll;		// GetString(tty):	real and requested cursor position (idx in target string)
-	UCS4Char		c1,c2,c3;			// GetString(tty):	escape sequence in progress
+	ucs4char		c1,c2,c3;			// GetString(tty):	escape sequence in progress
 	#define			last_ctl	c1		// GetString():		last stopctl: for DOS line break folding. also used by GetChar()
 };
 
@@ -277,9 +275,9 @@ public:
 
 // converted get/put
 // note: read/write must not be called while async i/o pending.
-	void			PutChar				( UCS4Char c )			{ PutString( String(c) ); }
+	void			PutChar				( ucs4char c )			{ PutString( String(c) ); }
 	void			PutString			( cString& s );
-	bool			GetChar				( UCS4Char&, ResumeCode );
+	bool			GetChar				( ucs4char&, ResumeCode );
 	inline void		GetChar				( String& s, ResumeCode );
 	void			GetString			( String& s, ResumeCode );
 	bool			GetCharAvail		( );
@@ -293,7 +291,7 @@ public:
 // putback buffer:
 	void			ClearPutbackBuffer	( )						{ putback_string.Clear(); }
 	void			PutbackString		( cString& s )			{ if(IsOpenIn()) putback_string = s + putback_string; else errno=inputnotpossible; }
-	void			PutbackChar			( UCS4Char& c )			{ PutbackString(String(c)); }
+	void			PutbackChar			( ucs4char& c )			{ PutbackString(String(c)); }
 
 // file and block devices:
 	off_t			GetFileLength		( ) const				{ return file_size(fd);				}				// returns -1 on error
@@ -384,7 +382,7 @@ inline void Stream::Read ( String& s, ResumeCode r )
 
 inline void Stream::GetChar ( String& s, ResumeCode r )
 {
-	UCS4Char z;
+	ucs4char z;
 	if( GetChar(z,r) ) s = String(z); else if(errno!=EAGAIN) s.Clear();
 }
 

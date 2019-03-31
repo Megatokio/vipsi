@@ -433,12 +433,12 @@ void Compiler::Tokenize ( )
 
 // convert line breaks to nl
 	{
-		UCS4Char* a = source.UCS4Text();
-		UCS4Char* e = a+source.Len() -1;
-		UCS4Char* z = a;
+		ucs4char* a = source.UCS4Text();
+		ucs4char* e = a+source.Len() -1;
+		ucs4char* z = a;
 		while (z<e)
 		{
-			UCS4Char c = *z++;
+			ucs4char c = *z++;
 			if (c>13) continue;
 			if (c!=0&&c!=10&&c!=13) continue;
 			z[-1] = nl;
@@ -447,7 +447,7 @@ void Compiler::Tokenize ( )
 
 			// DOS text file detected: cr+lf -> nl  =>  text size shrinks, text moves
 			*--z=c;
-			for ( UCS4Char* q=z; q<e; )
+			for ( ucs4char* q=z; q<e; )
 			{
 				c = *q++;
 				if (c!=10&&c!=13) { *z++ = c; continue; }	// move char
@@ -459,15 +459,15 @@ void Compiler::Tokenize ( )
 		}
 	}
 
-	int32		qlen= source.Len() -1;
-	cUCS4Char*	qa	= source.UCS4Text();
-	cUCS4Char*	qe	= qa + qlen;
-	cUCS4Char*	qp	= qa;
-	cUCS4Char*	a	= qp;
+	int32 qlen = source.Len() -1;
+	const ucs4char*	qa = source.UCS4Text();
+	const ucs4char*	qe = qa + qlen;
+	const ucs4char*	qp = qa;
+	const ucs4char*	a  = qp;
 
-				zlen= qlen/10 +100;			// estimation
-				zbu = new Token[zlen+3];	// note: 2 security spares for 'elif' and a final 'tEOF'
-				zi	= 0;
+	zlen= qlen/10 +100;			// estimation
+	zbu = new Token[zlen+3];	// note: 2 security spares for 'elif' and a final 'tEOF'
+	zi	= 0;
 
 /*	za,zp,ze,zlen  ->  destination	((zp ~ "ziel"))
 	qa,qp,qe,qlen  ->  source    	((qp ~ "quelle"))
@@ -540,8 +540,8 @@ void Compiler::Tokenize ( )
 		T4('/','/','*','=',tDIV,tKOMM,tKANF,tDVGL)
 
 		default:
-			if (UCS4CharIsDecimalDigit(*a))	{ token=tNUM; break; }
-			if (UCS4CharIsLetter(*a)) 		{ token=tIDF; break; }
+			if (ucs4::is_dec_digit(*a))	{ token=tNUM; break; }
+			if (ucs4::is_letter(*a)) 		{ token=tIDF; break; }
 			if (comment) continue;			// ill. chars e.g. '\' in comments are legal ...
 			SetError ( String("Illegal character: '")+(*a<32?'?':*a)+"', ascii=$"+HexString(*a) );
 			goto x;
@@ -631,8 +631,8 @@ void Compiler::Tokenize ( )
 			if(comment) continue;
 			if (mode==require_value)
 			{
-				UCS4Char c = a[1];
-				if (c=='$' || c=='\'' || c=='%' || UCS4CharIsDecimalDigit(c)) goto number;
+				ucs4char c = a[1];
+				if (c=='$' || c=='\'' || c=='%' || ucs4::is_dec_digit(c)) goto number;
 				if (token==tADD) continue;			// wirkungsloser prefix-operator "+"
 				store_token(rowcol,tNEG);			// prefix operator "-"
 				continue;							// mode = require_value;
@@ -687,7 +687,7 @@ number:	{	int32 n = a-qa;
 			if(f==0.0) store_token(rowcol,tNUM0); else
 			if(f==1.0) store_token(rowcol,tNUM1); else
 			store_token(rowcol,tNUM,add_constant(f));
-			if( UCS4CharIsLetter(*qp) || *qp=='_' ) { rowcol += qp-a; errno = separatormissing; goto x; }
+			if( ucs4::is_letter(*qp) || *qp=='_' ) { rowcol += qp-a; errno = separatormissing; goto x; }
 			mode = expect_operator;
 		}	continue;
 
@@ -699,7 +699,7 @@ number:	{	int32 n = a-qa;
 			continue;
 
 		case tIDF:				// Identifier: reserved word, variable etc.
-			while ( UCS4CharIsLetter(*qp) || UCS4CharIsDecimalDigit(*qp) || *qp=='_' ) { qp++; }
+			while ( ucs4::is_letter(*qp) || ucs4::is_dec_digit(*qp) || *qp=='_' ) { qp++; }
 			if(comment) continue;
 
 		{	NameHandle nh = FindNameHandle(String(a,qp-a));	// unlocked NH

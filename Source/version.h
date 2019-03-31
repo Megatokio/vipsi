@@ -11,7 +11,7 @@
 //
 #define applName        "vipsi"
 #define applLongName    "vipsi - VIP script interpreter"
-#define applVersion     "0.9.96"
+#define applVersion     "0.9.97"
 #define applCopyright   "(c) 2001-2019 " myName
 #define applEmail       myEmail
 #define buildDate       __DATE__ " " __TIME__

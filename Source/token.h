@@ -168,11 +168,11 @@
 
 #elif TOKEN_PASS==3
 	#define	TOKEN(a,e,f,b,c,d)	c
-	cUTF8Str tokensyntax[]={
+	cstr tokensyntax[]={
 
 #elif TOKEN_PASS==4
 	#define	TOKEN(a,e,f,b,c,d)	d
-	cUTF8Str tokeninfo[]={
+	cstr tokeninfo[]={
 
 #elif TOKEN_PASS==5
 	#define	TOKEN(a,e,f,b,c,d)	e

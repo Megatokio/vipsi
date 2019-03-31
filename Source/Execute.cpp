@@ -423,7 +423,7 @@ int GetEncodingFromName ( String conv_name )
 
 	if( (s.Len()==4&&LeftString(s,3)=="tab") || (s.Len()==5&&LeftString(s,4)=="tabs") )
 	{
-		UCS4Char c = s[s.Len()-1];
+		ucs4char c = s[s.Len()-1];
 		if (c>='1'&&c<='9') return CharEncoding( c -'1' +TAB1 );
 	}
 
@@ -1566,7 +1566,7 @@ top_n:	if(TopIsNoTemp())
 		Assert1Arg();
 		TopAssertTemp();
 		TopReqNumber();
-		Top = String((UCS4Char)Top.LongValue());
+		Top = String((ucs4char)Top.LongValue());
 		LOOP;
 
 	case tLEFTSTR:		//	<temp> <value> tLEFTSTR -- <temp>
