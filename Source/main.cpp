@@ -41,6 +41,9 @@
 #include "unix/os_utilities.h"
 #define _include_version_as_source_
 #include "version.h"
+#undef TAB1	// #define in <termios.h>
+#undef TAB2	// #define in <termios.h>
+#undef TAB3	// #define in <termios.h>
 #include "token.h"
 #include "globals.h"
 #include "Stream.h"

@@ -83,6 +83,7 @@ async i/o pseudo-code example:
 #define SAFE 3
 #define LOG 1
 #include "Stream.h"
+#include "cstrings/utf8.h"
 
 INIT_MSG
 
@@ -142,8 +143,8 @@ cptr Stream::find_stop_ctl ( cptr a, cptr e, uint32 stopctls )
 	switch( input.encoding )
 	{
 	default:	return (ptr) ::find_stop_ctl( (UCS1Char*)        a,      (UCS1Char*)        e,      stopctls );
-	case ucs2:	return (ptr) ::find_stop_ctl( (UCS2Char*)(size_t(a)&~1), (UCS2Char*)(size_t(e)&~1), stopctls );
-	case ucs4:	return (ptr) ::find_stop_ctl( (UCS4Char*)(size_t(a)&~3), (UCS4Char*)(size_t(e)&~3), stopctls );
+	case UCS2:	return (ptr) ::find_stop_ctl( (UCS2Char*)(size_t(a)&~1), (UCS2Char*)(size_t(e)&~1), stopctls );
+	case UCS4:	return (ptr) ::find_stop_ctl( (UCS4Char*)(size_t(a)&~3), (UCS4Char*)(size_t(e)&~3), stopctls );
 	}
 }
 
@@ -152,7 +153,7 @@ cptr Stream::find_stop_ctl ( cptr a, cptr e, uint32 stopctls )
 */
 inline int32 utf8_charcount ( cptr a, cptr e )
 {
-	int32 n = 0; while (a<e) n += utf8_no_fup(*a++); return n;
+	int32 n = 0; while (a<e) n += utf8::no_fup(*a++); return n;
 }
 
 
@@ -296,8 +297,8 @@ void Stream::init ( )
 	//input.string  = "";
 	output.timeout	= 10.0;
 	input.timeout	= 10.0;
-	output.encoding	= utf8;
-	input.encoding	= utf8;
+	output.encoding	= UTF8;
+	input.encoding	= UTF8;
 
 	//input.io_stopctls		 = 0x00000000;
 	//input.io_buffer.Clear();
@@ -692,7 +693,7 @@ ie:	errno = state==EAGAIN ? asynciopending : state;
 */
 bool Stream::GetChar ( UCS4Char& z, ResumeCode resume )
 {
-	int32 io,mx;
+	uint32 io,mx;
 	ptr const p  = input.getchar.bu;		// <-- union input.getchar is used as persistent buffer
 
 	if( resume==resume_io )
@@ -711,8 +712,8 @@ bool Stream::GetChar ( UCS4Char& z, ResumeCode resume )
 
 		if( putback_string.Len() ) { z = putback_string[0]; putback_string.Crop(1,0); errno /* = input.state */ = ok; return 1; }
 
-		mx = input.encoding==ucs4 ? 4 : input.encoding==ucs2 ? 2 : 1;
-		io = Read( p, mx, stopctls_none );
+		mx = input.encoding==UCS4 ? 4 : input.encoding==UCS2 ? 2 : 1;
+		io = Read( p, int32(mx), stopctls_none );
 	}
 
 	assert( errno==input.state );
@@ -720,7 +721,7 @@ bool Stream::GetChar ( UCS4Char& z, ResumeCode resume )
 
 // handle fixed-size characters:
 
-	if( input.encoding != utf8 )
+	if( input.encoding != UTF8 )
 	{
 		if( io<mx )										// input not finished ?
 		{
@@ -737,9 +738,9 @@ x:			if( input.state==EAGAIN )					// input still in progress -> EAGAIN
 
 		switch( input.encoding )
 		{
-		case ucs4:	z = input.getchar.c4; break;
-		case ucs2:	z = input.getchar.c2; break;
-		case ucs1:	z = input.getchar.c1; break;
+		case UCS4:	z = input.getchar.c4; break;
+		case UCS2:	z = input.getchar.c2; break;
+		case UCS1:	z = input.getchar.c1; break;
 		default:	z = String(input.getchar.c1).ConvertedFrom(input.encoding)[0]; break;
 		}
 		return 1;
@@ -752,25 +753,25 @@ a:	if( mx==1 )			// -> at most 1 byte read: utf8 character start byte
 		if( io==0 ) goto x;								// io<mx -> error or EAGAIN still pending
 		assert( io==mx );								// io==1 && mx==1 -> first byte read
 
-		if( utf8_is_7bit(*p) )							// quick exit for 7-bit ascii
+		if( utf8::is_7bit(*p) )							// quick exit for 7-bit ascii
 		{
 			z = input.getchar.c1;
 			return 1;
 		}
 
-		if( utf8_is_fup(*p) ) io = 0;					// forget bogus fup, get new starter
-		else mx = UTF8CharNominalSize(*p);				// get fups
-		io += Read( p+io, mx-io, stopctls_none );
+		if( utf8::is_fup(*p) ) io = 0;					// forget bogus fup, get new starter
+		else mx = utf8::nominal_size(*p);				// get fups
+		io += Read( p+io, int32(mx-io), stopctls_none );
 		goto a;
 	}
 	else				// at least 1 byte read (utf8 starter), all fups requested
 	{
-		assert( mx==UTF8CharNominalSize(*p));
+		assert( mx==utf8::nominal_size(*p));
 
-		cptr e = UTF8NextChar(p,p+io);					// e -> starter des nächsten Zeichens
+		cptr e = utf8::nextchar(p,p+io);					// e -> starter des nächsten Zeichens
 		if( e < p+io )									// truncated char
 		{
-			putback_or_lseek( e, p+io-e );
+			putback_or_lseek( e, int32(p+io-e) );
 			errno = input.state = ok;					// clear EAGAIN, endoffile or other error, if any
 			z = UCS4ReplacementChar;
 			return 1;
@@ -778,7 +779,7 @@ a:	if( mx==1 )			// -> at most 1 byte read: utf8 character start byte
 
 		if( io<mx ) goto x;								// EAGAIN -> exit; other error -> put back incomplete char & exit
 
-		z = UCS4CharFromUTF8(p);						// OK: return converted char
+		z = utf8::utf8_to_ucs4char(p);						// OK: return converted char
 		return 1;
 	}
 }
@@ -879,26 +880,26 @@ void Stream::GetString ( String& s, ResumeCode resume )
 			s = z.LeftString(io).ConvertedFrom(input.encoding);
 			break;
 
-		case ucs4:
+		case UCS4:
 			putback_or_lseek( p+(io&~3), io&3 );
 			s = z.LeftString(io).FromUCS4();
 			break;
 
-		case ucs2:
+		case UCS2:
 			putback_or_lseek( p+(io&~1), io&1 );
 			s = z.LeftString(io).FromUCS2();
 			break;
 
-		case ucs1:
+		case UCS1:
 			s = z.LeftString(io);
 			break;
 
-		case utf8:
-			cptr e = UTF8LastChar(p,p+io);					// e -> starter des letzten Zeichens
-			if( e>=p && e+UTF8CharNominalSize(e)>p+io )		// incomplete?
+		case UTF8:
+			cptr e = utf8::prevchar(p,p+io);				// e -> starter des letzten Zeichens
+			if( e>=p && e+utf8::nominal_size(e)>p+io )		// incomplete?
 			{
 				putback_or_lseek( e, io-(e-p) );			// put back incomlete last char
-				io = e-p;
+				io = int32(e-p);
 			}
 			s = z.LeftString(io).FromUTF8();
 			break;
@@ -1111,7 +1112,7 @@ void Stream::TTYReceivePosition ( int& row, int& col, ResumeCode resume )
 	if( resume==start_io )
 	{
 		if( input.state!=ok ) { errno = input.state==EAGAIN ? asynciopending : input.state; return; }
-		if( input.string.Len()<80||input.string.IsWritable()||input.string.Csz()!=csz1 ) input.string = String(80,ucs1);
+		if( input.string.Len()<80||input.string.IsWritable()||input.string.Csz()!=csz1 ) input.string = String(80,UCS1);
 		a  = input.string.Text();
 		io = Read( a, 80, stopctls_none );		// -> error, EAGAIN or ok
 	}

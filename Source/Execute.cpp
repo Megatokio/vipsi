@@ -406,9 +406,9 @@ int GetEncodingFromName ( String conv_name )
 	if (n>=0)
 	{
 		const CharEncoding e[] =
-				{ quoted, escaped, escaped, html, utf8, uppercase, lowercase, mac_roman, ascii_us, ascii_us,
-				  ascii_ger, ascii_ger, atari_st,atari_st, rtos, cp_437, cp_437, iso_latin_1, iso_latin_1, iso_latin_1,
-				  ucs1, ucs2, ucs4, uppercase, lowercase, url, url_all, mime };
+				{ QUOTED, ESCAPED, ESCAPED, HTML, UTF8, UPPERCASE, LOWERCASE, MAC_ROMAN, ASCII_US, ASCII_US,
+				  ASCII_GER, ASCII_GER, ATARI_ST,ATARI_ST, RTOS, CP_437, CP_437, ISO_LATIN_1, ISO_LATIN_1, ISO_LATIN_1,
+				  UCS1, UCS2, UCS4, UPPERCASE, LOWERCASE, URL, URL_ALL, MIME };
 		return e[n/8];
 	}
 
@@ -417,18 +417,18 @@ int GetEncodingFromName ( String conv_name )
 		if (no_dec_digit(s[s.Len()-2]))
 			switch(s[s.Len()-1])
 			{
-			case '1':	return iso_latin_1;
+			case '1':	return ISO_LATIN_1;
 			}
 	}
 
 	if( (s.Len()==4&&LeftString(s,3)=="tab") || (s.Len()==5&&LeftString(s,4)=="tabs") )
 	{
 		UCS4Char c = s[s.Len()-1];
-		if (c>='1'&&c<='9') return CharEncoding( c -'1' +tab1 );
+		if (c>='1'&&c<='9') return CharEncoding( c -'1' +TAB1 );
 	}
 
 	SetError( String("unknown conversion: ") + conv_name );
-	return utf8;
+	return UTF8;
 }
 
 

@@ -35,6 +35,8 @@ SOURCES +=  \
     Libraries/kio/kio.cpp \
     Libraries/kio/exceptions.cpp \
     Libraries/cstrings/cstrings.cpp \
+    Libraries/cstrings/utf8.cpp \
+    Libraries/cstrings/ucs4.cpp \
     Libraries/Var/NameHandles.cpp \
     Libraries/Var/Var.cpp \
     Libraries/VString/String.cpp \
@@ -42,8 +44,7 @@ SOURCES +=  \
     Libraries/unix/tempmem.cpp \
     Libraries/Unicode/Unicode.cpp \
     Libraries/Unicode/UnicodeLegacyCharsets.cpp \
-    Libraries/Unicode/UTF-8.cpp \
-    Libraries/unix/os_utilities.cpp \
+    Libraries/unix/os_utilities.cpp
 
 HEADERS += \
     Source/BPObj.h \
@@ -133,7 +134,10 @@ HEADERS += \
     Libraries/Templates/template_helpers.h \
     Libraries/Templates/relational_operators.h \
     Libraries/Templates/sorter.h \
-    Libraries/unix/MyFileInfo.h
+    Libraries/unix/MyFileInfo.h \
+    Libraries/cstrings/ucs1.h \
+    Libraries/cstrings/ucs4.h \
+    Libraries/cstrings/utf8.h
 
 DISTFILES += \
     ../Libs/test_suite/brokenNames.tar.gz \

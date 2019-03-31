@@ -136,7 +136,7 @@ VScript::VScript ( rt runtyp, cString& applname, cString& filename, Var* argv, S
 	xlogIn("VScript()");
 
 	assert(tokens<=255);
-	assert( o->OutputEncoding()>=ucs1 && o->OutputEncoding()<=utf8 );
+	assert( o->OutputEncoding()>=UCS1 && o->OutputEncoding()<=UTF8 );
 
 	root = new Var(isList,"root");		// same name as token: "root"
 	root->Lock();

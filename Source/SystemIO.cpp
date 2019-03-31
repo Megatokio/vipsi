@@ -484,7 +484,7 @@ void ReadDir ( cString& path, Var& v )
 			//		 because obviously they are not always direntry[0] and direntry[1]
 			continue;
 		}
-		String filenamestring = String(filename,iso_latin_1);	// => also works with broken filenames
+		String filenamestring = String(filename,ISO_LATIN_1);	// => also works with broken filenames
 		if (patternstring.Len()&&!FNMatch(filenamestring,patternstring,fnm_basic)) continue;
 		cstr filepath = catstr(dirpath,filename);
 		struct stat filestat;
