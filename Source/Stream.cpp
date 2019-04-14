@@ -1135,11 +1135,11 @@ a:	row=0; col=0;
 
 b:	if(p==e) goto x; c = *p++; if(c==';') goto c;
 	if(no_dec_digit(c)) goto a;
-	row = row*10 + digit_val(c); goto b;
+	row = row*10 + dec_digit_value(c); goto b;
 
 c:	if(p==e) goto x; c = *p++; if(c=='R') goto d;
 	if(no_dec_digit(c)) goto a;
-	col = col*10 + digit_val(c); goto c;
+	col = col*10 + dec_digit_value(c); goto c;
 
 d:	if( p<e  ) input.io_buffer = String((ucs1char*)p,e-p)  + input.io_buffer;
 	if( pe>a ) input.io_buffer = String((ucs1char*)a,pe-a) + input.io_buffer;

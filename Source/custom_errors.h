@@ -86,7 +86,7 @@
 
 
 #include "Var/var_errors.h"
-#include "Unicode/unicode_errors.h"
+//#include "Unicode/unicode_errors.h"
 #include "VString/String_errors.h"
 #include "compress_errors.h"
 
