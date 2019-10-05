@@ -34,7 +34,6 @@
 
 #define SAFE 3
 #define LOG 0
-#include	"config.h"
 #include	"kio/kio.h"
 #include	"kio/peekpoke.h"
 INIT_MSG

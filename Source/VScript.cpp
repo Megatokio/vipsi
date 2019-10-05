@@ -35,8 +35,7 @@
 
 #define SAFE 3
 #define LOG 1
-#include "config.h"
-#include <unistd.h>
+#include "kio/kio.h"
 #include "unix/os_utilities.h"
 #include "Stream.h"
 #include "SystemIO.h"

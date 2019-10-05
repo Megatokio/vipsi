@@ -50,7 +50,7 @@ note:
 
 cstr ETEXT[] = {
 #define		EMAC(a,b)	b
-#include	"kio/error_emacs.h"
+#include	"kio/errors.h"
 };
 
 

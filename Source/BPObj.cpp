@@ -31,9 +31,9 @@
 
 #define SAFE 3
 #define LOG 1
-#include	"config.h"
-#include	"BPObj.h"
-#include	"Var/Var.h"
+#include "kio/kio.h"
+#include "BPObj.h"
+#include "Var/Var.h"
 INIT_MSG
 
 

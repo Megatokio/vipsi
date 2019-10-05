@@ -31,7 +31,7 @@
 
 #define SAFE 3
 #define LOG 1
-#include "config.h"
+#include "kio/kio.h"
 #include <stdlib.h>
 #include <dirent.h>
 #include <sys/types.h>

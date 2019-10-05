@@ -134,6 +134,8 @@ class FD
 // extern const nothrow_t nothrow;		"errors.h"
 #define TPL template<class T>
 #define SOT sizeof(T)
+#define EXT extern
+#define INL inline
 
 EXT int		open_file	( nothrow_t, cstr path, int flags, int mode=0664 ) noexcept;
 //EXT int		open_file_r	( nothrow_t, cstr path )						throw();	// must exist.

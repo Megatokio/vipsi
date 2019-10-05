@@ -35,7 +35,7 @@
 
 #define SAFE 3
 #define LOG 1
-#include "config.h"
+#include "kio/kio.h"
 #include <math.h>
 #include <signal.h>
 #include <sys/time.h>

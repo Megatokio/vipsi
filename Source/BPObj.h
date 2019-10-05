@@ -39,9 +39,10 @@
 #ifndef BPObj_h
 #define BPObj_h
 
-#include	"kio/kio.h"
+#include "kio/kio.h"
 
 class Var;
+class String;
 
 
 /* ----	backpointer objects ----------------------------

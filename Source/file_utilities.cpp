@@ -1,11 +1,11 @@
 /*	Copyright  (c)	Günter Woigk 2001 - 2019
-  					mailto:kio@little-bat.de
+					mailto:kio@little-bat.de
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -38,17 +38,17 @@
 
 #define SAFE 3
 #define LOG 1
-#include	"config.h"
-#include	<unistd.h>
-#include	<stdlib.h>
-#include	<stdio.h>
-#include	<sys/stat.h>
-#include	<sys/param.h>
-#include	<fcntl.h>
-#include	<sys/ioctl.h>
-#include	<termios.h>
-#include	<new>
-#include	"file_utilities.h"
+#include "kio/kio.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/param.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <new>
+#include "file_utilities.h"
 #include "errors.h"
 INIT_MSG
 
@@ -427,7 +427,7 @@ cstr FullPath( cstr path, bool follow_symlink )
 /*	note:
 
 	bu: [==================================================================]
-	    [lpath........l_end        ..unused..         rpath...........r_end]
+		[lpath........l_end        ..unused..         rpath...........r_end]
 
 		lpath  is already checked & deref'ed
 		rpath  is not yet checked & deref'ed
@@ -474,7 +474,7 @@ cstr FullPath( cstr path, bool follow_symlink )
 				cstr k2 = Latin1(k1);	// try iso-latin-1
 				if (k2)
 				{
-				 	assert(strlen(k2) < size_t(l_end-k1)); 	// strlen(latin1) < strlen(utf8)
+					assert(strlen(k2) < size_t(l_end-k1)); 	// strlen(latin1) < strlen(utf8)
 					str latin1path = new char[l_end-lpath];
 					memcpy(latin1path,lpath,k1-lpath);
 					strcpy(latin1path+(k1-lpath),k2);

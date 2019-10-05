@@ -35,7 +35,7 @@
 #ifndef Stream_h
 #define Stream_h
 
-#include "config.h"
+#include "kio/kio.h"
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
@@ -43,6 +43,7 @@
 #include "VString/String.h"
 #include "Irpt.h"
 #include "Thread.h"
+typedef int OSErr;
 
 
 /*	------------------------------------------

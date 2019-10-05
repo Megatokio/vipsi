@@ -34,7 +34,7 @@
 
 #define SAFE 3
 #define LOG 1
-#include "config.h"
+#include "kio/kio.h"
 #include "freeze.h"
 #define	 RMASK(n)		(~(0xFFFFFFFF<<(n)))				// mask to select n bits from the right
 
