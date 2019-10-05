@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -67,24 +67,24 @@ uint32	opcodeTupels[256][256];
 #endif
 
 #if defined(SIGIO) && defined(SIGPOLL)
-	#error hmm hmm ...
+//	#error hmm hmm ...
 #endif
 
 static const 	Double d_ln10 = log(10.0);
 static const 	Double d_ln2  = log( 2.0);
 //const	Double d_ln16 = log(16.0);
 
-static sigset_t allsigs;	/* filled */
-static sigset_t nosigs;	/* cleared */
+static sigset_t allsigs;		// filled
+static sigset_t nosigs;			// cleared
 
-static int		ignore_sigsegv = 0;		// ignore counter for signal SIGSEGV
+static int ignore_sigsegv = 0;	// ignore counter for signal SIGSEGV
 
 
 /* ----	start TimeShed timer --------------------------
 		the realtime timer is used to count down for the
 		next sheduled thread in the t_timeshed list
 */
-void StartRTimer ( double d )
+void StartRTimer( double d )
 {
 	if(d>0.000010)	// 10 µs mind. wg. Timer-Granularity
 	{
@@ -94,8 +94,8 @@ void StartRTimer ( double d )
 		struct itimerval itv;
 		itv.it_interval.tv_sec	= 0;	// don't repeat
 		itv.it_interval.tv_usec	= 0;
-		itv.it_value.tv_sec		= (int32)d;
-		itv.it_value.tv_usec	= (int32)(((d-(int32)d)*1000000));
+		itv.it_value.tv_sec		= int32(d);
+		itv.it_value.tv_usec	= int32(((d-int32(d))*1000000));
 		if( setitimer(ITIMER_REAL, &itv, nullptr) == 0 ) return;
 		logline("StartRTimer() failed.");
 		errno=ok;
@@ -113,7 +113,7 @@ void StartRTimer ( double d )
 		Linux: fd available in siginfo->si_fd
 */
 #ifdef SIGPOLL
-	static SIGPOLL_Handler ( int/*sig*/, siginfo_t* siginfo, void*/*user_context*/ )
+	static void SIGPOLL_Handler ( int/*sig*/, siginfo_t* siginfo, void*/*user_context*/ )
 	{
 		switch( siginfo->si_code )
 		{
@@ -237,7 +237,7 @@ static void StartSignals ( )
 // signals handled via sa_sigaction:	-> 	void(*)(int,siginfo_t*,void*)
 	sigact.sa_flags |= SA_SIGINFO;
 #ifdef SIGPOLL
-	sigact.sa_sigaction = SIGPOLLHandler;
+	sigact.sa_sigaction = SIGPOLL_Handler;
 	sigaction(SIGPOLL, &sigact, nullptr);
 #endif
 
@@ -246,13 +246,12 @@ static void StartSignals ( )
 	errno=ok;								// might already been interrupted
 }
 
-
-/* ----	terminate signal handling -----------------------
-		quick & dirty
-*/
 #if 0
-static void StopSignals ( )
+static void StopSignals()
 {
+	// terminate signal handling
+	// quick & dirty
+
 	sigprocmask(SIG_BLOCK, &allsigs, nullptr);
 
 	struct sigaction sigact;
@@ -264,10 +263,7 @@ static void StopSignals ( )
 }
 #endif
 
-
-
-
-static Var* FindVar ( NameHandle nh, Var* v )
+static Var* FindVar( NameHandle nh, Var* v )
 {
 	for(;;)
 	{
@@ -296,7 +292,7 @@ static Var* FindVar ( NameHandle nh, Var* v )
 		for security reason we use %11001111 which would start a reference-to-template
 		with offset of approx. -2 MB (in case the "initial data header" idea is realized)
 */
-void FreezeString ( String& v )
+void FreezeString( String& v )
 {
 	CharSize csz = v.Csz();
 
@@ -394,7 +390,7 @@ void MeltString ( String& v )
 }
 
 
-int GetEncodingFromName ( String conv_name )
+int GetEncodingFromName( String conv_name )
 {
 	String s = conv_name.ToLower();
 	for (int i=0;(i=s.Find('_',i))>=0;) s=s.LeftString(i)+s.MidString(i+1);
@@ -412,19 +408,21 @@ int GetEncodingFromName ( String conv_name )
 		return e[n/8];
 	}
 
-	if (LeftString(s,3)=="iso"||LeftString(s,5)=="latin")
+	if (LeftString(s,3)=="iso" || LeftString(s,5)=="latin")
 	{
-		if (no_dec_digit(s[s.Len()-2]))
+		if (!ucs4::is_dec_digit(s[s.Len()-2]))
+		{
 			switch(s[s.Len()-1])
 			{
 			case '1':	return ISO_LATIN_1;
 			}
+		}
 	}
 
-	if( (s.Len()==4&&LeftString(s,3)=="tab") || (s.Len()==5&&LeftString(s,4)=="tabs") )
+	if( (s.Len()==4 && LeftString(s,3)=="tab") || (s.Len()==5 && LeftString(s,4)=="tabs") )
 	{
 		ucs4char c = s[s.Len()-1];
-		if (c>='1'&&c<='9') return CharEncoding( c -'1' +TAB1 );
+		if (c>='1' && c<='9') return CharEncoding(c -'1' +TAB1);
 	}
 
 	SetError( String("unknown conversion: ") + conv_name );
@@ -432,22 +430,18 @@ int GetEncodingFromName ( String conv_name )
 }
 
 
-
-cstr VScript::tostr(uchar*tok,Var**constants)
+cstr VScript::tostr( uchar* tok, Var** constants )
 {
-	switch(*tok)
+	switch (*tok)
 	{
 //	case tNUM0:	return "0";
 //	case tNUM1: return "1";
 	case tNUM:  return ::tostr(constants[peek1(tok+1)]->Value());
 	case tSTR:  return CString(constants[peek1(tok+1)]->Text().ToQuoted());
 	case tIDF:	return catstr("idf:",CString(GetNameForHandle(NameHandle(peek4(tok+1)))));
- 	default:	return CString(tokenname[*tok]);
+	default:	return CString(tokenname[*tok]);
 	}
 }
-
-
-
 
 
 #define PRIOSHIFT	12
@@ -496,17 +490,17 @@ cstr VScript::tostr(uchar*tok,Var**constants)
 #define Arg2				(*Arg2Ptr)
 #define Arg3Ptr				(vp[-2])
 #define Arg3				(*Arg3Ptr)
-#define ArgNPtr(N)			(vp[1-(N)])
+#define ArgNPtr(N)			(vp[1l-(N)])
 #define ArgN(N)				(*ArgNPtr(N))
 
-#define	Push(VPTR)			{ vp++; /*XXXTRAP(vp>=(Var**)rp);*/ TopPtr=VPTR; Top.lock(); }
-#define	Dup()				{ vp++; TopPtr=Arg2Ptr; Top.lock(); }
-#define Drop()				{ Top.unlock(); /*TopPtr=nullptr;*/ vp--; }
-#define	Nip()				{ Arg2.unlock(); Arg2Ptr=TopPtr; /*TopPtr=nullptr;*/ vp--; }
-#define Drop2()				{ Drop(); Drop(); }
-#define DropPush(VPTR)		{ Var*VP=VPTR; VP->lock(); Top.unlock(); TopPtr=VP; }			// note: Reihenfolge stellt sicher, dass VPTR gelockt bleibt,
-#define Drop2Push(VPTR)		{ Var*VP=VPTR; VP->lock(); Drop(); Top.unlock(); TopPtr=VP; }	//		 auch wenn VPTR ein item in Top.List() oder Arg2.List() ist.
-//#define Deref(VPTR)			{ if(VPTR->IsVarRef()&&*ip!=tNODEREF) VPTR=VPTR->GetVarRef(); }
+#define	Push(VPTR)			do{ vp++; /*XXXTRAP(vp>=(Var**)rp);*/ TopPtr=VPTR; Top.lock(); }while(0)
+#define	Dup()				do{ vp++; TopPtr=Arg2Ptr; Top.lock(); }while(0)
+#define Drop()				do{ Top.unlock(); /*TopPtr=nullptr;*/ vp--; }while(0)
+#define	Nip()				do{ Arg2.unlock(); Arg2Ptr=TopPtr; /*TopPtr=nullptr;*/ vp--; }while(0)
+#define Drop2()				do{ Drop(); Drop(); }while(0)
+#define DropPush(VPTR)		do{ Var*VP=VPTR; VP->lock(); Top.unlock(); TopPtr=VP; }while(0)			// note: Reihenfolge stellt sicher, dass VPTR gelockt bleibt,
+#define Drop2Push(VPTR)		do{ Var*VP=VPTR; VP->lock(); Drop(); Top.unlock(); TopPtr=VP; }while(0)	//		 auch wenn VPTR ein item in Top.List() oder Arg2.List() ist.
+//#define Deref(VPTR)		do{ if(VPTR->IsVarRef()&&*ip!=tNODEREF) VPTR=VPTR->GetVarRef(); }while(0)
 #define Deref(VPTR)			( (VPTR)->IsVarRef()&&*ip!=tNODEREF ? (VPTR)->GetVarRef() : VPTR )
 
 /* ----	Klassifizierung von Variablen auf dem vstack -------------------
@@ -537,54 +531,34 @@ cstr VScript::tostr(uchar*tok,Var**constants)
 // Asserts:
 
 #ifndef NDEBUG
-  #define Assert1Arg()			if(vp<va)		goto ASSERT_VSTACK;
-  #define Assert2Args()			if(vp-1<va)		goto ASSERT_VSTACK;
-  #define Assert3Args()			if(vp-2<va)		goto ASSERT_VSTACK;
-  #define AssertNArgs(N)		if(vp-(N)+1<va)	goto ASSERT_VSTACK;
-
-  #define TopAssertVar()		if(TopIsNoVar())	goto ASSERT_ISVAR;
-  #define Arg2AssertVar()		if(Arg2IsNoVar())	goto ASSERT_ISVAR;
-
-  #define TopAssertNonConst() 	if(TopIsConst())	goto ASSERT_ISNONCONST
-  #define Arg2AssertNonConst() 	if(Arg2IsConst())	goto ASSERT_ISNONCONST
-  #define Arg3AssertNonConst() 	if(Arg3IsConst())	goto ASSERT_ISNONCONST
-
-  #define TopAssertTemp()		if(TopIsNoTemp())	goto ASSERT_ISTEMP
-  #define Arg2AssertTemp()		if(Arg2IsNoTemp())	goto ASSERT_ISTEMP
-  #define Arg3AssertTemp()		if(Arg3IsNoTemp())	goto ASSERT_ISTEMP
-  #define ArgNAssertTemp(N)		if(ArgNIsNoTemp(N)) goto ASSERT_ISTEMP
-
-  #define TopAssertString()		if(Top.IsNoText())	  goto ASSERT_ISSTRING
-  #define Arg1AssertString()	if(Arg1.IsNoText())	  goto ASSERT_ISSTRING
-  #define Arg2AssertStream()	if(Arg2.IsNoStream()) goto ASSERT_ISSTREAM
-  #define Arg3AssertStream()	if(Arg3.IsNoStream()) goto ASSERT_ISSTREAM
-  #define Arg2AssertList()		if(Arg2.IsNoList())	  goto ASSERT_ISLIST
-  #define TopAssertNumber()		if(Top.IsNoNumber())  goto ASSERT_ISNUMBER
+#define IF(C) if(C)
 #else
-  #define Assert1Arg()			if(0) goto ASSERT_VSTACK;
-  #define Assert2Args()			if(0) goto ASSERT_VSTACK;
-  #define Assert3Args()			if(0) goto ASSERT_VSTACK;
-  #define AssertNArgs(N)		if(0) goto ASSERT_VSTACK;
-
-  #define TopAssertVar()		if(0) goto ASSERT_ISVAR;
-  #define Arg2AssertVar()		if(0) goto ASSERT_ISVAR;
-
-  #define TopAssertNonConst() 	if(0) goto ASSERT_ISNONCONST
-  #define Arg2AssertNonConst() 	if(0) goto ASSERT_ISNONCONST
-  #define Arg3AssertNonConst() 	if(0) goto ASSERT_ISNONCONST
-
-  #define TopAssertTemp()		if(0) goto ASSERT_ISTEMP
-  #define Arg2AssertTemp()		if(0) goto ASSERT_ISTEMP
-  #define Arg3AssertTemp()		if(0) goto ASSERT_ISTEMP
-  #define ArgNAssertTemp(N)		if(0) goto ASSERT_ISTEMP
-
-  #define TopAssertString()		if(0) goto ASSERT_ISSTRING
-  #define Arg1AssertString()	if(0) goto ASSERT_ISSTRING
-  #define Arg2AssertStream()	if(0) goto ASSERT_ISSTREAM
-  #define Arg3AssertStream()	if(0) goto ASSERT_ISSTREAM
-  #define Arg2AssertList()		if(0) goto ASSERT_ISLIST
-  #define TopAssertNumber()		if(0) goto ASSERT_ISNUMBER
+#define IF(C) if(0)
 #endif
+
+#define Assert1Arg()		IF(vp<va)		goto ASSERT_VSTACK
+#define Assert2Args()		IF(vp-1<va)		goto ASSERT_VSTACK
+#define Assert3Args()		IF(vp-2<va)		goto ASSERT_VSTACK
+#define AssertNArgs(N)		IF(vp-(N)+1<va)	goto ASSERT_VSTACK
+
+#define TopAssertVar()		IF(TopIsNoVar())	goto ASSERT_ISVAR
+#define Arg2AssertVar()		IF(Arg2IsNoVar())	goto ASSERT_ISVAR
+
+#define TopAssertNonConst()	 IF(TopIsConst())	goto ASSERT_ISNONCONST
+#define Arg2AssertNonConst() IF(Arg2IsConst())	goto ASSERT_ISNONCONST
+#define Arg3AssertNonConst() IF(Arg3IsConst())	goto ASSERT_ISNONCONST
+
+#define TopAssertTemp()		IF(TopIsNoTemp())	goto ASSERT_ISTEMP
+#define Arg2AssertTemp()	IF(Arg2IsNoTemp())	goto ASSERT_ISTEMP
+#define Arg3AssertTemp()	IF(Arg3IsNoTemp())	goto ASSERT_ISTEMP
+#define ArgNAssertTemp(N)	IF(ArgNIsNoTemp(N)) goto ASSERT_ISTEMP
+
+#define TopAssertString()	IF(Top.IsNoText())	  goto ASSERT_ISSTRING
+#define Arg1AssertString()	IF(Arg1.IsNoText())	  goto ASSERT_ISSTRING
+#define Arg2AssertStream()	IF(Arg2.IsNoStream()) goto ASSERT_ISSTREAM
+#define Arg3AssertStream()	IF(Arg3.IsNoStream()) goto ASSERT_ISSTREAM
+#define Arg2AssertList()	IF(Arg2.IsNoList())	  goto ASSERT_ISLIST
+#define TopAssertNumber()	IF(Top.IsNoNumber())  goto ASSERT_ISNUMBER
 
 // Runtime type checks:
 
@@ -595,12 +569,12 @@ cstr VScript::tostr(uchar*tok,Var**constants)
 #define	TopReqTypeUnlocked()	if(TopTypeIsLocked()) goto ERR_VTYPELOCKED
 #define	Arg2ReqTypeUnlocked()	if(Arg2TypeIsLocked()) goto ERR_VTYPELOCKED
 
-#define	TopReqVar()				if(TopIsNoVar()) goto ERR_VARREQ;
-#define	Arg2ReqVar()			if(Arg2IsNoVar()) goto ERR_VARREQ;
+#define	TopReqVar()				if(TopIsNoVar()) goto ERR_VARREQ
+#define	Arg2ReqVar()			if(Arg2IsNoVar()) goto ERR_VARREQ
 
-#define	TopReqTemp()			if(TopIsNoTemp())  { Top.decr_lock();  TopPtr=new Var(Top);   Top.incr_lock();  }
-#define	Arg2ReqTemp()			if(Arg2IsNoTemp()) { Arg2.decr_lock(); Arg2Ptr=new Var(Arg2); Arg2.incr_lock(); }
-#define	Arg3ReqTemp()			if(Arg3IsNoTemp()) { Arg3.decr_lock(); Arg3Ptr=new Var(Arg3); Arg3.incr_lock(); }
+#define	TopReqTemp()			do if(TopIsNoTemp())  { Top.decr_lock();  TopPtr=new Var(Top);   Top.incr_lock();  } while(0)
+#define	Arg2ReqTemp()			do if(Arg2IsNoTemp()) { Arg2.decr_lock(); Arg2Ptr=new Var(Arg2); Arg2.incr_lock(); } while(0)
+#define	Arg3ReqTemp()			do if(Arg3IsNoTemp()) { Arg3.decr_lock(); Arg3Ptr=new Var(Arg3); Arg3.incr_lock(); } while(0)
 
 #define	TopReqNotInUse()		if(TopIsInUse()) goto ERR_VARINUSE
 #define	Arg2ReqNotInUse()		if(Arg2IsInUse()) goto ERR_VARINUSE
@@ -639,8 +613,6 @@ static NameHandle	nh_privates;
 static NameHandle	nh_locals;
 
 
-
-
 Var* VScript::Execute ( )
 {
 	xlogIn("VScript::Execute()");
@@ -663,11 +635,11 @@ Var* VScript::Execute ( )
 	uchar*		ip;			// instruction pointer
 	Var**		vp;			// vstack pointer
 	StackData*	rp;			// rstack pointer
-	#define va	((Var**)(thread->stack))
-	#define	ve	((Var**)rp)
-	#define	ra	((StackData*)vp+1)
+	#define va	(reinterpret_cast<Var**>(thread->stack))
+	#define	ve	(reinterpret_cast<Var**>(rp))
+	#define	ra	(reinterpret_cast<StackData*>(vp+1))
 	#define re	(thread->stack_end)
-	assert(sizeof(Var*)==sizeof(StackData));
+	static_assert(sizeof(Var*)==sizeof(StackData),"");
 
 	Thread*	thread;			// the thread which the registers are loaded for
 	Var**	constants;		// thread.proc.bundle.constants.list.array
@@ -679,22 +651,19 @@ Var* VScript::Execute ( )
 #define	SaveRegisters()									\
 	thread->ip = ip;		/* instruction pointer	*/	\
 	thread->vp = vp;		/* vstack pointer		*/	\
-	thread->rp = rp;		/* rstack pointer		*/	\
+	thread->rp = rp 		/* rstack pointer		*/	\
 
 #define	LoadRegisters()									\
 	ip = thread->ip;		/* instruction pointer	*/	\
 	vp = thread->vp;		/* vstack pointer		*/	\
 	rp = thread->rp;		/* rstack pointer		*/	\
-	constants = thread->proc->ProcConstants();
+	constants = thread->proc->ProcConstants()
 
 //	start vip
 	thread = t_running; if(thread) goto load_regs;
 	thread = t_root;	assert(t_root);
 	LoadRegisters();
 	goto test_disp;
-
-
-
 
 
 
@@ -732,12 +701,12 @@ sleep:
 
 // check dispatcher flag
 test_disp:
-	if(disp_flag)
+	if (disp_flag)
 	{
-		int32 d = disp_flag; disp_flag &= ~d;
+		uint32 d = disp_flag; disp_flag &= ~d;
 
 	// countdown timer expired
-		if(d&timeshed)
+		if (d&timeshed)
 		{
 			double systemtime = SystemTime();
 			while( t_timeshed )
@@ -874,6 +843,7 @@ exe6:
 	case tREQTEMP:			// 	cond. conversion
 		Assert1Arg();
 		if(TopIsTemp()) QUICK;
+		goto t846; t846:
 	case tTOTEMP:			// 	uncond. conversion
 		Assert1Arg();
 		assert(TopIsNoTemp());
@@ -896,7 +866,7 @@ exe6:
 		QUICK;
 
 	case tNUM2:			// 	tNUM2.nn -- <const>
-		Push(constants[(uint16)peek2(ip)]); ip+=2;
+		Push(constants[uint16(peek2(ip))]); ip+=2;
 		QUICK;
 
 	case tPOSTINCR:		// <var> tPOSTINCR -- <temp>
@@ -1184,7 +1154,7 @@ top_f:	Drop2Push(f?eins:zero);
 		Assert1Arg();
 		TopAssertTemp();
 		TopReqNumber();
-		Top.Value() = !Top.Value();			// TODO list expansion?
+		Top.Value() = Top.Value() == 0.0;	// TODO list expansion?
 		QUICK;
 
 	case tTILDE:		// <temp> tTILDE -- <temp>
@@ -1427,7 +1397,7 @@ top_n:	if(TopIsNoTemp())
 		Arg2AssertTemp();
 		Arg2ReqNumber();
 		TopReqNumber();
-		Arg2.Value() = Arg2.Value()==1.0 ? NAN		// +inf/-inf-Sprung bei 1: log(1)==0.
+		Arg2.Value() = Arg2.Value()==1.0 ? double(NAN)		// +inf/-inf-Sprung bei 1: log(1)==0.
 					: log(Top.Value())/log(Arg2.Value());
 		errno=ok;	// note: i386 sets EDOMAIN and ERANGE; ppc none of both
 		DROP;			// result should be NAN for EDOMAIN and INF for ERANGE anywhere
@@ -1566,7 +1536,7 @@ top_n:	if(TopIsNoTemp())
 		Assert1Arg();
 		TopAssertTemp();
 		TopReqNumber();
-		Top = String((ucs4char)Top.LongValue());
+		Top = String(ucs4char(Top.LongValue()));
 		LOOP;
 
 	case tLEFTSTR:		//	<temp> <value> tLEFTSTR -- <temp>
@@ -1651,7 +1621,7 @@ top_n:	if(TopIsNoTemp())
 			goto ERR_STRORLISTREQ;
 		}
 
-		Drop2Push(new Var((Double)(n+1)));
+		Drop2Push(new Var(Double(n+1)));
 		QUICK;
 	}
 
@@ -1679,7 +1649,7 @@ top_n:	if(TopIsNoTemp())
 			goto ERR_STRORLISTREQ;
 		}
 
-		Drop2Push(new Var((Double)(n+1)));
+		Drop2Push(new Var(Double(n+1)));
 		QUICK;
 	}
 
@@ -1733,7 +1703,7 @@ top_n:	if(TopIsNoTemp())
 		}
 		Assert1Arg();
 		TopAssertNonConst();
-		Top.ConvertTo((CharEncoding)c);
+		Top.ConvertTo(CharEncoding(c));
 		LOOP;
 	}
 
@@ -1751,7 +1721,7 @@ top_n:	if(TopIsNoTemp())
 		}
 		Assert1Arg();
 		TopAssertNonConst();
-		Top.ConvertFrom((CharEncoding)c);
+		Top.ConvertFrom(CharEncoding(c));
 		LOOP;
 	}
 
@@ -1767,7 +1737,7 @@ top_n:	if(TopIsNoTemp())
 		{
 			Assert3Args();
 			TopReqNumber();
-			flags = (MatchType)(int)Top.Value(); Drop();
+			flags = MatchType(int(Top.Value())); Drop();
 		}
 
 		Assert2Args();
@@ -1968,7 +1938,7 @@ texifile:	Assert1Arg();
 		Assert1Arg();
 		TopAssertTemp();
 		TopReqNumber();
-		Top = datetimestr((time_t)Top.Value());
+		Top = datetimestr(time_t(Top.Value()));
 		LOOP;
 
 	case tDATEVAL:		// 	<temp> tDATEVAL -- <temp>
@@ -1984,13 +1954,13 @@ texifile:	Assert1Arg();
 
 	case tLIST:			//	<n*temp> tLIST.n -- <temp>
 	{
-		int n = *ip++;
+		uint n = *ip++;
 		AssertNArgs(n);
 		Var*z = new Var(isList);
-		while(--n>=0)
+		while (n > 0)
 		{
 			TopAssertTemp();
-			TopPtr->Link(z,n);
+			TopPtr->Link(z,--n);
 			Drop();
 		}
 		Push(z);
@@ -1999,7 +1969,7 @@ texifile:	Assert1Arg();
 
 	case tWORDS:		//	tWORDS -- <temp>
 		Push( new Var(isList) );
-		for(uint i=0;i<tokens;i++)
+		for(uint i=0; i<tokens; i++)
 		{
 			Top.AppendItem(new Var(TokenName(i)));
 		}
@@ -2010,10 +1980,10 @@ texifile:	Assert1Arg();
 	{	TopAssertTemp();
 		TopReqString();
 		NameHandle nh = NewNameHandle(Top.Text());
-		int i=tokens;
-		while(--i>=0)
+		uint i = tokens;
+		while (i > 0)
 		{
-			if (nh==tokennamehandle[i])
+			if (nh == tokennamehandle[--i])
 			{
 				Top.Text() = String("syntax: ") + TokenSyntax(i) + "\n" + TokenInfo(i);
 				LOOP;
@@ -2173,7 +2143,7 @@ texifile:	Assert1Arg();
 */
 
 	{	displacement d;
-		#define PeekDist()	if(sizeof(d)==2) d=peek2(ip); else d=peek4(ip)
+		#define PeekDist()	if (sizeof(d)==2) d = int16(peek2(ip)); else d = int32(peek4(ip))
 
 	// proc literal:
 	case tPROC:		//	tPROC.dist.n.m <n*namehandle> <statements> -- <temp>
@@ -2195,7 +2165,7 @@ texifile:	Assert1Arg();
 						//	<value:1> tANDAND.dist -- 				and no branch
 		Assert1Arg();
 		TopReqNumber();
-		if(Top.Value())  { Drop(); ip += sizeof(d); }
+		if (Top.Value() != 0.0) { Drop(); ip += sizeof(d); }
 		else { PeekDist(); ip += d; }
 		QUICK;
 
@@ -2203,7 +2173,7 @@ texifile:	Assert1Arg();
 						//	<value:0> tOROR.dist -- 				and no branch
 		Assert1Arg();
 		TopReqNumber();
-		if(Top.Value()) { PeekDist(); ip += d; }
+		if (Top.Value() != 0.0) { PeekDist(); ip += d; }
 		else            { Drop(); ip += sizeof(d); }
 		QUICK;
 
@@ -2212,7 +2182,7 @@ texifile:	Assert1Arg();
 	case tQMARK:		// 	<value> tQMARK.dest --
 		Assert1Arg();
 		TopReqNumber();
-		if(Top.Value())
+		if (Top.Value() != 0.0)
 		{
 			xxlog(" nojump ");
 			ip += sizeof(d);
@@ -2221,7 +2191,7 @@ texifile:	Assert1Arg();
 		{
 			xxlog(" d=");
 			PeekDist();
-			xxlog("%li ",(int32)d);
+			xxlog("%li ",int32(d));
 			ip += d;
 		}
 		DROP;
@@ -2247,7 +2217,7 @@ texifile:	Assert1Arg();
 		QUICK;
 	#define	RCountDo	3
 	#define	RDropDo()	RDrop(3)
-	#define	RPeekLoop()	ip = RArg1.ip;
+	#define	RPeekLoop()	ip = RArg1.ip
 	#define	RPopExit()	ip = RArg2.ip; RDrop(3)
 
 
@@ -2305,7 +2275,6 @@ bra:	PeekDist();
 		RPeekLoop();
 		DISP;
 
-
 	case tNEXT:			//	tNEXT --
 		for(;;)
 			switch(RType)
@@ -2316,21 +2285,18 @@ bra:	PeekDist();
 			default:		goto ERR_IERR;
 			}
 
-
 	case tUNTIL:		//	<value> tUNTIL --
 		Assert1Arg();
 		TopReqNumber();
-		if(!Top.Value()) DROP;
+		if(Top.Value() == 0.0) DROP;
 		goto twh;
-
 
 	case tWHILE:		//	<value> tWHILE --
 		Assert1Arg();
 		TopReqNumber();
-		if(Top.Value()) DROP;
+		if (Top.Value() != 0.0) DROP;
 twh:	Drop();
 		goto tex;
-
 
 	case tEXIT:			//	tEXIT --
 tex:	for(;;)
@@ -2342,19 +2308,17 @@ tex:	for(;;)
 			default:	  	goto ERR_IERR;
 			}
 
-
 	case tGKzu:			//	tGKzu --
 		assert(RType==rtGKauf);
 		RPopGKauf();
 		LOOP;
-
 
 	case tEXE:			// <value> tEXE -- <value>
 	case tEVAL:			// <value> tEVAL -- <value>
 		Assert1Arg();
 		TopReqString();
 		compiler.Compile(Top.Text(),ip[-1]==tEXE);
-		if(errno)
+		if (errno)
 		{
 			StartCompileError( ip[-1]==tEXE?"execute text":"eval text" );
 			goto compile_error;
@@ -2379,10 +2343,10 @@ exe_cp:	thread->proc = compiler.GetProc(); thread->proc->lock();
 		thread->proc->unlock(); thread->proc = RArg2.var; 	\
 		constants = thread->proc->ProcConstants();			\
 		while(vp>RArg3.vp) Drop();							\
-		ip = RArg1.ip; RDrop(4);
+		ip = RArg1.ip; RDrop(4)
 
 	#define	RCountEvalOrInclude		4
-	#define RDropEvalOrInclude() 	RArg2.var->unlock(); RDrop(4);
+	#define RDropEvalOrInclude() 	RArg2.var->unlock(); RDrop(4)
 	#define	RPeekEvalOrIncludeVp()	RArg3.vp
 
 
@@ -2418,9 +2382,9 @@ exe_cp:	thread->proc = compiler.GetProc(); thread->proc->lock();
 		Drop();
 		// TODO: bundle in root.rsrc einhängen
 
-	{	int  argc = *ip++;
+	{	uint argc = *ip++;
 		Var* argv = new Var(isList,"globals"); argv->ResizeList(argc);
-		while(argc--) { Assert1Arg(); TopReqTemp(); Top.Link(argv,argc); Drop(); }
+		while (argc--) { Assert1Arg(); TopReqTemp(); Top.Link(argv,argc); Drop(); }
 
 		RPush(thread->globals);		//	RArg5	globals
 		RPush(thread->locals);		//	RArg4	locals
@@ -2440,7 +2404,7 @@ exe_cp:	thread->proc = compiler.GetProc(); thread->proc->lock();
 		thread->proc->unlock();    thread->proc    = RArg2.var; \
 		constants = thread->proc->ProcConstants();				\
 		while(vp>RArg3.vp) Drop();								\
-		ip = RArg1.ip; RDrop(6);
+		ip = RArg1.ip; RDrop(6)
 
 	#define	RCountCall		6
 	#define RDropCall() 	RArg5.var->unlock(); RArg4.var->unlock(); \
@@ -2450,7 +2414,7 @@ exe_cp:	thread->proc = compiler.GetProc(); thread->proc->lock();
 
 	// execute proc:
 	{	RStackType rt_type; Var* argv;
-		int i,argc,argn,argm; uptr dest;
+		uint i,argc,argn,argm; uptr dest;
 
 	case tEXECINSTR:	//	<value> <n*temp> tEXECPROC.n --
 		rt_type = rtINSTR;
@@ -2460,13 +2424,13 @@ exe_cp:	thread->proc = compiler.GetProc(); thread->proc->lock();
 		rt_type = rtPROC;	//	tPROC.dist.n.m <n*namehandle> <statements> -- <temp>
 							// 	dist = dist to skip proc body; n = args total; m = args before '*' or -1
 
-txp:	argc = *ip++;				// anz. args
+txp:	argc = *ip++;		// anz. args
 		AssertNArgs(argc+1);
 		ArgNReqProc(argc+1);
 		dest = ArgN(argc+1).ProcStart();
 		assert(*dest==tPROC);
 		dest += sizeof(displacement) +1;		// 	skip tPROC.dist
-		argn = *dest++;				//	.n
+		argn = *dest++;		//	.n
 		argm = *dest++;		//	.m
 		xxlog(" (%i:%i%s)", argc,argn,argm>argn?"":":*");
 
@@ -2474,11 +2438,11 @@ txp:	argc = *ip++;				// anz. args
 						  else if(argm>argn) goto ERR_TOOMANYARGUMENTS; }
 
 		argv = new Var(isList,nh_locals); /* argv->ResizeList(argc); */
-		i = argc; while(i--) { TopAssertTemp(); Top.Link(argv,i); Drop(); }
+		i = argc; while (i--) { TopAssertTemp(); Top.Link(argv,i); Drop(); }
 
-		if(argm>argn) argm=argn;
-		for(i = 0;       i<argm;i++) { (*argv)[i].SetName(peek4(dest)); dest+=4; }
-		for(i+=argc-argn;i<argc;i++) { (*argv)[i].SetName(peek4(dest)); dest+=4; }
+		if (argm>argn) argm=argn;
+		for (i = 0;       i<argm;i++) { (*argv)[i].SetName(peek4(dest)); dest+=4; }
+		for (i+=argc-argn;i<argc;i++) { (*argv)[i].SetName(peek4(dest)); dest+=4; }
 
 		RPush(vp-1);				//	RArg4	vp			wird nur für tCHECKSTACKS benötigt!
 		RPush(thread->locals);		//	RArg3	locals
@@ -2498,7 +2462,7 @@ txp:	argc = *ip++;				// anz. args
 				thread->locals->unlock(); thread->locals = RArg3.var;	\
 				thread->proc->unlock();   thread->proc   = RArg2.var; 	\
 				constants = thread->proc->ProcConstants();				\
-				ip = RArg1.ip; RDrop(5);
+				ip = RArg1.ip; RDrop(5)
 
 	#define RDropProcOrInstr() 											\
 				thread->locals->unlock(); thread->locals = RArg3.var; 	\
@@ -2510,15 +2474,15 @@ txp:	argc = *ip++;				// anz. args
 
 
 	case tCHECKSTACK:		//	tCHECKSTACK.n --
-		if( rp-ra >= *ip++ ) QUICK;
+		if (rp-ra >= *ip++) QUICK;
 
 	{	xlog("(*resize stack*)");
 
-		int32  nl = (vp+1-va) + (re-rp) +ip[-1]; IFNDEBUG( nl += nl/2; )
+		ssize_t nl = (vp-va+1) + (re-rp) + *(ip-1); IFNDEBUG( nl += nl/2; )
 		StackData* vn = new StackData[nl];
 
-		memcpy( vn,            va, (vp+1-va)*sizeof(Var*)    );
-		memcpy( vn+nl-(re-rp), rp, (re-rp)*sizeof(StackData) );
+		memcpy( vn,            va, size_t(vp-va+1)*sizeof(Var*)    );
+		memcpy( vn+nl-(re-rp), rp, size_t(re-rp)*sizeof(StackData) );
 
 		// cave-at: va, re are #defines based on thread->stack[_end]
 		//			ve, ra are #defines based on rp and vp
@@ -2536,7 +2500,7 @@ txp:	argc = *ip++;				// anz. args
 		#define rp rpz
 		for(;;)
 		{
-			switch(RType)
+			switch (uint(RType))
 			{
 			case rtDO:		RDrop(RCountDo); continue;
 			case rtGKauf: 	RDrop(RCountGKauf); continue;
@@ -2560,6 +2524,7 @@ txp:	argc = *ip++;				// anz. args
 
 	case tRETURN0:		//	tRETURN0 --|
 		for(;;)
+		{
 			switch(RType)
 			{
 			case rtDO:
@@ -2569,19 +2534,23 @@ txp:	argc = *ip++;				// anz. args
 			case rtINSTR:	RPopProcOrInstr(); DISP;
 			default:		Push(zero); goto tend;
 			}
+		}
 
 	case tRETURN:		//	<value> tRETURN --|
 		Assert1Arg();
 		for(;;)
+		{
 			switch(RType)
 			{
 			case rtDO:
 			case rtTRY:		RDropTryOrDo(); continue;
 			case rtGKauf: 	RDropGKauf(); continue;
 			case rtINSTR:	Drop();
+			FALLTHROUGH
 			case rtPROC:	RPopProcOrInstr(); DISP;
 			default:		goto tend;
 			}
+		}
 
 	case tEOF:		//	tEOF --|
 		Push(zero);
@@ -2592,7 +2561,7 @@ txp:	argc = *ip++;				// anz. args
 tend:	Var* result = TopPtr; vp--;
 		for(;;)
 		{
-			switch(RType)
+			switch (uint(RType))
 			{
 			case rtDO:
 			case rtTRY:		RDropTryOrDo(); continue;
@@ -2611,7 +2580,7 @@ tend:	Var* result = TopPtr; vp--;
 			break;
 		}
 		vp++; TopPtr = result;
-	 	DISP;
+		DISP;
 	}
 
 	case tCHECKSTACKS:
@@ -2620,7 +2589,7 @@ tend:	Var* result = TopPtr; vp--;
 		#define rp rpz
 		for(;;)
 		{
-			switch(RType)
+			switch (uint(RType))
 			{
 			case rtDO:		RDrop(RCountDo); continue;
 			case rtGKauf: 	RDrop(RCountGKauf); continue;
@@ -2668,19 +2637,19 @@ termi_self:
 	{				// TODO: tSPAWN: optimize: direkt in proc starten
 		Assert1Arg();
 		TopReqNumber();
-		float prio = Top.Value(); Drop();
-		int   argc = *ip++;				// 	n
+		float prio = Top.FloatValue(); Drop();
+		uint  argc = *ip++;				// 	n
 		int   skip = *ip++;				// 	m
 
 		AssertNArgs(argc+1);
-		for(int i=1;i<=argc;i++) ArgNAssertTemp(i);
+		for(uint i=1;i<=argc;i++) ArgNAssertTemp(i);
 
 		Thread* t = new Thread(thread,prio,ip,argc+1+RCountProcOrInstr);
-		assert( t->vp+argc+1+RCountProcOrInstr < (Var**)t->rp );
+		assert( t->vp+argc+1+RCountProcOrInstr < reinterpret_cast<Var**>(t->rp) );
 
 		// transfer  proc addr <value>  &  arguments <n*temp>
 		t->vp += argc+1;
-		for(int i=0;i<=argc;i++) { t->vp[-i] = TopPtr; vp--; }
+		for(uint i=0;i<=argc;i++) { t->vp[-i] = TopPtr; vp--; }
 
 		Push( new Var(t) );				//	result: tid
 		threads->AppendItem( TopPtr );	//	also prevents extinction if the returned tid is discarded
@@ -2744,8 +2713,9 @@ xp0:	Push(zero);
 		TopReqNumber();
 		Arg2AssertVar();	// wg. DropPush(r)		TODO: das sollte jetzt überflüssig sein
 		if(Arg2.IsNoList()) goto xd2p0;
-		{	uint32 n = Top.LongValue() -1;
-			if( n>=Arg2.ListSize() ) goto xd2p0;
+		{
+			uint n = uint(Top.Value()) -1;
+			if (n >= Arg2.ListSize()) goto xd2p0;
 			r = &Arg2[n];
 		}
 		Drop();
@@ -2882,9 +2852,10 @@ tdoti:	r = Top.FindItem(nh);
 		Arg2ReqVar();
 	//	Arg2ReqList();
 		if(Arg2.IsNoList()) Arg2.SetList(); if(errno) ERROR;
-		uint32 n = Top.LongValue() -1;
-		if( n>=Arg2.ListSize() )
-		{ 	if(n>>26) goto ERR_IDXOORANGE;
+		uint n = uint(Top.Value()) -1;
+		if (n >= Arg2.ListSize())
+		{
+			if (n>>26) goto ERR_IDXOORANGE;
 			Arg2.ResizeList(n+1);
 		}
 		Drop2Push(Deref(&Arg2[n]));
@@ -2899,9 +2870,9 @@ tdoti:	r = Top.FindItem(nh);
 		Arg2ReqVar();
 	//	Arg2ReqList();
 		if(Arg2.IsNoList()) Arg2.SetList(); if(errno) ERROR;
-		uint32 n = Top.LongValue() -1;
-		if( n<Arg2.ListSize() ) goto ERR_VAREXISTS;
-		if(n>>26) goto ERR_IDXOORANGE;
+		uint n = uint(Top.Value()) -1;
+		if (n < Arg2.ListSize()) goto ERR_VAREXISTS;
+		if (n>>26) goto ERR_IDXOORANGE;
 		Arg2.ResizeList(n+1);
 		Drop2Push(&Arg2[n]);
 	}	QUICK;
@@ -2913,11 +2884,11 @@ tdoti:	r = Top.FindItem(nh);
 		Assert2Args();
 		TopReqNumber();
 		int32 n = Top.LongValue() -1;
-		if(n>>26) goto ERR_IDXOORANGE;
+		if (n>>26) goto ERR_IDXOORANGE;
 
-		if(Arg2.IsList())
+		if (Arg2.IsList())
 		{
-			Var*r = Deref(&Arg2[n]);
+			Var* r = Deref(&Arg2[uint(n)]);
 			r->incr_lock();		// if Arg2IsTemp, eg.: {1,2,3}[1], then r is not implicitely protected from destruction!
 			Drop2Push(r);
 			r->decr_lock();
@@ -2937,13 +2908,15 @@ tdoti:	r = Top.FindItem(nh);
 	case tTO_IDX:		//	<value> <value> tTO_IDX -- <temp>
 		Assert2Args();
 		TopReqNumber();
-		a=0; e = Top.LongValue();
+		a = 0;
+		e = Top.LongValue();
 		goto toto;
 
 	case tIDX_TO:		//	<value> <value> tIDX_TO -- <temp>
 		Assert2Args();
 		TopReqNumber();
-		e = 1<<26; a = Top.LongValue() -1;
+		e = 1<<26;
+		a = Top.LongValue() -1;
 		goto toto;
 
 	case tIDX_TO_IDX:	//	<value> <value> <value> tIDX_TO_IDX -- <temp>
@@ -2954,20 +2927,21 @@ tdoti:	r = Top.FindItem(nh);
 		e = Top.LongValue();
 		Drop();
 toto:
-		if(Arg2.IsList())
+		if (Arg2.IsList())
 		{
-			Var*v=new Var(isList);
-			if(a<0) a=0;
-			if(e>(int32)Arg2.ListSize()) e=Arg2.ListSize();
-			for(;a<e;a++)
+			Var* v = new Var(isList);
+			if (a<0) a=0;
+			if (e>int32(Arg2.ListSize())) e = int32(Arg2.ListSize());
+			for (; a<e; a++)
 			{
-				Var* z = new Var(Arg2[a]); z->SetName(Arg2[a].name);
+				Var* z = new Var(Arg2[uint(a)]);
+				z->SetName(Arg2[uint(a)].name);
 				v->AppendItem(z);
 			}
 			Drop2Push(v);
 			LOOP;
 		}
-		else if(Arg2.IsText())
+		else if (Arg2.IsText())
 		{
 			Arg2ReqTemp();
 			Arg2.Text() = String(Arg2.Text(),a,e);
@@ -2980,8 +2954,8 @@ toto:
 
 
 // missing impl:
-    case tREQUIRE:		// TODO
-    case tIOCTL:		// TODO
+	case tREQUIRE:		// TODO
+	case tIOCTL:		// TODO
 		goto ERR_NIMP;
 
 // dürfen nicht mehr vorkommen:
@@ -2996,27 +2970,27 @@ toto:
 	case tKOMMA:
 	case tTHEN:
 	case tRKauf:
-    case tRKzu:
-    case tEKauf:
-    case tEKzu:
+	case tRKzu:
+	case tEKauf:
+	case tEKzu:
 	case tFROM:
-    case tTO:
-    case tPIPE:
-    case tSOCK:
-    case tCONVERT:
-    case tKOMM:
-    case tKANF:
-    case tKEND:
+	case tTO:
+	case tPIPE:
+	case tSOCK:
+	case tCONVERT:
+	case tKOMM:
+	case tKANF:
+	case tKEND:
 //    case tPWD:
-    case tNEW:
-    case tVAR:
+	case tNEW:
+	case tVAR:
 		goto ERR_IERR;
 
 
-    case tPRIO:			//	<value> tPRIO -- <temp>
+	case tPRIO:			//	<value> tPRIO -- <temp>
 		Assert1Arg();
 		TopReqTid();
-	{	Thread* t = Top.GetThread(); Drop(); Push(new Var(t->GetPrio()));
+	{	Thread* t = Top.GetThread(); Drop(); Push(new Var(Double(t->GetPrio())));
 	}	QUICK;
 
 	case tDEL:			//	<var> tDEL --
@@ -3165,7 +3139,7 @@ ww:		if( errno==ok ) DROP2;
 		Assert2Args();
 		Arg2AssertVar();
 		TopReqString();
-		Arg2 = new Stream( Top.Text(), O_RDWR|O_CREAT );
+		Arg2 = s = new Stream( Top.Text(), O_RDWR|O_CREAT );
 		if(errno==ok) DROP2;
 		goto io_error;
 
@@ -3173,7 +3147,7 @@ ww:		if( errno==ok ) DROP2;
 		Assert2Args();
 		Arg2AssertVar();
 		TopReqString();
-		Arg2 = new Stream( Top.Text(), O_WRONLY|O_CREAT|O_TRUNC );
+		Arg2 = s = new Stream( Top.Text(), O_WRONLY|O_CREAT|O_TRUNC );
 		if(errno==ok) DROP2;
 		goto io_error;
 
@@ -3181,7 +3155,7 @@ ww:		if( errno==ok ) DROP2;
 		Assert2Args();
 		Arg2AssertVar();
 		TopReqString();
-		Arg2 = new Stream( Top.Text(), O_RDONLY );
+		Arg2 = s = new Stream( Top.Text(), O_RDONLY );
 		if(errno==ok) DROP2;
 		goto io_error;
 
@@ -3292,7 +3266,7 @@ compile_error:
 
 		while(rp<re)
 		{
-			switch(RType)
+			switch (uint(RType))
 			{
 			case rtDO:		RDropDo(); continue;
 			case rtGKauf: 	RPopGKauf(); continue;
@@ -3391,7 +3365,7 @@ void VScript::SetThreadError ( )
 	(*v)[2].SetList();			// clear stack list
 }
 
-void VScript::AddToThreadError ( int row, int col, cString& file, cString& info )
+void VScript::AddToThreadError (uint row, uint col, cString& file, cString& info )
 {
 	Var* v = new Var( isList );
 	v->AppendItems (
@@ -3430,8 +3404,9 @@ void Thread::PurgeResources ( )
 	#define unlock Unlock
 // 	note: die macros für lokale variablen in Execute()
 //	funktionieren hier auch wg.
-	while(rp<re-1)
-		switch(RType)
+	while (rp < re-1)
+	{
+		switch (uint(RType))
 		{
 		case rtDO:		 RDropDo(); continue;
 		case rtTRY:		 RDropTry(); continue;
@@ -3442,10 +3417,11 @@ void Thread::PurgeResources ( )
 		case rtINCLUDE:
 		case rtEVAL:	 RDropEvalOrInclude(); continue;
 		case rtTERMI:
-		case rtQUITAPPL: rp=re;		// => break
+		case rtQUITAPPL: rp=re; break;	// => break
 		default:		 logline("Thread::PurgeResources(): RStack corrupted ");
-						 rp=re;		// => break
+						 rp=re; break;	// => break
 		}
+	}
 
 	while(vp>=va) Drop();
 }

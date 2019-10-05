@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -401,7 +401,7 @@ cstr Compiler::tostr(Token*tok)
 	case tNUM:  return ::tostr((*constants)[tok->argument.index].Value());
 	case tSTR:  return quotedstr(CString((*constants)[tok->argument.index].Text()));
 	case tIDF:	return CString(GetNameForHandle(tok->argument.namehandle));
- 	default:	return CString(tokenname[tok->token]);
+	default:	return CString(tokenname[tok->token]);
 	}
 }
 
@@ -643,7 +643,7 @@ void Compiler::Tokenize ( )
 		case tPOSTDECR:	//	++ und -- gehen als pre- und postfix operatoren in beiden op. modi
 		case tPOSTINCR:	//	und ändern den op. mode dabei nicht
 			if(mode==require_value) token = token==tPOSTINCR ? tPREINCR : tPREDECR;	// prefix ++ and --
-			if(!comment) store_token(rowcol,token); continue;
+			if(!comment) { store_token(rowcol,token); } continue;
 
 		case tHASH:		// "#" kann auch an Stelle eines Values vorkommen: put #2, text
 			goto rka;	// danach dann auf jeden Fall ein value
@@ -2817,13 +2817,13 @@ void Compiler::Reorder ( bool exe )
 	{
 		assert(qp<qe);
 		rowcol=qp->rowcol;
-		delete[] zbu; zbu=0;
+		delete[] zbu; zbu=nullptr;
 	}
 	else
 	{
 		rowcol=0;
 		delete[] qa;
-		qa=zbu; qe=zbu+zi; zbu=0;
+		qa=zbu; qe=zbu+zi; zbu=nullptr;
 	}
 }
 

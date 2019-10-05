@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -95,7 +95,7 @@ friend class Thread;
 	void		InitThreadError		( );				// error = { 0, "", {} }
 	void		SetThreadError		( );				// error = { errno, errorstr, {} }
 	void		StartCompileError	( cstr msg );		// error = { errno, errorstr, { c.row,c.col,c.file,msg} }
-	void		AddToThreadError	( int row, int col, cString& file, cString& info );
+	void		AddToThreadError	( uint row, uint col, cString& file, cString& info );
 	void		AddToThreadError	( uptr ip, cString& msg );
 
 	void		get_cgi_arguments	( Var*, cstr );

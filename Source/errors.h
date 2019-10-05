@@ -56,7 +56,7 @@ extern int custom_error;
 
 
 // methods:
-EXT	cstr	errorstr	( int err );
+EXT	cstr	errorstr	( int err ) noexcept;
 
 INL	int		GetError	( )		__attribute__ ((deprecated));		// use errno
 INL	int		GetError	( )		{ return errno; }

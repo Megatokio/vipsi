@@ -896,7 +896,7 @@ uint32 write_short_data_x( int fd, int16 const* bu, uint32 items ) noexcept(fals
 		write_data( fd, zbu, items );	// throw file_error
 		return items;
 	}
-	catch(bad_alloc){}
+	catch(bad_alloc&){}
 
 	write_short_data_x( fd, bu,         items/2 );
 	write_short_data_x( fd, bu+items/2, items-items/2 );

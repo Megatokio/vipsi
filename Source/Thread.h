@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ class					Thread;
 typedef	Thread *		Tid;			// thread identifier
 
 
-extern int32 volatile	disp_flag;		// the central dispatcher flags
+extern volatile	uint32	disp_flag;		// the central dispatcher flags
 
 extern Tid				t_running;		// linked list of all running threads sorted by priority
 extern Tid				t_timeshed;		// linked list of all time sheduled threads sorted by alarm time
@@ -79,7 +79,7 @@ enum									// disp_flag:				Twsp.state:
 
 
 
-enum RStackType
+enum RStackType : uint
 { 	rtDO,			//
 	rtTRY, 			//
 	rtGKauf,		// local context

@@ -55,7 +55,7 @@ INIT_MSG
 
 /* ----	data ---------------------------------------------------
 */
-int32 volatile	disp_flag	= 0;	// the central dispatcher flags
+volatile uint32	disp_flag	= 0;	// the central dispatcher flags
 
 Tid				t_running	= 0;	// linked list of all running threads sorted by priority
 Tid				t_timeshed	= 0;	// linked list of all time sheduled threads sorted by alarm time

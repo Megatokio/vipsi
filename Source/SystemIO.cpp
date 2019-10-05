@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -138,7 +138,7 @@ uint32 VolumeFlags ( cstr path )
 #else
 	int16 f = fs.f_flags;
 	wprot   = f&MNT_RDONLY;
-    ejectbl = (f&MNT_NOSUID) && (f&MNT_NODEV);
+	ejectbl = (f&MNT_NOSUID) && (f&MNT_NODEV);
 	mounted = fs.f_blocks>0;
 #endif
 
@@ -398,7 +398,7 @@ void ReadLink ( cString& path, String& data )
 
 	if(errno)
 	{
-	 	data.Clear();
+		data.Clear();
 		PrependToError( String("read link ")+ToQuoted(path)+failed );
 	}
 }
@@ -433,7 +433,7 @@ static str effmodestr( mode_t mode, gid_t file_grp, uid_t file_usr )
 
 /* ----	read directory into vektor variable -------------------
 		in:	does nothing, if errno is already set
-   			except: v is always made a vektor
+			except: v is always made a vektor
 */
 void ReadDir ( cString& path, Var& v )
 {
@@ -663,16 +663,16 @@ void GetVolumeInfo ( Var& v )
 	struct statfs* info;
 	int n = getmntinfo(&info, 1?MNT_WAIT:MNT_NOWAIT);
 #else
-	str bu = ExecCmd("/bin/mount",nullptr);		TRAP(!bu);
+	str bu = execCmd("/bin/mount",nullptr);		assert(bu);
 	Var mi = Var(String(bu)); delete[]bu;		// assumes UTF-8
 	mi.SplitLines();							// split into lines[]
 	mi.DeleteLastItem();						// delete last empty line
 	mi.SplitLines(' ');							// split into fields[][]
 	// mi[i] = { device, "on", mountpoint, "type", fs_type, (flags) }
-	int n = mi.ListSize();
+	uint n = mi.ListSize();
 #endif
 
-	for (int i=0;i<n;i++)
+	for (uint i=0; i<n; i++)
 	{
 	#if defined(_BSD)
 		struct statfs& fs = info[i];						// file system info
@@ -774,9 +774,9 @@ void GetVolumeInfo ( Var& v )
 		(*w)[20] = 0;		// ***TODO***
 		(*w)[21] = 0;		// ***TODO***
 	#else
-		(*w)[19] = (double)fs.f_bsize * fs.f_blocks;
-		(*w)[20] = (double)fs.f_bsize * fs.f_bavail;
-		(*w)[21] = (double)fs.f_bsize * fs.f_bfree;
+		(*w)[19] = double(fs.f_bsize) * fs.f_blocks;
+		(*w)[20] = double(fs.f_bsize) * fs.f_bavail;
+		(*w)[21] = double(fs.f_bsize) * fs.f_bfree;
 	#endif
 	}
 }

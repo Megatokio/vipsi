@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -142,9 +142,9 @@ cptr Stream::find_stop_ctl ( cptr a, cptr e, uint32 stopctls )
 {
 	switch( input.encoding )
 	{
-	default:	return (ptr) ::find_stop_ctl( (ucs1char*)        a,      (ucs1char*)        e,      stopctls );
-	case UCS2:	return (ptr) ::find_stop_ctl( (ucs2char*)(size_t(a)&~1), (ucs2char*)(size_t(e)&~1), stopctls );
-	case UCS4:	return (ptr) ::find_stop_ctl( (ucs4char*)(size_t(a)&~3), (ucs4char*)(size_t(e)&~3), stopctls );
+	default:	return (cptr) ::find_stop_ctl( (const ucs1char*)        a,      (const ucs1char*)        e,      stopctls );
+	case UCS2:	return (cptr) ::find_stop_ctl( (const ucs2char*)(size_t(a)&~1), (const ucs2char*)(size_t(e)&~1), stopctls );
+	case UCS4:	return (cptr) ::find_stop_ctl( (const ucs4char*)(size_t(a)&~3), (const ucs4char*)(size_t(e)&~3), stopctls );
 	}
 }
 
@@ -174,7 +174,7 @@ inline void Stream::putback_or_lseek ( cptr p, int32 n )
 {
 	if( n ) if( NoFileOrBlockDevice() || lseek(fd,-n,SEEK_CUR)==-1 )
 	{
-		input.io_buffer = String( (uptr)p, n ) + input.io_buffer;
+		input.io_buffer = String( cuptr(p), n ) + input.io_buffer;
 	}
 }
 
@@ -445,7 +445,7 @@ a:	int32 m = read( fd, p, n );
 	if( input.io_stopctls && (e = find_stop_ctl(p,p+m,input.io_stopctls)) )
 	{
 		assert( input.io_buffer.Len() == 0 );
-		input.io_buffer = String( (ucs1char*)e, m-(e-p) );
+		input.io_buffer = String( (const ucs1char*)e, m-(e-p) );
 		n -= e-p; p = const_cast<ptr>(e);
 	}
 	else
@@ -1130,8 +1130,10 @@ void Stream::TTYReceivePosition ( int& row, int& col, ResumeCode resume )
 
 a:	row=0; col=0;
 
-	if(p==e) goto x; if(*p!=27)  goto a; else pe = p-1;
-	if(p==e) goto x; if(*p!='[') goto a;
+	if (p == e) goto x;
+	if (*p!=27) goto a; else pe = p-1;
+	if (p == e) goto x;
+	if (*p!='[') goto a;
 
 b:	if(p==e) goto x; c = *p++; if(c==';') goto c;
 	if(no_dec_digit(c)) goto a;
