@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -77,13 +77,13 @@ class Compiler
 	int			v_now;			// stack depth
 	int			v_max;
 	void		v_up		( int n )		{ if ((v_now+=n)>v_max) v_max=v_now; }
-	void		v_down		( int n )		{ v_now-=n; assert(v_now>=0); }
-	void		v_delta		( int n )		{ if(n && errno==ok){if(n>0) v_up(n); else v_down(-n);} }
+	void		v_down		( int n )		{ v_now -= n; if (errno==ok) { assert(v_now>=0); }}
+	void		v_delta		( int n )		{ if (n) { if (n>0) v_up(n); else v_down(-n); }}
 	void		v_clear		( )				{ v_max = v_now = 0; }
 	int			r_now;
 	int			r_max;
 	void		r_up		( int n )		{ if ((r_now+=n)>r_max) r_max=r_now; }
-	void		r_down		( int n )		{ r_now-=n; assert(r_now>=0); }
+	void		r_down		( int n )		{ r_now-=n; if (errno==ok) { assert(r_now>=0); }}
 	void		r_clear		( )				{ r_max = r_now = 0; }
 
 
