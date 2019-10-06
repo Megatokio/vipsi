@@ -50,17 +50,8 @@
 #endif
 #include "SystemIO.h"
 #include "Var/Var.h"
+#include "serrors.h"
 DEBUG_INIT_MSG
-
-// serrors.cpp:
-inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
-extern	String	ErrorString	( );
-extern	void	ForceError	( int/*OSErr*/e, cString& msg );
-inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
-inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
-inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
-extern	void	AppendToError	( cString& msg );
-extern	void	PrependToError	( cString& msg );
 
 
 const String failed(" failed: ");

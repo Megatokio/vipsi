@@ -34,49 +34,33 @@
 
 #define SAFE 3
 #define LOG 0
-#include	"kio/kio.h"
-#include	"kio/peekpoke.h"
+#include "kio/kio.h"
+#include "serrors.h"
 DEBUG_INIT_MSG
 extern void InitHR();
-static struct INIT_HR { INIT_HR(){InitHR();} } dummyname;
+ON_INIT(InitHR);
 
-#define		TOKEN_PASS	1
-#include	"token.h"
-#define		TOKEN_PASS	2
-#include	"token.h"
-#define		TOKEN_PASS	3
-#include	"token.h"
-#define		TOKEN_PASS	4
-#include	"token.h"
-#define		TOKEN_PASS	5
-#include	"token.h"
-#define		TOKEN_PASS	6
-#include	"token.h"
-#define		TOKEN_PASS	7
-#include	"token.h"
+#define	 TOKEN_PASS	1
+#include "token.h"
+#define	 TOKEN_PASS	2
+#include "token.h"
+#define	 TOKEN_PASS	3
+#include "token.h"
+#define	 TOKEN_PASS	4
+#include "token.h"
+#define	 TOKEN_PASS	5
+#include "token.h"
+#define	 TOKEN_PASS	6
+#include "token.h"
+#define	 TOKEN_PASS	7
+#include "token.h"
 
-#include	"Compiler.h"
-#include	"VScript.h"
-#include	"Var/Var.h"
-#include	<math.h>
-#include	"Templates/Stack.h"
-#include	"SystemIO.h"
-
-
-// serrors.cpp:
-inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
-extern	String	ErrorString	( );
-extern	void	ForceError	( int/*OSErr*/e, cString& msg );
-inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
-inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
-inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
-extern	void	AppendToError	( cString& msg );
-extern	void	PrependToError	( cString& msg );
-
-
-#ifndef TABWIDTH
-#define TABWIDTH	4
-#endif
+#include "Compiler.h"
+#include "VScript.h"
+#include "Var/Var.h"
+#include <math.h>
+#include "Templates/Stack.h"
+#include "SystemIO.h"
 
 
 const Double	d_pi	=	3.141592653589793238462;		// constant pi

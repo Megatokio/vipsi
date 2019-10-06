@@ -47,71 +47,59 @@
 #include "Stream.h"
 #include "VScript.h"
 #include "Thread.h"
+#include "serrors.h"
 DEBUG_INIT_MSG
 
 
-// serrors.cpp:
-inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
-extern	String	ErrorString	( );
-extern	void	ForceError	( int/*OSErr*/e, cString& msg );
-inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
-inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
-inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
-extern	void	AppendToError	( cString& msg );
-extern	void	PrependToError	( cString& msg );
-
-
-static struct termios	old_stdin_termios;
+static struct termios old_stdin_termios;
 
 uint verbose = 0;
 
 
-
-/* ----	restore old settings for stdin ---------------------------
-		sheduled via atexit()
-*/
-static void restore_stdin ( void )
+static void restore_stdin (void)
 {
+	// restore old settings for stdin
+	// sheduled via atexit()
+
 	xlogIn("RestoreStdin()");
 
 	char bu[]="\033[0m"; write(0,bu,4);			// reset text attributes
 	tcsetattr(0,TCSADRAIN,&old_stdin_termios);	// drain output, then change
 }
 
-
-/* ---- show help summary -----------------------------------
-		display optimized for 80 character terminals
-*/
 static void ShowHelp ( void )
 {
+	// show help summary
+	// optimized for 80 character terminals
+
 	fputs( "\n"
-"______________________________________________________________________________\n"
-"" applLongName " " applVersion " " applCopyright ".\n"
-"  built by " buildUser " at " buildDate " for " buildTarget ".\n"
-"  send bug reports to: " applEmail "\n"
-"  development release. please set your terminal to utf-8 and vt100.\n"
-"  see " applWebsite " for latest documentation.\n"
-"\n"
-"vipsi -v        => verbose mode\n"
-"vipsi -p        => pretend - check syntax only\n"
-"vipsi -h        => print help screen\n"
-"vipsi -t        => run internal test\n"
-"vipsi -i file   => set stdin\n"
-"vipsi -o file   => set stdout\n"
-"vipsi -l file   => set stderr\n"
-"\n"
-"vipsi filename  => execute script.\n"
-"vipsi           => interactive shell. help available from within.\n"
-"______________________________________________________________________________\n"
-"", stderr );
+	"______________________________________________________________________________\n"
+	"" applLongName " " applVersion " " applCopyright ".\n"
+	"  built by " buildUser " at " buildDate " for " buildTarget ".\n"
+	"  send bug reports to: " applEmail "\n"
+	"  development release. please set your terminal to utf-8 and vt100.\n"
+	"  see " applWebsite " for latest documentation.\n"
+	"\n"
+	"vipsi -v        => verbose mode\n"
+	"vipsi -p        => pretend - check syntax only\n"
+	"vipsi -h        => print help screen\n"
+	"vipsi -t        => run internal test\n"
+	"vipsi -i file   => set stdin\n"
+	"vipsi -o file   => set stdout\n"
+	"vipsi -l file   => set stderr\n"
+	"\n"
+	"vipsi filename  => execute script.\n"
+	"vipsi           => interactive shell. help available from within.\n"
+	"______________________________________________________________________________\n"
+	"", stdout );
 }
 
 
 
-/* ---- program entry ---------------------------
-*/
 int main( int argc, cstr argv[] )
 {
+	// *** program entry ***
+
 	int i=0;
 
 	openLogfile("/var/log/vipsi/", DAILY, 30/*max_logfiles*/, no/*log2console*/, no/*with_date*/, no/*with_msec*/);
@@ -151,8 +139,7 @@ int main( int argc, cstr argv[] )
 	srandom(uint32(intCurrentTime()));
 	errno = ok;
 
-
-// scan for options
+	// scan for options:
 	while ( i<argc )
 	{
 		cstr s = argv[i];
@@ -222,7 +209,6 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		return errno;
 	}
 
-
 	if (verbose)
 	{
 		logNl();
@@ -268,34 +254,7 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		assert(errno==ok);
 	}
 
-
-// run internal test ?
-	if (verbose && test)
-	{
-		#ifdef INCLUDE_VAR_TEST_SUITE
-			errno=ok;
-			TestVarClass();
-			if (errno) logline("*** Var Test error: %s ***\n",errorstr()); else logNl();
-		#else
-			logline("class Var test suite was not compiled in.\n");
-		#endif
-
-		#ifdef INCLUDE_STRING_TEST_SUITE
-			uint num_tests=0, num_errors=0;
-			TestStringClass(num_tests, num_errors);
-			if (num_errors)
-			{
-				printf("*** String Test failed: %i errors in %i tests ***\n",num_errors,num_tests);
-				exit(1);
-			}
-			else logline("string tests passed");
-		#else
-			logline("class String test suite was not compiled in.\n");
-		#endif
-		errno=ok;
-	}
-
-// setup tty
+	// setup tty:
 	if (ClassifyFile(0)==s_tty)
 	{
 		struct termios new_stdin_termios;
@@ -318,23 +277,43 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		}
 	}
 
-
-// run test script ?
-	if (test)				// vipsi -t
+	// run self tests?
+	if (test)
 	{
+		#ifdef INCLUDE_VAR_TEST_SUITE
+			errno=ok;
+			TestVarClass();
+			if (errno) logline("*** Var Test error: %s ***\n",errorstr()); else logNl();
+		#else
+			logline("class Var test suite was not compiled in.\n");
+		#endif
+
+		#ifdef INCLUDE_STRING_TEST_SUITE
+			uint num_tests=0, num_errors=0;
+			TestStringClass(num_tests, num_errors);
+			if (num_errors)
+			{
+				printf("*** String Test failed: %i errors in %i tests ***\n",num_errors,num_tests);
+				exit(1);
+			}
+			else logline("string tests passed");
+		#else
+			logline("class String test suite was not compiled in.\n");
+		#endif
+
 		cstr fname = "00_test.vs";
 		cstr pp[] =
 		{
 			"Libs/test_suite/", 				// libs in installation directory
-			"../Libs/test_suite/",				// libs in installation directory	(MacOS)
-			"../../Libs/test_suite/",	 		// libs in installation directory	(MacOS)
+			"../Libs/test_suite/",				// libs in installation directory
+			"../../Libs/test_suite/",	 		// libs in installation directory
 			"/usr/local/lib/vipsi/test_suite/",	// system-wide libs
 			"/opt/local/lib/vipsi/test_suite/",	// system-wide libs
 			"~/.vipsi/test_suite/", 			// libs in user preferences
 		};
 		cstr p   = nullptr;
 		time_t t = 0;
-		for(uint j=0;j<NELEM(pp);j++)
+		for (uint j=0; j<NELEM(pp); j++)
 		{
 			pp[j] = FullPath(pp[j],1);
 			if (!IsDir(pp[j])) continue;
@@ -356,7 +335,7 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		}
 	}
 
-// shell mode ?
+	// shell mode?
 	else if (i==argc)
 	{
 		shell=yes;
@@ -366,14 +345,13 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		{
 			"Libs/",					// libs in project directory
 			"../Libs/",					// libs in installation directory
-			"../../Libs/", 				// libs in installation directory  (Mac OSX)
-			"../../../Libs/", 			// libs in installation directory  (Mac OSX)
+			"../../Libs/", 				// libs in installation directory
 			"/usr/local/lib/vipsi/",	// system-wide libs
 			"/opt/local/lib/vipsi/",	// system-wide libs
 			"~/.vipsi/", 				// libs in user preferences
 		};
 		cstr p = nullptr;
-		for(uint j=0;j<NELEM(pp);j++)
+		for (uint j=0; j<NELEM(pp); j++)
 		{
 			pp[j] = FullPath(pp[j],1);
 			if (!IsDir(pp[j])) { xxlog("-D"); continue; }
@@ -394,14 +372,13 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		}
 	}
 
-// run [cgi] script
+	// run [cgi] script:
 	else
 	{
 		argvFile = argv[i++];
 	}
 
-
-// result cell
+	// result cell:
 	Var* v = nullptr;
 
 	if(pretend)
@@ -411,7 +388,7 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 	}
 	else
 	{
-	// create instances:
+		// create instances:
 		Stream* io0 = new Stream( 0, stdinName  ? stdinName  : "stdin://" );
 		Stream* io1 = new Stream( 1, stdoutName ? stdoutName : "stdout://" );
 		Stream* io2 = new Stream( 2, stderrName ? stderrName : "stderr://" );
@@ -422,12 +399,12 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 						 new Var(argv+i,uint(argc-i)), // arguments to script
 						 io0, io1, io2 );			// streams
 
-	// *** DO IT ***
+		// *** DO IT ***
 		if(errno==ok) { v = vscript.Execute(); if(v) v->Lock(); }
 		cgi = vscript.RunType()==rt_cgi;
 	}
 
-// result:
+	// result:
 	// bash: 126 = command found but not executable
 	//		 127 = command not found
 	//		 128+N command terminated by signal N
@@ -446,8 +423,7 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 				? int(v->Value())
 				: result_notrepresentable;
 
-
-// error ?
+	// error?
 	if(errno)
 	{
 		cstr errstr = dupstr(errorstr());
@@ -496,8 +472,7 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		}
 	}
 
-
-// stats:
+	// stats:
 	if (verbose)
 	{
 	#ifdef OPCODE_PROFILING

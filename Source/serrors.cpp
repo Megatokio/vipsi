@@ -1,11 +1,11 @@
 /*	Copyright  (c)	Günter Woigk 1999 - 2019
-  					mailto:kio@little-bat.de
+					mailto:kio@little-bat.de
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -42,22 +42,20 @@ note:
 #define	SAFE	2
 #define	LOG		1
 
-#include	<string.h>
-#include	"kio/kio.h"
-#include 	"VString/String.h"
-#include	<sys/stat.h>
+#include "kio/kio.h"
+#include "serrors.h"
+#include "VString/String.h"
+#include <string.h>
+#include <sys/stat.h>
 
-
-cstr ETEXT[] = {
-#define		EMAC(a,b)	b
-#include	"kio/errors.h"
+static cstr ETEXT[] = {
+#define  EMAC(a,b)	b
+#include "kio/errors.h"
 };
 
 
-int 	custom_error = 0;
-String 	custom_errmsg;
-
-
+static int 	custom_error = 0;
+static String custom_errmsg;
 
 
 /* ----	get default error text for error ------------------------------------------------

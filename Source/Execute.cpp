@@ -40,23 +40,12 @@
 #include <signal.h>
 #include <sys/time.h>
 #include "unix/os_utilities.h"
-#include "kio/peekpoke.h"
 #include "freeze.h"
 #include "token.h"
 #include "SystemIO.h"
 #include "VScript.h"
+#include "serrors.h"
 DEBUG_INIT_MSG
-
-
-// serrors.cpp:
-inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
-extern	String	ErrorString	( );
-extern	void	ForceError	( int/*OSErr*/e, cString& msg );
-inline	void	SetError	( int/*OSErr*/e, cString& msg )	{ if(errno==ok) ForceError(e,msg); }
-inline	void	ForceError	( cString& msg )				{ ForceError(-1,msg); }
-inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
-extern	void	AppendToError	( cString& msg );
-extern	void	PrependToError	( cString& msg );
 
 
 #ifdef OPCODE_PROFILING

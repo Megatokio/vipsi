@@ -65,6 +65,7 @@ HEADERS += \
 	Source/globals.h \
 	Source/Irpt.h \
 	Source/Sema.h \
+	Source/serrors.h \
 	Source/settings.h \
 	Source/Stream.h \
 	Source/SystemIO.h \
