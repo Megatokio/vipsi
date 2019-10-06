@@ -41,9 +41,7 @@
 #include "token.h"
 #include "SystemIO.h"
 #include "Var/Var.h"
-
-
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 #define	XXCHECK(N)

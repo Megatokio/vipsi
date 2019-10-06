@@ -50,7 +50,7 @@
 #include <new>
 #include "file_utilities.h"
 #include "errors.h"
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 typedef struct std::nothrow_t nothrow_t;		// <new>:	std::nothrow_t

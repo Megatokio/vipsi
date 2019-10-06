@@ -36,7 +36,7 @@
 #define LOG 0
 #include	"kio/kio.h"
 #include	"kio/peekpoke.h"
-INIT_MSG
+DEBUG_INIT_MSG
 extern void InitHR();
 static struct INIT_HR { INIT_HR(){InitHR();} } dummyname;
 
@@ -759,7 +759,7 @@ number:	{	int32 n = a-qa;
 							mode = require_value;
 							continue;
 						}
-						// error: goto default
+						FALLTHROUGH // error: goto default
 
 					default:
 						store_token(rowcol,tok);
@@ -1423,6 +1423,7 @@ stq0:		store_token(qp0);
 
 		case tEVAL:		//	eval <value> [, ...]		// <value> tEVAL -- <value>
 			tok = tEXE;
+			FALLTHROUGH
 		case tINCLUDE:	//	include <value> [, ...]		// 	<value> tINCLUDE -- <value>
 		case tREQUIRE:	//	require <value> [, ...]
 			do
@@ -1768,7 +1769,7 @@ stq0:		store_token(qp0);
 			if(qp0->token==tPROC) goto tp;
 
 			if(qp0->token!=tVAR) { qp--; qp0--; }
-			// goto tVAR
+			FALLTHROUGH // goto tVAR
 
 		case tVAR:		//	[new] [var] <variable> [= <value>] [, ...]
 			do
@@ -2085,6 +2086,7 @@ ResultClass Compiler::value ( int prio )
 	// 	<value> <n*value> token.n -- <value>
 	case tCALL:		//	call ( <value> [, ...] )
 		r_up(RCountCall); r_down(RCountCall);
+		FALLTHROUGH
 	case tMIN:		// 	min ( <value> [, ...] )
 	case tMAX:		// 	max ( <value> [, ...] )
 		expect(tRKauf);
@@ -2228,7 +2230,7 @@ tf:		expect(tKOMMA);
 				expect(tEKzu);
 			}
 			else break;
-		};
+		}
 
 		store_token(qp0->rowcol,tDROP);
 		store_token(qp0->rowcol,tNUM1);
@@ -2860,7 +2862,7 @@ void Compiler::Compile ( bool exe )
 	Tokenize();			if(errno) { where = " (Compile:Tokenize)"; goto x; }	// source ->  qa
 	CheckLoops();		if(errno) { where = " (Compile:ChkLoops)"; goto x; }	//    qa  ->  qa
 	Reorder(exe);		if(errno) { where = " (Compile:Reorder)" ; goto x; }	//    qa  ->  qa
-	if(o) Optimize();	if(errno) { where = " (Compile:Optimize)"; goto x; }	//    qa  ->  qa
+	if(o) {Optimize();}	if(errno) { where = " (Compile:Optimize)"; goto x; }	//    qa  ->  qa
 	Assemble();			if(errno) { where = " (Compile:Assemble)"; goto x; }	//    qa  -> core, rowcolxref
 
 	new Var( bundle, bundle_core, core, 	  "core" );
@@ -2872,7 +2874,11 @@ void Compiler::Compile ( bool exe )
 	bundle->DeepLockData();
 	return;	// ok
 
-x:	if(XXLOG) AppendToError(String(where));
+#if XXLOG
+x:	AppendToError(String(where));
+#else
+x:	(void)where;
+#endif
 }
 
 

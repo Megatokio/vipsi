@@ -1,11 +1,11 @@
 /*	Copyright  (c)	Günter Woigk 2001 - 2019
-  					mailto:kio@little-bat.de
+					mailto:kio@little-bat.de
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 #define	file_utilities_h
 
 #include "kio/kio.h"
-
+#include "unix/s_type.h"
 
 #if !defined(_POSIX_SOURCE) && !defined(_SOLARIS)
 	#define M_TIME(TS) ((TS).st_mtimespec.tv_sec)
@@ -47,7 +47,7 @@
 
 typedef struct std::nothrow_t nothrow_t;		// <new>:	std::nothrow_t
 
-typedef enum
+/*typedef enum
 {
 	s_none,
 	s_file,
@@ -61,7 +61,7 @@ typedef enum
 	s_unkn,
 	s_any		// used for selecting files by type
 }
-s_type;
+s_type;*/
 
 
 extern	s_type	ClassifyFile	( mode_t mode );

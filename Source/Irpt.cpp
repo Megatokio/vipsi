@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -33,8 +33,7 @@
 #define LOG 1
 #include "Irpt.h"
 #include "Thread.h"
-
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 Irpt* volatile		asyncIrpt[32];		// store addr. of asynchronously triggered interrupts

@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,6 @@
 #include <unistd.h>
 #include <termios.h>
 #include "unix/os_utilities.h"
-#include "version.h"
 #undef TAB1	// #define in <termios.h>
 #undef TAB2	// #define in <termios.h>
 #undef TAB3	// #define in <termios.h>
@@ -48,8 +47,7 @@
 #include "Stream.h"
 #include "VScript.h"
 #include "Thread.h"
-
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 // serrors.cpp:
@@ -62,10 +60,6 @@ inline	void	SetError	( cString& msg )				{ if(errno==ok) ForceError(-1,msg); }
 extern	void	AppendToError	( cString& msg );
 extern	void	PrependToError	( cString& msg );
 
-
-cstr appl_name = applName;		// for abort.cp
-
-//Stream*	stdStream[3]	= { nullptr,nullptr,nullptr };
 
 static struct termios	old_stdin_termios;
 
@@ -96,7 +90,7 @@ static void ShowHelp ( void )
 "  built by " buildUser " at " buildDate " for " buildTarget ".\n"
 "  send bug reports to: " applEmail "\n"
 "  development release. please set your terminal to utf-8 and vt100.\n"
-"  see <http://k1.spdns.de/Develop/projects/vipsi/> for latest documentation.\n"
+"  see " applWebsite " for latest documentation.\n"
 "\n"
 "vipsi -v        => verbose mode\n"
 "vipsi -p        => pretend - check syntax only\n"
@@ -117,7 +111,8 @@ static void ShowHelp ( void )
 /* ---- program entry ---------------------------
 */
 int main( int argc, cstr argv[] )
-{	int i=0;
+{
+	int i=0;
 
 	openLogfile("/var/log/vipsi/", DAILY, 30/*max_logfiles*/, no/*log2console*/, no/*with_date*/, no/*with_msec*/);
 	xlogIn("main()");
@@ -126,7 +121,7 @@ int main( int argc, cstr argv[] )
 
 	#ifndef NDEBUG
 	{
-		for (int i=0;i<8;i++)
+		for (int i=0; i<8; i++)
 		{
 			static uchar bu[16];
 			write_double(bu+i,123.456e78);
@@ -153,8 +148,8 @@ int main( int argc, cstr argv[] )
 	bool test       = no;
 	bool shell		= no;
 	bool cgi		= no;
-	srandom(intCurrentTime());
-	errno=ok;
+	srandom(uint32(intCurrentTime()));
+	errno = ok;
 
 
 // scan for options
@@ -275,20 +270,25 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 
 
 // run internal test ?
-	if (verbose&&test)
+	if (verbose && test)
 	{
 		#ifdef INCLUDE_VAR_TEST_SUITE
 			errno=ok;
-			TestStringClass();
-			if (errno) logline("*** String Test error: %s ***\n",errorstr()); else logNl();
+			TestVarClass();
+			if (errno) logline("*** Var Test error: %s ***\n",errorstr()); else logNl();
 		#else
 			logline("class Var test suite was not compiled in.\n");
 		#endif
 
 		#ifdef INCLUDE_STRING_TEST_SUITE
-			errno=ok;
-			TestVarClass();
-			if (errno) logline("*** Var Test error: %s ***\n",errorstr()); else logNl();
+			uint num_tests=0, num_errors=0;
+			TestStringClass(num_tests, num_errors);
+			if (num_errors)
+			{
+				printf("*** String Test failed: %i errors in %i tests ***\n",num_errors,num_tests);
+				exit(1);
+			}
+			else logline("string tests passed");
 		#else
 			logline("class String test suite was not compiled in.\n");
 		#endif
@@ -325,9 +325,9 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		cstr fname = "00_test.vs";
 		cstr pp[] =
 		{
-			"../Libs/test_suite/", 				// libs in installation directory
-			"../../Libs/test_suite/", 			// libs in installation directory	(MacOS)
-			"../../../Libs/test_suite/", 		// libs in installation directory	(MacOS)
+			"Libs/test_suite/", 				// libs in installation directory
+			"../Libs/test_suite/",				// libs in installation directory	(MacOS)
+			"../../Libs/test_suite/",	 		// libs in installation directory	(MacOS)
 			"/usr/local/lib/vipsi/test_suite/",	// system-wide libs
 			"/opt/local/lib/vipsi/test_suite/",	// system-wide libs
 			"~/.vipsi/test_suite/", 			// libs in user preferences
@@ -419,7 +419,7 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 		VScript vscript( shell?rt_shell:rt_script,	// shell ?
 						 String(argvName),			// invocation name
 						 String(argvFile), 			// script
-						 new Var(argv+i,argc-i),	// arguments to script
+						 new Var(argv+i,uint(argc-i)), // arguments to script
 						 io0, io1, io2 );			// streams
 
 	// *** DO IT ***
@@ -500,14 +500,6 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 // stats:
 	if (verbose)
 	{
-	#ifdef USE_KIOS_MALLOC
-	#ifdef MALLOC_STATISTICS
-		logline("  internal memory requests:     %li total", malloc_requests );
-   		logline("  external memory allocations:  %li total", malloc_xrequests );
-		logline("  internal memory still in use: %li",       MallocUsedBlocks() );
-	#endif
-	#endif
-
 	#ifdef OPCODE_PROFILING
 		logline("\ntokens defined: %i", int(tokens));
 

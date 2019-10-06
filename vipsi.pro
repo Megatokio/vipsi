@@ -47,18 +47,21 @@ SOURCES +=  \
 	Libraries/Var/NameHandles.cpp \
 	Libraries/Var/Var.cpp \
 	Libraries/VString/String.cpp \
+	Libraries/VString/String_test_suite.cpp \
 	Libraries/unix/log.cpp \
 	Libraries/unix/tempmem.cpp \
 	Libraries/unix/os_utilities.cpp \
 	Libraries/cstrings/legacy_charsets.cpp \
 
 HEADERS += \
+	Libraries/kio/auto_config.h \
+	Libraries/kio/detect_configuration.h \
+	Libraries/kio/errors.h \
 	Source/BPObj.h \
 	Source/CObj.h \
 	Source/Compiler.h \
 	Source/custom_errors.h \
 	Source/Execute.h \
-	Source/file_utilities.h \
 	Source/globals.h \
 	Source/Irpt.h \
 	Source/Sema.h \
@@ -67,7 +70,6 @@ HEADERS += \
 	Source/SystemIO.h \
 	Source/Thread.h \
 	Source/token.h \
-	Source/version.h \
 	Source/VScript.h \
 	Source/compress_errors.h \
 	Source/freeze.h \

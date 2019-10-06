@@ -50,10 +50,7 @@
 #endif
 #include "SystemIO.h"
 #include "Var/Var.h"
-
-
-
-INIT_MSG
+DEBUG_INIT_MSG
 
 // serrors.cpp:
 inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }

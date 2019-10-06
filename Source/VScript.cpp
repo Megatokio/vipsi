@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -42,12 +42,9 @@
 #include "VScript.h"
 #include "Thread.h"
 #include "Execute.h"
-#include "version.h"
 #include "token.h"
 #include "globals.h"
-
-
-INIT_MSG
+DEBUG_INIT_MSG
 
 // serrors.cpp:
 inline	String	ErrorString	( int/*OSErr*/ e )				{ return errorstr(e); }
@@ -217,24 +214,11 @@ VScript::VScript ( rt runtyp, cString& applname, cString& filename, Var* argv, S
 		#error hm hm ...
 	#endif
 
-	#if defined(USE_KIOS_MALLOC)
-		appl->AppendItem( new Var( 1.0, "kiosMalloc" ) );
-	#endif
-	#if defined(MALLOC_STATISTICS)
-		appl->AppendItem( new Var( 1.0, "mallocStatistics" ) );
-	#endif
 	#if defined(OPCODE_PROFILING)
 		appl->AppendItem( new Var( 1.0, "opcodeProfiling" ) );
 	#endif
 
 // root.stats:
-
-	#ifdef MALLOC_STATISTICS
-		stats->AppendItems(
-			malloc_requests   = new Var( isNumber, "mallocRequests"   ),
-			malloc_xrequests  = new Var( isNumber, "mallocXRequests"  ),
-			malloc_usedblocks = new Var( isNumber, "mallocUsedBlocks" ) );
-	#endif
 
 	#ifdef OPCODE_PROFILING
 		stats->AppendItem( opcode_profile = new Var( isList, "opcodeProfiles" ) );

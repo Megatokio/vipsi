@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,7 @@
 #include "Sema.h"
 
 #define XXCHECK(N)
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 /* ----	remove sema from old owner's blocked_sems list -------------------

@@ -45,9 +45,7 @@
 #include "token.h"
 #include "SystemIO.h"
 #include "VScript.h"
-
-
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 // serrors.cpp:

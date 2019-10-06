@@ -79,11 +79,6 @@ friend class Thread;
 	Var*				stdout0;	// original stream
 	Var*				stderr0;	// original stream
 	Var*			stats;
-#ifdef MALLOC_STATISTICS
-	Var*				malloc_requests;
-	Var*				malloc_xrequests;
-	Var*				malloc_usedblocks;
-#endif
 #ifdef OPCODE_PROFILING
 	Var*				opcode_profile;
 #endif

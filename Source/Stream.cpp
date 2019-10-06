@@ -84,8 +84,7 @@ async i/o pseudo-code example:
 #define LOG 1
 #include "Stream.h"
 #include "cstrings/utf8.h"
-
-INIT_MSG
+DEBUG_INIT_MSG
 
 
 static VT_Color last_tty_attr = VT_normal;			// for automatic text coloring on tty
