@@ -44,10 +44,10 @@ SOURCES +=  \
 	Libraries/cstrings/ucs1.cpp \
 	Libraries/cstrings/ucs2.cpp \
 	Libraries/cstrings/ucs4.cpp \
-	Libraries/Var/NameHandles.cpp \
-	Libraries/Var/Var.cpp \
-	Libraries/VString/String.cpp \
-	Libraries/VString/String_test_suite.cpp \
+	Source/Var/NameHandles.cpp \
+	Source/Var/Var.cpp \
+	Source/VString/String.cpp \
+	Source/VString/String_test_suite.cpp \
 	Libraries/unix/log.cpp \
 	Libraries/unix/tempmem.cpp \
 	Libraries/unix/os_utilities.cpp \
@@ -80,11 +80,11 @@ HEADERS += \
 	Libraries/kio/kio.h \
 	Libraries/kio/peekpoke.h \
 	Libraries/cstrings/cstrings.h \
-	Libraries/Var/NameHandles.h \
-	Libraries/Var/var_errors.h \
-	Libraries/Var/Var.h \
-	Libraries/VString/String_errors.h \
-	Libraries/VString/String.h \
+	Source/Var/NameHandles.h \
+	Source/Var/var_errors.h \
+	Source/Var/Var.h \
+	Source/VString/String_errors.h \
+	Source/VString/String.h \
 	Libraries/unix/log.h \
 	Libraries/unix/tempmem.h \
 	Libraries/unix/os_utilities.h \
