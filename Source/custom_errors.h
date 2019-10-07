@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,7 @@
 */
 
 
-/*	this file is included from "errors.h"
+/*	this file is included from "kio/errors.h"
 	it defines additional error codes/messages
 */
 
@@ -84,9 +84,7 @@
 	EMAC( unsuitedfiletype,	"unsuited file type" ),
 //	EMAC( wrongfiletype,	"wrong file type" ),
 
-
 #include "Var/var_errors.h"
-//#include "Unicode/unicode_errors.h"
 #include "VString/String_errors.h"
 #include "compress_errors.h"
 

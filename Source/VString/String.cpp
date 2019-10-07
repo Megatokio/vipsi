@@ -1187,7 +1187,7 @@ void String::Crop ( int32 left, int32 right )
 	{
 		if (count > left + right)
 		{
-			count -= right + right;
+			count -= left + right;
 			text += Csz() * left;
 		}
 		else

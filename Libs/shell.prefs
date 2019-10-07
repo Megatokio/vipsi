@@ -4,7 +4,8 @@
 
 #prompt		vipsi>
 
-# e.g.: normal, black, dark blue, bright_red, bold blue, inverse, bold underline green
+# e.g.: normal, black red green yellow blue magenta cyan white
+#       dark blue, bright_red, bold-blue, inverse, bold underline green
 stdout_attr
-stdin_attr	blue
-stderr_attr	inverse red
+stdin_attr	bright cyan
+stderr_attr	inverse bright red

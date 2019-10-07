@@ -54,88 +54,61 @@ static cstr ETEXT[] = {
 };
 
 
-static int 	custom_error = 0;
+/*	custom error message <=> errno = -errno
+ *
+ * 	ATTN: there is one errno per thread
+ *	      but only one custom_errmsg!
+ */
 static String custom_errmsg;
 
 
-/* ----	get default error text for error ------------------------------------------------
-*/
-cstr ErrorStr ( int/*OSErr*/ err, bool custom )
+String ErrorString (int err)
 {
-	if (err==0)  return "no error";
-	if (err==-1) return "unknown error (-1)";
-	if (custom && err==custom_error)	return CString(custom_errmsg);
-	if (err>=EBAS && err<EBAS+(int)NELEM(ETEXT)) return ETEXT[err-EBAS];
-	return usingstr("%s (%i)",strerror(err),(int)err);
+	// get error text for error
+	// err<0  -> custom_errmsg
+
+	if (err == 0) return "no error";
+	if (err < 0) return CString(custom_errmsg);
+	if (err >= EBAS && err < EBAS+int(NELEM(ETEXT))) return ETEXT[err-EBAS];
+	return usingstr("%s (%i)", strerror(err), err);
 }
 
-
-/* ----	get error text for current error ------------------------------------------------
-*/
-String ErrorString ( )
+void ForceError (int err, cString& msg)
 {
-	return custom_error ? custom_errmsg : errorstr(errno);
-}
+	// set error code & custom text
 
+	assert(err>0);
 
-
-/* ----	set error code & text ------------------------------------------------
-*/
-void ForceError ( int err, cString& msg )
-{
-	errno			= err;
+	errno			= -err;
 	custom_errmsg	= msg;
-	custom_error	= 1;
 }
 
-void ForceError ( int err, cstr msg )
+void ForceError (int err, cstr msg)
 {
-	errno			= err;
+	assert(err>0);
+
+	errno			= -err;
 	custom_errmsg	= msg;
-	custom_error	= 1;
 }
 
-void SetError ( int err, cstr msg )
+void AppendToError (cString& msg)
 {
-	if(!errno) ForceError( err, msg );
+	assert(errno != 0);
+
+	custom_errmsg = ErrorString() + msg;
+	if (errno > 0) errno = -errno;
 }
 
-
-
-// ------------------------------------
-
-
-void AppendToError ( cString& msg )
+void PrependToError (cString& msg)
 {
-	custom_errmsg	= ErrorString() + msg;
-	custom_error	= 1;
-}
+	assert(errno != 0);
 
-void PrependToError ( cString& msg )
-{
-	custom_errmsg	= msg + ErrorString();
-	custom_error	= 1;
+	custom_errmsg = msg + ErrorString();
+	if (errno > 0) errno = -errno;
 }
 
 
-#if 0
-/*	get error string for system or custom error number:
-*/
-cstr errorstr( int err )
-{
-	// custom error texts:
-	static const cstr ETEXT[] =
-	{
-	#define  EMAC(A,B)	B
-	#include "kio/error_emacs.h"
-	};
 
-	if(err==0)						return "no error";
-//	if(err==-1)						return "unknown error (-1)";	strerror: "Unknown error: -1"
-	if(uint(err-EBAS)<NELEM(ETEXT)) return ETEXT[err-EBAS];
-	else							return strerror(err);
-}
-#endif
 
 
 

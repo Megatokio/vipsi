@@ -101,7 +101,7 @@ static VT_Color EvalColorPref ( cVar* prefs, cstr idf, VT_Color result /*default
 		{
 			result = VT_black + i/4;
 		//	if(ps.Find("dark")>=0) result |= VT_dark;		dark == standard
-			if(ps.Find("ligh")>=0) result |= VT_bright;
+			if(ps.Find("ight")>=0) result |= VT_bright;		// light or brigth
 		}
 		else
 		{

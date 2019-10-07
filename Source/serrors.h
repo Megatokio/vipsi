@@ -19,12 +19,25 @@
 
 #include "VString/String.h"
 
-inline String ErrorString (int error)				{ return errorstr(error); }
-extern String ErrorString ();
-extern void ForceError	(int error, cString& msg);
-inline void SetError	(int error, cString& msg)	{ if (errno==ok) ForceError(error,msg); }
-inline void ForceError	(cString& msg)				{ ForceError(-1,msg); }
-inline void SetError	(cString& msg)				{ if (errno==ok) ForceError(-1,msg); }
+extern String ErrorString (int err);
+inline String ErrorString ()					{ return ErrorString(errno); }
+
+inline void ForceError (int err)				{ errno = err; }
+inline void SetError (int err)					{ if (errno==ok) errno = err; }
+
+extern void ForceError (int err, cString& msg);
+inline void ForceError (cString& msg)			{ ForceError(customerror,msg); }
+
+inline void SetError (int err, cString& msg)	{ if (errno==ok) ForceError(err,msg); }
+inline void SetError (cString& msg)				{ if (errno==ok) ForceError(msg); }
+
+extern void ForceError (int err, cstr msg);
+inline void ForceError (cstr msg)				{ ForceError(customerror, msg); }
+
+inline void SetError (int error, cstr msg)		{ if (errno==ok) ForceError(error,msg); }
+inline void SetError (cstr msg)					{ if (errno==ok) ForceError(msg); }
+
 extern void AppendToError  (cString& msg);
 extern void PrependToError (cString& msg);
+
 

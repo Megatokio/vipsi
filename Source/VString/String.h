@@ -32,6 +32,9 @@
 
 #include "kio/kio.h"
 #include "cstrings/utf8.h"
+#undef TAB1	// #define in <termios.h>
+#undef TAB2	// #define in <termios.h>
+#undef TAB3	// #define in <termios.h>
 
 
 

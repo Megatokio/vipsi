@@ -49,7 +49,7 @@
 #include <termios.h>
 #include <new>
 #include "file_utilities.h"
-#include "errors.h"
+#include "serrors.h"
 DEBUG_INIT_MSG
 
 
