@@ -5,7 +5,7 @@ CONFIG -= qt
 CONFIG += c++11
 CONFIG += precompiled_header
 
-QMAKE_CXXFLAGS += -Wno-deprecated-declarations
+#QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 
 #unix:!macx: LIBS += -L/usr/lib/x86_64-linux-gnu/ -lcurl
 linux-g++ {
@@ -49,7 +49,7 @@ SOURCES +=  \
 	Source/VString/String.cpp \
 	Source/VString/String_test_suite.cpp \
 	Libraries/unix/log.cpp \
-	Libraries/unix/tempmem.cpp \
+	Libraries/cstrings/tempmem.cpp \
 	Libraries/unix/os_utilities.cpp \
 	Libraries/cstrings/legacy_charsets.cpp \
 
@@ -86,7 +86,7 @@ HEADERS += \
 	Source/VString/String_errors.h \
 	Source/VString/String.h \
 	Libraries/unix/log.h \
-	Libraries/unix/tempmem.h \
+	Libraries/cstrings/tempmem.h \
 	Libraries/unix/os_utilities.h \
 	Libraries/kio/standard_types.h \
 	Libraries/cstrings/legacy_charsets.h \
