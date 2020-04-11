@@ -4,3 +4,5 @@ Distributions
 Info
 Libraries/Unicode/Unicode 4.1.0
 Libraries/zlib
+*.desktop
+
