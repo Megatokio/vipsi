@@ -36,6 +36,7 @@
 #undef TAB2	// #define in <termios.h>
 #undef TAB3	// #define in <termios.h>
 
+extern void		TestStringClass	(uint&,uint&);
 
 
 /* ********************************************************************************
@@ -80,7 +81,7 @@ enum CharEncoding
 enum CharSize  { csz1=1, csz2=2, csz4=4 };
 enum MatchType { fnm_basic=0, fnm_escape=1, fnm_pathname=2, fnm_period=4, fnm_casefold=8 };
 
-typedef class String String;
+class String;
 typedef const String cString;
 
 
@@ -254,8 +255,6 @@ friend	void	TestStringClass	(uint&,uint&);
 static	void	PurgeCaches		( );
 };
 
-extern void		TestStringClass	(uint&,uint&);
-
 
 
 /* ********************************************************************************
@@ -357,7 +356,6 @@ inline void String::_kill()
 		prev->next = next;
 	}
 }
-
 
 
 

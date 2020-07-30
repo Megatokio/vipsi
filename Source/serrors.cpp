@@ -48,10 +48,10 @@ note:
 #include <string.h>
 #include <sys/stat.h>
 
-static cstr ETEXT[] = {
+static cstr ETEXT[] = //{
 #define  EMAC(a,b)	b
 #include "kio/errors.h"
-};
+//};
 
 
 /*	custom error message <=> errno = -errno

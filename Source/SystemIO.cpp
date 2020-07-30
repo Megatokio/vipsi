@@ -321,42 +321,45 @@ void ReadFile ( cString& path, String& data )
 
 	data.Clear();
 	cstr cpath = FullPath(path,yes);
-	if(errno) goto x;
 
+	if (errno==ok)
 	{
-		int fd = open( cpath,O_RDONLY );
-		assert( (errno==ok) == (fd>=0) );
+		int fd = open(cpath,O_RDONLY);
+		assert((errno==ok) == (fd>=0));
 
-		if(errno==ok)
+		if (errno==ok)
 		{
 			off_t len = file_size(fd);
-			if( len>1 GB /* || ( sizeof(off_t)!=sizeof(size_t) && size_t(len)!=len ) */ )
+			if (ulong(len) > 1 GB)
 				SetError("file too long to load into ram");
 
-			if(errno==ok)
+			if (errno==ok)
 			{
-				data = String(len,csz1);
+				data = String(int32(len),csz1);
 				off_t n = 0;
-				while ( errno==ok && n<len )
+				while (errno==ok && n<len)
 				{
-					ssize_t r = read ( fd, data.Text()+n, len-n );
+					ssize_t r = read(fd, data.Text()+n, size_t(len-n));
 					if (r==-1)
 					{
 						if (errno==EINTR || errno==EAGAIN) errno=ok;
 					}
 					else
 					{
-						n += (size_t)r;
+						n += r;
 					}
 				}
-				if (n<len) data.Resize(n);
+				if (n<len) data.Resize(int32(n)); // shrink
 			}
 
 			close(fd);
 		}
 	}
 
-	if(errno) { x: PrependToError( String("read file ")+ToQuoted(path)+failed ); }
+	if (errno != ok)
+	{
+		PrependToError( String("read file ")+ToQuoted(path)+failed );
+	}
 }
 
 

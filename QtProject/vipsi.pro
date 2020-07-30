@@ -11,6 +11,9 @@ CONFIG += precompiled_header
 linux-g++ {
 LIBS += -pthread
 }
+linux-clang {
+LIBS += -pthread
+}
 
 # http://qt-project.org/faq/answer/what_does_the_syntax_configdebugdebugrelease_mean_what_does_the_1st_argumen
 CONFIG(release,debug|release) { DEFINES += NDEBUG RELEASE } # ATTN: curly brace must start in same line!
