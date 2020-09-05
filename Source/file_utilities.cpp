@@ -737,7 +737,7 @@ int/*err*/ close_file ( nothrow_t, int fd ) throw()
 //		unified file i/o  --  throw(..) functions
 //
 //		the throw(..) functions only return if no error occured.
-//		else they throw a file_error exception.
+//		else they throw a FileError exception.
 //
 //		ok:		function returns, all data was read or written, errno = ok.
 //		error:	throws exception, bytes read or written unknown, errno set.
@@ -753,7 +753,7 @@ int/*err*/ close_file ( nothrow_t, int fd ) throw()
 int open_file ( cstr path, int flags, int mode ) noexcept(false)
 {
 	int fd = open_file( nothrow, path, flags, mode );
-	if(fd!=-1) return fd; else throw(file_error(path,errno));
+	if(fd!=-1) return fd; else throw(FileError(path,errno));
 }
 
 int open_file_r ( cstr path )				noexcept(false)	{ return open_file(path,O_RDONLY); }
@@ -770,7 +770,7 @@ off_t clip_file ( int fd ) noexcept(false)
 {
 	errno=ok;							// clear errno and custom_error
 	off_t fpos = lseek( fd, 0, SEEK_CUR );
-	if( fpos<0 || ftruncate( fd, fpos )!=0 ) throw file_error("(unkn.)",errno);
+	if( fpos<0 || ftruncate( fd, fpos )!=0 ) throw FileError("(unkn.)",errno);
 	errno = ok; return fpos;
 }
 
@@ -786,7 +786,7 @@ void close_file ( int fd ) noexcept(false)
 	{ if( close(fd)==0 ) { errno=noerror; return; }
 	} while (errno==EINTR);					// slow device only
 
-	throw file_error("(unkn.)",errno);
+	throw FileError("(unkn.)",errno);
 }
 
 
@@ -803,7 +803,7 @@ void clip_and_close ( int fd ) noexcept(false)
 off_t seek_fpos( int fd, off_t fpos, int whence ) noexcept(false)
 {
 	fpos = lseek( fd, fpos, whence );
-	if( fpos==-1 ) throw file_error("(unkn.)",errno);
+	if( fpos==-1 ) throw FileError("(unkn.)",errno);
 	return fpos;
 }
 
@@ -818,7 +818,7 @@ r:	uint32 n = read( fd, p, m );
 	if (n<m)	{ p+=n; m-=n; goto r; }		// n<m  <=>  n!=-1
 	if (errno==EINTR) goto r;				// slow device only
 //	if (errno==EAGAIN) goto r;				// non-blocking dev only
-	throw file_error("(unkn.)",errno);
+	throw FileError("(unkn.)",errno);
 }
 
 
@@ -831,7 +831,7 @@ w:	uint32 n = write( fd, p, m );
 	if (n<m)	{ p+=n; m-=n; goto w; }		// n<m  <=>  n!=-1
 	if (errno==EINTR) goto w;				// slow device only
 //	if (errno==EAGAIN) goto w;				// non-blocking dev only
-	throw file_error("(unkn.)",errno);
+	throw FileError("(unkn.)",errno);
 }
 
 
@@ -843,7 +843,7 @@ w:	uint32 n = write( fd, p, m );
 */
 uint32 read_short_data_z( int fd, int16* bu, uint32 items ) noexcept(false)
 {
-	read_data( fd, bu, items );				// throw file_error
+	read_data( fd, bu, items );				// throw FileError
 	for( uint32 i=0; i<items; i++ ) { bu[i] = Peek2Z(bu+i); }
 	return items;
 }
@@ -858,7 +858,7 @@ uint32 write_short_data_z( int fd, int16 const* bu, uint32 items ) noexcept(fals
 	{
 		int16 zbu[items];				// throw bad_alloc
 		for( uint32 i=0; i<items; i++ ) { Poke2Z( zbu+i, bu[i]); }
-		write_data( fd, zbu, items );	// throw file_error
+		write_data( fd, zbu, items );	// throw FileError
 		return items;
 	}
 	catch(bad_alloc){}
@@ -878,7 +878,7 @@ uint32 write_short_data_z( int fd, int16 const* bu, uint32 items ) noexcept(fals
 */
 uint32 read_short_data_x( int fd, int16* bu, uint32 items ) noexcept(false)
 {
-	read_data( fd, bu, items );				// throw file_error
+	read_data( fd, bu, items );				// throw FileError
 	for( uint32 i=0; i<items; i++ ) { bu[i] = peek2X(bu+i); }
 	return items;
 }
@@ -893,10 +893,10 @@ uint32 write_short_data_x( int fd, int16 const* bu, uint32 items ) noexcept(fals
 	{
 		int16 zbu[items];				// throw bad_alloc
 		for( uint32 i=0; i<items; i++ ) { poke2X( zbu+i, bu[i]); }
-		write_data( fd, zbu, items );	// throw file_error
+		write_data( fd, zbu, items );	// throw FileError
 		return items;
 	}
-	catch(bad_alloc&){}
+	catch(std::bad_alloc&){}
 
 	write_short_data_x( fd, bu,         items/2 );
 	write_short_data_x( fd, bu+items/2, items-items/2 );
@@ -1028,10 +1028,10 @@ int32 read_3byte_z ( int fd ) noexcept(false)
 	return peek4Z(bu);
 }
 
-//void write_nstr ( int fd, cstr s ) throw(file_error,limit_error)
+//void write_nstr ( int fd, cstr s ) throw(FileError,LimitError)
 //{
 //	size_t len = s ? strlen(s) : 0;
-//	if(len>0xff) throw limit_error("write_nstr: string too long",len,0xff);
+//	if(len>0xff) throw LimitError("write_nstr: string too long",len,0xff);
 //	write_uchar(fd,len);
 //	write_data(fd,s,len);
 //}
@@ -1051,8 +1051,8 @@ str read_new_nstr ( int fd ) noexcept(false)
 off_t file_size ( int fd ) noexcept(false)
 {
 	struct stat fs;
-	//if( fd<0 ) throw(file_error(EBADF));
-	if( fstat(fd,&fs) ) throw(file_error("(unkn.)",errno));
+	//if( fd<0 ) throw(FileError(EBADF));
+	if( fstat(fd,&fs) ) throw(FileError("(unkn.)",errno));
 	return fs.st_size;
 }
 

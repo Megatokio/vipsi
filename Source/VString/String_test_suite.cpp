@@ -22,7 +22,7 @@
 #include <time.h>
 #include "kio/kio.h"
 #undef  assert
-#define assert(X) do{ if(X){}else{throw internal_error(__FILE__, __LINE__, "FAILED: " #X);} }while(0)
+#define assert(X) do{ if(X){}else{throw InternalError(__FILE__, __LINE__, "FAILED: " #X);} }while(0)
 
 #include "String.h"
 

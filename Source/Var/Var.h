@@ -395,8 +395,8 @@ static bool		is_unlocked			( uint32 lock )		{ return lock          <  var_lock_b
 	void		insert_items	( uint idx, uint n );
 	void		delete_items	( uint idx, uint n );
 	Double		compare			( cVar& q ) const;
-static void		Sort			( Var**, Var** )		noexcept(false);//(internal_error);
-static void		RSort			( Var**, Var** )		noexcept(false);//(internal_error);
+static void		Sort			( Var**, Var** )		noexcept(false);//(InternalError);
+static void		RSort			( Var**, Var** )		noexcept(false);//(InternalError);
 	void		sort			( SortProcPtr );
 	Var&		list_op			( Var&(Var::*fp)(Double), Double q );
 	Var&		list_op			( Var&(Var::*fp)(Double), cVar& q  );

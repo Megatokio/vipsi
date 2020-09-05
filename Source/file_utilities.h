@@ -162,7 +162,7 @@ EXT int		open_file	( nothrow_t, cstr path, int flags, int mode=0664 ) noexcept;
 //		unified file i/o  --  throw(..) functions
 //
 //		the throw(..) functions only return if no error occured.
-//		else they throw a file_error exception.
+//		else they throw a FileError exception.
 //
 //		ok:		function returns, all data was read or written, errno = ok.
 //		error:	throws exception, bytes read or written unknown, errno set.
@@ -253,7 +253,7 @@ EXT int32	read_3byte_z	( int fd )				noexcept(false);
 EXT uint32	read_u3byte_x	( int fd )				noexcept(false);
 EXT uint32	read_u3byte_z	( int fd )				noexcept(false);
 
-//EXT	void	write_nstr		( int fd, cstr s )		throw(file_error,limit_error);	// prefixes data with uint8 len
+//EXT	void	write_nstr		( int fd, cstr s )		throw(FileError,LimitError);	// prefixes data with uint8 len
 EXT str		read_nstr		( int fd )				noexcept(false);		// read into tempstr
 EXT str		read_new_nstr	( int fd )				noexcept(false);		// read into newstr
 
