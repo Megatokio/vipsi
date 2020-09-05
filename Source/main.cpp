@@ -426,7 +426,7 @@ x:		logline( "\n%s: %s\n", argvName, errorstr() );
 	// error?
 	if(errno)
 	{
-		cstr errstr = dupstr(errorstr());
+		cstr errstr = ErrorString().CString();
 		errno=ok;
 
 		if(cgi)
