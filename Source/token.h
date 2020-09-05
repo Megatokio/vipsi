@@ -3,9 +3,9 @@
 
 	This file is free software
 
- 	This program is distributed in the hope that it will be useful,
- 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -1326,8 +1326,8 @@ TOKEN(tELIF,	instruction,	+0,		"elif",		"if n1 … elif n2 … [else …] then",
 TOKEN(tTRY,		instruction,	+0,		"try",		"try … [else …] then",
 "execute statements but don't abort on run-time errors.\n"
 "optional 'else' branch is executed if a run-time error occured.\n"
-"then variable 'errorstr' is created and contains the (localized) error message.\n"
-"e.g.: try openin \"testfile\"; else log \"testfile error: \",errorstr,nl then;" ),
+"then variable 'error' is created with error '.number', '.message' and '.stack'.\n"
+"e.g.: try openin \"testfile\"; else log \"testfile error: \",error,nl then;" ),
 
 TOKEN(tWHILE,	instruction,	-1,		"while",	"do … while n … loop",
 "repeat statements between do and loop while value is true.\n"
