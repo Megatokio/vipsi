@@ -56,7 +56,7 @@ var Template.Page =
   var o="";
   function S(n) { H(); document.getElementById(n).style.visibility='visible'; o=n; }
   function H() { if(o!="") document.getElementById(o).style.visibility='hidden'; o=""; }
-  window.addEventListener('mouseup', function(event){H();});  
+  window.addEventListener('mouseup', function(event){H();});
 </script>
 </head><body id="A">
 %%HEADLINE0%%%%HEADLINE1%%
@@ -114,11 +114,11 @@ proc Style.Linklist ( Label, Linklist )	// Linklist = { {Url="",Label=""}, ... }
 {
 	var i=0, Links="", id = ++Seed
 	var ID=""  do  ID #= charstr('A'+id%26)  id/=26 while id>=1  loop
-	
+
 	if count Linklist==1
 
 		return «<a class=L href="» #Linklist[1].Url# «">» #Label# «</a>»
-	
+
 	else
 		do
 			while ++i <= count Linklist
@@ -217,9 +217,9 @@ proc w0(F,i)
 /* ----	Tag Handler -------------------------------------------------------------------------
 
 		Class = PARA		paragraphs: enthalten keine anderen Tags:	z.B. <p>
-				BLOCK		Block-Tags: enthalten andere Tags:			alle Headlines und z.B. <ul> 
+				BLOCK		Block-Tags: enthalten andere Tags:			alle Headlines und z.B. <ul>
 				PRE			Vorformatierter Text. Sonderform des PARA-Tags: White spaces usw. werden erhalten
-				DEF			spezielle Tags: z.B.: toc und # 
+				DEF			spezielle Tags: z.B.: toc und #
 
 		Read  = Lesefunktion:	 Liest via Index i aus Buch[] und gibt den weitergestellten Index zurück.
 								 Die Default-Lesefunktion r0() für viele Tags inkrementiert nur den Index und tut sonst nichts.
@@ -460,7 +460,7 @@ proc QuelltextEinlesen()
 			var result = ""
 			var text = file sfile
 			convert text from utf8
-			
+
 			// replace combining characters ((TODO: vipsi convert from utf8 überarbeiten))
 			if("ä"=="ä") foo() then	// dann aus alter version wieder reinpasten... ((2014-06-14))
 			var n = count text
@@ -470,7 +470,7 @@ proc QuelltextEinlesen()
 			replace text,"Ä","Ä" if(verbose && count text<n) put nl,"combining characters für 'Ä' ersetzt " n=count text then
 			replace text,"Ö","Ö" if(verbose && count text<n) put nl,"combining characters für 'Ö' ersetzt " n=count text then
 			replace text,"Ü","Ü" if(verbose && count text<n) put nl,"combining characters für 'Ü' ersetzt " n=count text then
-						
+
 			replace text, "%%DATE%%", datestr(now)
 			replace text, "%%FILE%%", sfile
 
@@ -933,7 +933,7 @@ proc QuerverweiseEinfügen()
 		do
 		// erste Suchphrase basteln  /  Suchphrase komplettieren
 			if count Worte < Wortzahl
-				e_worte += 2 
+				e_worte += 2
 				if e_worte > count Wortliste return Wortliste then
 
 				if Wortliste[e_worte][1]=="<" && HTML.IsAnyTag(Wortliste[e_worte])
@@ -1153,7 +1153,7 @@ proc BuchNachHtmlKonvertieren()
 			TEXT.SpinWheel()
 			Buch[i].Text = HTML.ConvertToHtml(Buch[i].Text)
 		else
-			log nl,"[",name Buch[i],"] ",errorstr
+			log nl,"[",name Buch[i],"] ",error.message
 		then
 	loop
 	put " "		// remove SpinWheel

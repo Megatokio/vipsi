@@ -10,7 +10,8 @@
 
 
 
-var HTML.identify_exe = "/opt/local/bin/identify"			// 2008-04-13
+//var HTML.identify_exe = "/opt/local/bin/identify"			// 2008-04-13
+var HTML.identify_exe = "/usr/bin/identify"					// 2020-08-22
 
 
 
@@ -279,7 +280,7 @@ proc HTML.ConvertToHtml ( text )
 							then
 						}
 						else
-							LOG( "HTML.ConvertToHtml", url, errorstr )
+							LOG( "HTML.ConvertToHtml", url, error.message )
 						then
 					then
 					if !find(lctag,"alt")
