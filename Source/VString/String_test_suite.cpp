@@ -1,4 +1,4 @@
-/*	Copyright  (c)	Günter Woigk 2001 - 2020
+/*	Copyright  (c)	Günter Woigk 2001 - 2021
 					mailto:kio@little-bat.de
 
 	This file is free software.
@@ -19,8 +19,8 @@
 #undef NDEBUG
 #define SAFETY 2
 #define LOGLEVEL 1
-#include <time.h>
 #include "kio/kio.h"
+#include <time.h>
 #undef  assert
 #define assert(X) do{ if(X){}else{throw InternalError(__FILE__, __LINE__, "FAILED: " #X);} }while(0)
 
