@@ -41,53 +41,41 @@
 
 
 #ifndef NameHandles_h
-#define	NameHandles_h
+#define NameHandles_h
 
-#include	"VString/String.h"
+#include "VString/String.h"
 
 
 typedef uint32 NameHandle;
 
 
-
 //	Speichere einen Namen und erhalte ein Handle.
 //	Ist der Name schon bekannt, bekommt man das alte Handle.
 //	Das Handle wird einmal mit Lock() verriegelt.
-NameHandle	NewNameHandle		( cString& name );
-NameHandle	NewNameHandle		( cstr name );			// <-- required wg. bug in gcc 3.3.3
+NameHandle NewNameHandle(cString& name);
+NameHandle NewNameHandle(cstr name); // <-- required wg. bug in gcc 3.3.3
 
 
 //	Suche in der NameHandle Datenbank nach einem Namen.
 //	Liefert Handle oder 0.
 //	Achtung: 0 ist auch ein gültiges Handle, und zwar für leere Namen!
 //	Das gefundene Handle wird nicht verriegelt.
-NameHandle	FindNameHandle		( cString& name );
+NameHandle FindNameHandle(cString& name);
 
 
 //	Das Handle einmal verriegeln bzw. entriegeln.
 //	Sobald die Aufrufe für Lock() und Unlock() sich entsprechen, wird das Handle ungültig.
-void 		LockNameHandle		( NameHandle );
-void		UnlockNameHandle	( NameHandle );
+void LockNameHandle(NameHandle);
+void UnlockNameHandle(NameHandle);
 
 
 //	Ermittle den Namen zu einem Handle.
-cString&	GetNameForHandle	( NameHandle );
+cString& GetNameForHandle(NameHandle);
 
 
 //	Free up unused space
-void NameHandlesPurgeCaches ( );
+void NameHandlesPurgeCaches();
 
 void NameHandleCheck();
 
 #endif
-
-
-
-
-
-
-
-
-
-
-

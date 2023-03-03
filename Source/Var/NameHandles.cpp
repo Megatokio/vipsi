@@ -16,56 +16,56 @@
 	TO THE EXTENT PERMITTED BY APPLICABLE LAW.
 */
 
-#define	SAFE	2
-#define	LOG 	1
+#define SAFE 2
+#define LOG	 1
 
-#include "cstrings/cstrings.h"
 #include "NameHandles.h"
+#include "cstrings/cstrings.h"
 DEBUG_INIT_MSG
-
 
 
 /* Settings
 */
 #ifndef NH_HASHRING_BITS
-#define	NH_HASHRING_BITS	12			/* suggested value: 12  -->  HashRing[4k] */
+  #define NH_HASHRING_BITS 12 /* suggested value: 12  -->  HashRing[4k] */
 #endif
-
 
 
 /* ----------------------------------------------------------------------------
 */
-const uint	handlebits		= sizeof(NameHandle)*8;		// size of NameHandle		((32))
+const uint handlebits = sizeof(NameHandle) * 8; // size of NameHandle		((32))
 
-const uint	hr_bits 		= NH_HASHRING_BITS;			// size of HashRing[]		((12))
-const uint32	hr_size			= 1<<hr_bits;
+const uint	 hr_bits = NH_HASHRING_BITS; // size of HashRing[]		((12))
+const uint32 hr_size = 1 << hr_bits;
 
-const uint	hr_shift		= handlebits-hr_bits;		// shift for Handle <--> HashRingIndex
+const uint hr_shift = handlebits - hr_bits; // shift for Handle <--> HashRingIndex
 //const uint32 hr_lo_mask  	= hr_size-1;				// mask if shifted right (index position)
 //const uint32 hr_hi_mask  	= hr_lo_mask << hr_shift;	// mask if shifted left  (handle position)
 
-const uint	hd_bits			= handlebits - hr_bits;		// max.size of HashData[] in HashRing[].data[]		((20))
-const uint32	hd_mask			= (1ul<<hd_bits)-1;
-
+const uint	 hd_bits = handlebits - hr_bits; // max.size of HashData[] in HashRing[].data[]		((20))
+const uint32 hd_mask = (1ul << hd_bits) - 1;
 
 
 /* ----	data container for Handle/Name pair ----------------------
 */
 struct HashData
 {
-	uint		usage;	// usage count
-	uint32		hash;
-	String		name;
+	uint   usage; // usage count
+	uint32 hash;
+	String name;
 
-	HashData ( ) : usage(0) { };	// creator
+	HashData() : usage(0) {}; // creator
 };
-
 
 
 /* ----	HashRing array for Handle/Name pair arrays --------------------
 		note: HashRing[i].data[j]  <=>  handle = (i<<hr_shift) + j
 */
-static struct { uint size; HashData* data; } HashRing[hr_size];
+static struct
+{
+	uint	  size;
+	HashData* data;
+} HashRing[hr_size];
 
 
 /* ---- Initialization ------------------------------------------------
@@ -77,23 +77,25 @@ static struct { uint size; HashData* data; } HashRing[hr_size];
 */
 void InitHR()
 {
-	static int done=0; if(done) return; else done++;
+	static int done = 0;
+	if (done) return;
+	else done++;
 	xlogIn("init HashRing[0]");
-	xassert(emptyString.CalcHash()==0);
-	xassert(HashRing[0].size==0);		// NH==0 already used?
-// manual setup:
-// NewNameHandle() calls cstring.cp which may be not yet initialized
+	xassert(emptyString.CalcHash() == 0);
+	xassert(HashRing[0].size == 0); // NH==0 already used?
+									// manual setup:
+									// NewNameHandle() calls cstring.cp which may be not yet initialized
 	HashData* hd;
 	HashRing[0].size = 1;
 	HashRing[0].data = hd = new HashData[1];
-	hd[0].usage = 1;					// lock NH and leave it locked 4ever
-	hd[0].hash  = 0;
-	hd[0].name  = emptyString;
+	hd[0].usage			  = 1; // lock NH and leave it locked 4ever
+	hd[0].hash			  = 0;
+	hd[0].name			  = emptyString;
 };
-static struct INIT_HR { INIT_HR(){InitHR();} } dummyname;
-
-
-
+static struct INIT_HR
+{
+	INIT_HR() { InitHR(); }
+} dummyname;
 
 
 /* ===================================================================
@@ -101,40 +103,39 @@ static struct INIT_HR { INIT_HR(){InitHR();} } dummyname;
 =================================================================== */
 
 
-
 /* ----	Release existing Handle ------------------------------------
 		Handle 1x entriegeln
 */
-void UnlockNameHandle( NameHandle handle )
+void UnlockNameHandle(NameHandle handle)
 {
-	if (handle==0) return;
+	if (handle == 0) return;
 
-	uint     idx = handle >> hr_shift;		// HashRing[idx]
-	HashData* hd = HashRing[idx].data;
-	uint       i = handle & hd_mask;		// hd[i]
+	uint	  idx = handle >> hr_shift; // HashRing[idx]
+	HashData* hd  = HashRing[idx].data;
+	uint	  i	  = handle & hd_mask; // hd[i]
 
-	assert(i<HashRing[idx].size);
-	xxassert(hd!=nullptr);
-	assert(hd[i].usage>0);
+	assert(i < HashRing[idx].size);
+	xxassert(hd != nullptr);
+	assert(hd[i].usage > 0);
 
-	hd[i].usage--;							// may become 0
+	hd[i].usage--; // may become 0
 }
 
 
 /* ----	Request existing Handle ----------------------------------------
 		Handle 1x verriegeln
 */
-void LockNameHandle ( NameHandle handle )
+void LockNameHandle(NameHandle handle)
 {
-	if (handle==0) return;
+	if (handle == 0) return;
 
-	uint     idx = handle >> hr_shift;		// HashRing[idx]
-	HashData* hd = HashRing[idx].data;
-	uint       i = handle & hd_mask;		// hd[i]
+	uint	  idx = handle >> hr_shift; // HashRing[idx]
+	HashData* hd  = HashRing[idx].data;
+	uint	  i	  = handle & hd_mask; // hd[i]
 
-	assert(i<HashRing[idx].size);			// bogus NH
-	xxassert(hd!=nullptr);					// internal error
-	assert(hd[i].usage>0);					// try to lock an old but no longer valid NH
+	assert(i < HashRing[idx].size); // bogus NH
+	xxassert(hd != nullptr);		// internal error
+	assert(hd[i].usage > 0);		// try to lock an old but no longer valid NH
 
 	hd[i].usage++;
 }
@@ -142,17 +143,17 @@ void LockNameHandle ( NameHandle handle )
 
 /* ----	Namen auslesen ------------------------------------------
 */
-cString& GetNameForHandle ( NameHandle handle )
+cString& GetNameForHandle(NameHandle handle)
 {
-//	if (handle==0) return emptyString;
+	//	if (handle==0) return emptyString;
 
-	uint     idx = handle >> hr_shift;		// HashRing[idx]
-	HashData* hd = HashRing[idx].data;
-	uint       i = handle & hd_mask;		// hd[i]
+	uint	  idx = handle >> hr_shift; // HashRing[idx]
+	HashData* hd  = HashRing[idx].data;
+	uint	  i	  = handle & hd_mask; // hd[i]
 
-	assert(i<HashRing[idx].size);
-	xxassert(hd!=nullptr);
-	assert(hd[i].usage>0);
+	assert(i < HashRing[idx].size);
+	xxassert(hd != nullptr);
+	assert(hd[i].usage > 0);
 
 	return hd[i].name;
 }
@@ -162,21 +163,22 @@ cString& GetNameForHandle ( NameHandle handle )
 		returns Handle if found
 		returns 0 if name unknown  OR  name == empty string
 */
-NameHandle FindNameHandle ( cString& s )
+NameHandle FindNameHandle(cString& s)
 {
-	if (s.Len()==0) return 0;
+	if (s.Len() == 0) return 0;
 
-	uint32   hash = s.CalcHash();
-	uint32    idx = hash >> hr_shift;
-	uint      sz = HashRing[idx].size;  if (sz==0) return 0;		// not found
+	uint32 hash = s.CalcHash();
+	uint32 idx	= hash >> hr_shift;
+	uint   sz	= HashRing[idx].size;
+	if (sz == 0) return 0; // not found
 	HashData* hd = HashRing[idx].data;
 
-	for (uint i=0;i<sz;i++)
+	for (uint i = 0; i < sz; i++)
 	{
-		if (hd[i].hash==hash && hd[i].usage && hd[i].name==s) return (idx<<hr_shift)+i;
+		if (hd[i].hash == hash && hd[i].usage && hd[i].name == s) return (idx << hr_shift) + i;
 	}
 
-	return 0;		// not found
+	return 0; // not found
 }
 
 
@@ -184,102 +186,105 @@ NameHandle FindNameHandle ( cString& s )
 		Namen auf 'neu' prüfen
 		Handle verriegeln
 */
-NameHandle NewNameHandle ( cString& s )
+NameHandle NewNameHandle(cString& s)
 {
-	if (s.Len()==0) return 0;
+	if (s.Len() == 0) return 0;
 
-	xlogIn("NewNameHandle(\"%s\")",s.CString());
+	xlogIn("NewNameHandle(\"%s\")", s.CString());
 
 #if XXXSAFE
 	NameHandleCheck();
 #endif
 
-	uint32   hash = s.CalcHash();
-	uint32     idx = hash >> hr_shift;
-	uint      sz = HashRing[idx].size;
+	uint32	  hash = s.CalcHash();
+	uint32	  idx  = hash >> hr_shift;
+	uint	  sz   = HashRing[idx].size;
 	HashData* hd;
-	uint	   i;
+	uint	  i;
 
-	xlog("#%lu#",idx);
+	xlog("#%lu#", idx);
 
-// first name for this slot?  =>  handle == hash
-	if (sz==0)
+	// first name for this slot?  =>  handle == hash
+	if (sz == 0)
 	{
 		HashRing[idx].size = 1;
 		HashRing[idx].data = hd = new HashData[1];
-		i = 0;
+		i						= 0;
 		xlog("{+}");
-		goto i;		// --> HashRing[idx].data[i]
+		goto i; // --> HashRing[idx].data[i]
 	}
 
-// already exists?
-	hd = HashRing[idx].data;	xxassert(hd!=nullptr);
-	for (i=0;i<sz;i++)
+	// already exists?
+	hd = HashRing[idx].data;
+	xxassert(hd != nullptr);
+	for (i = 0; i < sz; i++)
 	{
-		if (hd[i].hash==hash && hd[i].usage && hd[i].name==s)
+		if (hd[i].hash == hash && hd[i].usage && hd[i].name == s)
 		{
 			hd[i].usage++;
-			return (idx<<hr_shift) +i;
+			return (idx << hr_shift) + i;
 		}
 	}
 
-// slot already in use, but string not found  =>  search free slot
-	for (i=0;i<sz;i++)
+	// slot already in use, but string not found  =>  search free slot
+	for (i = 0; i < sz; i++)
 	{
-		if (hd[i].usage==0)
+		if (hd[i].usage == 0)
 		{
 			xlog("{o}");
-	i:		hd[i].usage = 1;
-			hd[i].hash  = hash;
-			hd[i].name  = s;
-			return (idx<<hr_shift) +i;
+		i:
+			hd[i].usage = 1;
+			hd[i].hash	= hash;
+			hd[i].name	= s;
+			return (idx << hr_shift) + i;
 		}
 	}
 
-// no free slot  =>  grow vector
+	// no free slot  =>  grow vector
 	HashData* ohd = hd;
-	uint      osz = sz;
+	uint	  osz = sz;
 
-	if(XXLOG) { static int n=0; log("{*%i*}",++n); }
+	if (XXLOG)
+	{
+		static int n = 0;
+		log("{*%i*}", ++n);
+	}
 
-	HashRing[idx].size = sz = sz*4/3+1;
+	HashRing[idx].size = sz = sz * 4 / 3 + 1;
 	HashRing[idx].data = hd = new HashData[sz];
-	for (i=0; i<osz; i++) { hd[i] = ohd[i]; }
+	for (i = 0; i < osz; i++) { hd[i] = ohd[i]; }
 	delete[] ohd;
 
-//	i = osz;
-	goto i;		// --> HashRing[idx].data[i]
+	//	i = osz;
+	goto i; // --> HashRing[idx].data[i]
 }
 
 
 /* ----	cstr version -------------------------------------------------
 		required wg. bug in gcc 3.3.3
 */
-NameHandle NewNameHandle ( cstr s )
-{
-	return NewNameHandle(String(s));
-}
-
+NameHandle NewNameHandle(cstr s) { return NewNameHandle(String(s)); }
 
 
 /* ----	free unused memory ---------------------------------
 		called in case of memory shortage
 */
-void NameHandlesPurgeCaches ( )
+void NameHandlesPurgeCaches()
 {
-	for (uint idx=0; idx<hr_size; idx++ )
+	for (uint idx = 0; idx < hr_size; idx++)
 	{
-		uint      sz = HashRing[idx].size;	if(sz==0) continue;
+		uint sz = HashRing[idx].size;
+		if (sz == 0) continue;
 		HashData* hd = HashRing[idx].data;
 
-		int n=-1;
-		for (uint i=0;i<sz; i++)
+		int n = -1;
+		for (uint i = 0; i < sz; i++)
 		{
-			if (hd[i].usage) n=i;
-			else hd[i].name=emptyString;
+			if (hd[i].usage) n = i;
+			else hd[i].name = emptyString;
 		}
 
-		if (n==-1)
+		if (n == -1)
 		{
 			delete[] hd;
 			HashRing[idx].size = 0;
@@ -287,7 +292,7 @@ void NameHandlesPurgeCaches ( )
 			continue;
 		}
 
-		if (uint(n)+1<sz)
+		if (uint(n) + 1 < sz)
 		{
 			// truncate vector ***TODO***
 		}
@@ -298,25 +303,8 @@ void NameHandlesPurgeCaches ( )
 void NameHandleCheck()
 {
 	char bu[5000];
-	memset(bu,0,sizeof(bu));
+	memset(bu, 0, sizeof(bu));
 
-	for(uint i=0;i<hr_size;i++)
-		for(uint j=0;j<HashRing[i].size;j++)
-			HashRing[i].data[j].name.Check( __FILE__, __LINE__ );
+	for (uint i = 0; i < hr_size; i++)
+		for (uint j = 0; j < HashRing[i].size; j++) HashRing[i].data[j].name.Check(__FILE__, __LINE__);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

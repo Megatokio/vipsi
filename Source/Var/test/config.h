@@ -104,7 +104,7 @@
 /* #undef _BEOS */
 
 /* Big Endian System */
-/* #undef _BIG_ENDIAN */
+/* #undef __BIG_ENDIAN__ */
 
 /* BSD */
 /* #undef _BSD */

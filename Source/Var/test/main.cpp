@@ -25,10 +25,10 @@
 */
 
 
-#define SAFE	3
-#define LOG 	3
+#define SAFE 3
+#define LOG	 3
 
-#include 	"var/var.h"
+#include "var/var.h"
 
 
 int main()
@@ -37,6 +37,3 @@ int main()
 	TestVarClass();
 	Log("\n======= FINISHED =======\n");
 }
-
-
-
